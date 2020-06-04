@@ -1,0 +1,67 @@
+@import '../../../assets/css/_theme.css';
+
+body {
+    margin: 0px;
+    font-family: var(--font-family);
+    color:white;
+}
+.resolver{
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.017) 53.17%, rgba(10, 140, 244, 0.0969) 100%), #171A20;
+}
+.resolver__container {
+    height:100%;
+    min-height:100vh;
+    display:grid;
+    grid-template-columns: 20px 1fr 1fr 20px;
+    grid-template-rows:155px 65px 1fr 40px;
+}
+.resolver__header {
+    grid-row:1;
+    grid-column:2/3;
+    margin-top: 20px;
+}
+.resolver__action {
+    grid-row:2;
+    font-size: 12px;
+    grid-column:2/4;
+    margin-bottom: 0;
+}
+.resolver__action-source {
+    color:#0A8CF4;
+}
+.resolver__action-intent {
+    color:#9CC24A;
+    font-weight: bold;
+}
+
+.resolver__apps {
+    grid-row:3;
+    grid-column:2/4;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 13px;
+    padding:15px;
+}
+
+.resolver__apps > button  {
+max-width: 70px;
+background-color: #ffe4c400;
+border: none;
+font-size: 10px;
+text-align: center;
+color:white;
+cursor: pointer;
+margin:0;
+padding:0;
+}
+
+.resolver__apps > button > img {
+    width:24px;
+    /* max-height: 30px; */
+}
+.resolver__apps > button >  p{
+    margin:0;
+}
+
+.resolver__apps > button >  p:hover{
+    color: #0A8CF4;
+}

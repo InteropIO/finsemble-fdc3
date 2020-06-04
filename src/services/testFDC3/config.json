@@ -1,0 +1,11 @@
+{
+  "services": {
+    "testFDC3": {
+      "useWindow": true,
+      "active": true,
+      "name": "testFDC3",
+      "visible": false,
+      "html": "$applicationRoot/services/testFDC3/testFDC3.html"
+    }
+  }
+}

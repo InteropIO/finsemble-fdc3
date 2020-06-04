@@ -1,0 +1,17 @@
+{
+  "name": "fpe-template-gen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "node ./fpe-scripts/watch.js",
+    "setup": "node ./fpe-scripts/setup.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chokidar": "^3.4.0",
+    "fs-extra": "^9.0.0"
+  }
+}
