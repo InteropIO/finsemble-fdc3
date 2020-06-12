@@ -13,5 +13,8 @@
   "devDependencies": {
     "chokidar": "^3.4.0",
     "fs-extra": "^9.0.0"
+  },
+  "dependencies": {
+    "typescript": "^3.9.5"
   }
 }
