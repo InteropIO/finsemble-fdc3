@@ -1,3 +1,6 @@
-[
-  "src/app.tsx"
-]
+{
+  "intentResolver": {
+    "output": "components/intentResolver/intentResolver",
+    "entry": "./src/components/intentResolver/intentResolver.js"
+  }
+}

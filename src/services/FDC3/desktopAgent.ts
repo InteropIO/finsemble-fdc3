@@ -29,7 +29,7 @@ export default class D implements DesktopAgent {
 	LauncherClient: any; //typeof LauncherClient;
 	LinkerClient: any; //typeof LinkerClient;
 	RouterClient: any;
-	DialogManager: any;
+	DialogManager: typeof FSBL.Clients.DialogManager;
 	systemChannels: Array<Channel> = [];
 	customChannels: Array<Channel> = [];
 	appIntents: { [key: string]: AppIntent } = {};
@@ -164,7 +164,6 @@ export default class D implements DesktopAgent {
 	/** ___________Intents ___________ */
 
 	async findIntent(intent: string, context?: Context): Promise<AppIntent> {
-		debugger
 		let appIntent: AppIntent;
 		if (context) {
 			const contextType = (context as any).type;
@@ -175,8 +174,7 @@ export default class D implements DesktopAgent {
 			appIntent = this.appIntents[intent];
 		}
 		if (appIntent) return appIntent;
-		debugger
-		throw new Error("ResolveError.NoAppsFound");
+		throw new Error(ResolveError.NoAppsFound);
 	}
 
 	async findIntentsByContext(context: Context): Promise<Array<AppIntent>> {
@@ -193,53 +191,33 @@ export default class D implements DesktopAgent {
 			throw new Error(ResolveError.ResolverUnavailable);
 		}
 
-		// TODO: Do we deal with already open components? Or just launch new ones?
-
-		if (target) {
-			// TODO: Verify that target is a valid component for said intent
-			// TODO: How to get IntentResolution from that component?
-			await this.LauncherClient.spawn(name, { data: { intent, context } });
-			return null;
-		}
-
-
 		return new Promise((resolve, reject) => {
+
 			const dialogParams = {
-				intent, context, appIntent, source: this.windowName
+				appIntent, context, target: target || null, source: this.windowName
 			}
-
-			// this.LauncherClient.spawn('Intent Resolver', { data: { intent, context, appIntent, source: this.windowName } }
-
-			// TODO: create Intent Resolver Component
-			this.DialogManager.open("Intent Resolver", dialogParams, (err: any, result: IntentResolution) => {
+			// Launch intent resolver component
+			this.DialogManager.open("intentResolverModal", dialogParams, (err: any, data: any) => {
 				if (err) {
-					reject(err);
-				} else {
-					resolve(result);
+					reject("Intent could not be resolved");
+				}
+				if (data) {
+					if (!data?.success) {
+						reject("Intent could not be resolved");
+					}
+					if (data?.success) {
+						const intentResolution: IntentResolution = {
+							source: data.source,
+							data,
+							version: "1.1"
+						}
+						resolve(intentResolution);
+					}
 				}
 			});
-		});
 
-		// let resolvedIntent;
-		// const {
-		// 	data: componentList,
-		// }: any = await FSBL.Clients.LauncherClient.getActiveDescriptors();
-		// console.log("componentList", componentList);
-		// const intentComponentList = desktopAgentUtilities.findAllIntentMatchesandFormatResponse(
-		// 	this.fdc3Configuration,
-		// 	intent,
-		// 	context
-		// );
-		// console.log("intents:", intentComponentList);
-		// desktopAgentUtilities.resolveIntent(
-		// 	intent,
-		// 	intentComponentList,
-		// 	componentList,
-		// 	context
-		// );
-		// console.log("return value", resolvedIntent);
-		// const dataType = target + intent;
-		// return null; //new { source: "source", data: context, resolution: "resolved" };
+
+		});
 	}
 
 	addIntentListener(intent: string, handler: ContextHandler): Listener {
