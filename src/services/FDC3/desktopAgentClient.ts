@@ -123,14 +123,12 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 
 	async raiseIntent(intent: string, context: Context, target?: string) {
 		this.#log("DesktopAgentClient: raiseIntent", intent, context, target);
-		const { err, response } = await this.#FSBL.Clients.RouterClient.query("FDC3.DesktopAgent.raiseIntent", { intent, context, target },
-			(...data) => { this.#FSBL.Clients.Logger.error(data) }
-		);
+		const { err, response } = await this.#FSBL.Clients.RouterClient.query("FDC3.DesktopAgent.raiseIntent", { intent, context, target }, () => { });
 		if (err) {
 			this.#FSBL.Clients.Logger.error(err)
 			throw err;
 		}
-		this.#FSBL.Clients.Logger.log("DesktopAgent.raiseIntent response: ", response);
+		this.#FSBL.Clients.Logger.log("DesktopAgent.raiseIntent response: ", response.data);
 		return response.data;
 	}
 

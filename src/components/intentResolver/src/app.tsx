@@ -140,16 +140,15 @@ export default function App() {
     }
 
     if (action === "show") {
-      LauncherClient.showWindow(
-        { windowName: name, componentType }, {}, (err: any, data: any) => {
-          const success = err ? false : true
+      FSBL.FinsembleWindow.getInstance({name}, (err: any, wrap: any) => {
+        const success = err ? false : true
           if (!err) {
-
+            wrap.bringToFront();
             RouterClient.transmit(`FDC3.intent.${intent.name}`, context);
 
-            DialogManager.respondToOpener({ success, intent, context, source, target })
+            DialogManager.respondToOpener({ success, intent, context, source, target });
           }
-        })
+      })
     }
   }
 
