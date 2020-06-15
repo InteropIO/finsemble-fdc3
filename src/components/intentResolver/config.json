@@ -5,7 +5,7 @@
         "url": "$applicationRoot/components/intentResolver/intentResolver.html",
         "options": {
           "resizable": false,
-          "autoShow": true,
+          "autoShow": false,
           "alwaysOnTop": true
         },
         "top": "center",

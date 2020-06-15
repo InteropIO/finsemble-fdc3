@@ -7,13 +7,13 @@ const Finsemble = require("@chartiq/finsemble");
 const BaseService = Finsemble.baseService;
 const { RouterClient, LinkerClient, DialogManager, WindowClient, LauncherClient, DistributedStoreClient, Logger } = Finsemble.Clients;
 
-LinkerClient.start();
+LinkerClient.start(()=>{});
 DialogManager.initialize();
 LauncherClient.initialize();
 Logger.start();
 WindowClient.initialize();
 DistributedStoreClient.initialize();
-DialogManager.createStore();
+DialogManager.createStore(()=>{});
 
 
 import DesktopAgent from './desktopAgent'

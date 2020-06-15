@@ -1,3 +1,6 @@
-[
-"src/app.jsx"
-]
+{
+	"FDC3Tester": {
+		"output": "components/FDC3Tester/FDC3Tester",
+		"entry":"./src/components/FDC3Tester/src/app.jsx"
+	}
+}
