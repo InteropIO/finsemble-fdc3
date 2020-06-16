@@ -33,30 +33,30 @@ export default function CodeSnippets() {
       >
         <CodeDetails>
           Use this code in any Finsemble Window that uses the FDC3Preload
-          (FDC3Tester, Advanced Chart, order-summary). Open the console (ctrl + i)
-          to test the FDC3 preload, paste in the code and hit enter. You should
-          see the chart change symbol
+          (FDC3Tester, Advanced Chart, order-summary). Open the console (ctrl + shift + i)
+          to test the FDC3 preload, paste the listeners in one component and the 
+          broadcast in another. Here we use the Channels API.
   </CodeDetails>
         <CodeBlock>
-          {`
-// example usage
-async function setUpFDC3() {
-  // setup of desktop agent
-  const fdc3Client = await FSBL.Clients.FDC3Client.getOrCreateDesktopAgent(
-    "crims"
-  );
-
+          {`// example usage listeners
+async function FDC3ChannelsListeners() {
   // new channel for 'crims'
-  const channel = await fdc3Client.getOrCreateChannel("crims");
-  // join 'crims' channel
-  fdc3Client.joinChannel(channel.id);
+  const channel = await fdc3.getOrCreateChannel("crims");
 
+  // Listening examples:
   // connect to any context
   channel.addContextListener(console.log);
   // connect to fdc3.instrument context
   channel.addContextListener("fdc3.instrument", (data) => {
     console.log(data);
-  });
+  }
+}
+FDC3ChannelsListeners();
+
+// example usage broadcast
+async function FDC3ChannelBroadcast() {
+  // new channel for 'crims'
+  const channel = await fdc3.getOrCreateChannel("crims");
 
   // broadcast context
   channel.broadcast({
@@ -73,68 +73,53 @@ async function setUpFDC3() {
         ISOALPHA3: "USA",
       },
     },
-  });
-}`}
+  });  
+}
+FDC3ChannelBroadcast();`}
         </CodeBlock>
       </ CodeExample>
 
       <CodeExample>
         <CodeDetails>
-          Use this code in any Finsemble Window that uses the FDC3Preload
-          (FDC3Tester, Advanced Chart, order-summary). Open the console (ctrl + i)
-          to test the FDC3 preload, paste in the code and hit enter. You should
-        see the chart change symbol.{" "}
+        Here we use the DesktopAgent API. If the channel of the DesktopAgent changes, 
+        the listeners are automatically moved to the new channel.
         </CodeDetails>
         <CodeBlock>
-          {`
+          {`async function FDC3DesktopAgentListners() {
+  // join 'crims' channel
+  await fdc3.joinChannel(channel.id);
 
+  // listening examples
+  fdc3.addContextListener(console.log);
+  // this will only log to the console if the context type matches fdc3.instrument
+  fdc3.addContextListener("fdc3.instrument", console.log);
+}
+FDC3DesktopAgentListners();
 
-// listening example
-FSBL.Clients.FDC3Client.getOrCreateDesktopAgent("crims")
-  .then((fdc3) => fdc3.getOrCreateChannel("crims"))
-  .then((channel) => {
-    channel.addContextListener(console.log);
-    // this will only log to the console if the context type matches fdc3.instrument
-    channel.addContextListener("fdc3.instrument", console.log);
-  });
+async function FDC3DesktopAgentBroadcast() {
+  // join 'crims' channel
+  await fdc3.joinChannel(channel.id);
 
-// broadcast example
-FSBL.Clients.FDC3Client.getOrCreateDesktopAgent("crims")
-  .then((fdc3) => fdc3.getOrCreateChannel("crims"))
-  .then((channel) => {
-    channel.broadcast({
-      type: "fdc3.instrument",
-      name: "BRCM",
+  // broadcast example
+  fdc3.broadcast({
+    type: "fdc3.instrument",
+    name: "BRCM",
+    id: {
+      ticker: "BRCM",
+    },
+    country: {
+      type: "fdc3.country",
+      name: "United States of America (the)",
       id: {
-        ticker: "BRCM",
+        ISOALPHA2: "US",
+        ISOALPHA3: "USA",
       },
-      country: {
-        type: "fdc3.country",
-        name: "United States of America (the)",
-        id: {
-          ISOALPHA2: "US",
-          ISOALPHA3: "USA",
-        },
-      },
-    });
+    },
   });
-`}
+}
+FDC3DesktopAgentBroadcast();`}
         </CodeBlock>
       </CodeExample>
-
-      <CodeExample>
-        <CodeDetails>
-          Use this code by opening up the console for order-summary (ctr+i) and
-          paste the code below. This will send a message to the crims service. The
-          service will then send it on via FDC3.
-        </CodeDetails>
-        <CodeBlock>
-          {
-
-          }
-        </CodeBlock>
-      </CodeExample>
-
 
 
     </div >
