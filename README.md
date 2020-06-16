@@ -24,7 +24,7 @@ The Finsemble FDC3 implementation is comprised of four parts:
 
 ## Installation:
 
-This project will take the FDC3 implimentation files and copy them to your local Finsemble Seed project, this will allow you to keep a seperate repo from the seed project.
+This project will take the FDC3 implementation files and copy them to your local Finsemble Seed project, this will allow you to keep a seperate repo from the seed project.
 
 ### How it works:
 
