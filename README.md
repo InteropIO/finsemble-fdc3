@@ -33,10 +33,10 @@ The project watches for any changes in the src directory, when folders or files 
 ### Install Steps:
 1) Clone the Finsemble [seed-project](https://github.com/ChartIQ/finsemble-seed) (if you don't already have a local version - see our [Getting Started Tutorial](https://www.chartiq.com/tutorials/?slug=finsemble))
 2) `npm install react-syntax-highlighter @types/react @types/react-syntax-highlighter` in the seed project
-2) Clone this repo
+3) Clone this repo
    - **our advise:** clone this repo to the same directory as the seed-project e.g *myfolder/finsemble-seed* & *myfolder/finsemble-fdc3*
-3) If you clone in a different location, open **finsemble.config.json** and update `seedProjectDirectory` with the path to your local Finsemble Seed Project.
-4) Run `npm run watch` **this will continue to watch for file changes, this can be stopped once all the files have been copied to the seed project aprrox. 30 seconds*
+4) If you clone in a different location, open **finsemble.config.json** and update `seedProjectDirectory` with the path to your local Finsemble Seed Project.
+4) Run `npm install` then run `npm run watch` **this will continue to watch for file changes, this can be stopped once all the files have been copied to the seed project aprrox. 30 seconds*
 
 ## Component Config & Preload
 The Finsemble config file allows Finsemble to understand that your application is built with FDC3 capability.
