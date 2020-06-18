@@ -1,0 +1,6 @@
+{
+  "intentResolver": {
+    "output": "components/fdc3ChannelMatcher/index",
+    "entry": "./src/components/fdc3ChannelMatcher/index.js"
+  }
+}

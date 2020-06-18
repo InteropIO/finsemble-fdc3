@@ -1,0 +1,54 @@
+@import "../../../assets/css/_theme.css";
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@500&display=swap");
+
+body {
+  margin: 0px;
+  font-family: var(--font-family);
+  color: white;
+  background-color: var(--core-primary-1);
+}
+
+.matcher-grid {
+  display: grid;
+  grid-auto-flow: row;
+  margin: 27px;
+  background-color: #242e3c;
+  border: 1px solid #8c8c8c45;
+  border-radius: 6px;
+}
+
+.matcher-row {
+  font-size: 0.8em;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  /* background-color: #242e3c; */
+  padding: 0px 10px;
+  margin: 0px;
+  border-bottom: solid 1px #ffffff17;
+}
+
+.matcher-row:nth-child(1) {
+  color: rgb(0, 0, 0);
+  border-bottom: solid 1px #ffffff17;
+  align-items: center;
+  background: #3b748a;
+}
+
+.matcher-row > h3 {
+  margin: 8px 0;
+}
+
+select {
+  background-color: #0e212f80;
+  border: 0px;
+  width: 85%;
+  color: white;
+}
+option {
+  background: #214056;
+}
+
+h1 {
+  font-family: "Fira Sans Condensed", sans-serif;
+  margin-left: 15px;
+}
