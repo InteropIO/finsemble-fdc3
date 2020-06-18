@@ -14,7 +14,7 @@
         "height": 600
       },
       "component": {
-        "spawnOnStartup": true,
+        "spawnOnStartup": false,
         "singleton": true,
         "showDevConsoleOnVisible": false
       },

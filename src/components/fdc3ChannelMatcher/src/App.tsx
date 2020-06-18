@@ -1,5 +1,5 @@
 import * as React from 'react'
-import '@chartiq/finsemble/dist/types'
+// import '@chartiq/finsemble/dist/types'
 
 
 const { useState, useEffect } = React
@@ -12,7 +12,7 @@ type ExternalApplication = {
 }
 
 const FDC3ToExternalChannelPatches = {
-  "Bloomberg": {
+  "Company1": {
     "Group-A": {
       "inboud": null, //indicate patch not set
       "outbound": "Yellow" //name of FDC channel
@@ -22,7 +22,7 @@ const FDC3ToExternalChannelPatches = {
       "outbound": "Blue"
     }
   },
-  "Fidessa FCI": {
+  "Comapany2": {
     "Orange": {
       "inboud": "Yellow",
       "outbound": undefined   //indicates patch not supported
@@ -30,33 +30,19 @@ const FDC3ToExternalChannelPatches = {
   }
 }
 
-
-
-
-// FSBL.Clients.DistributedStoreClient.createStore({
-//   store: "FDC3ToExternalChannelPatches",
-//   global: false,
-//   values: FDC3ToExternalChannelPatches
-// },
-//   console.log);
-
-
-
-
-
 export default function App() {
-  const [integrationProviders, setIntegrationProviders] = useState(null)
+  const [integrationProviders, setIntegrationProviders] = useState(FDC3ToExternalChannelPatches)
 
   const [FSBLStore, setFSBLStore] = useState(null)
 
 
   useEffect(() => {
-    const getAndSetStore = async () => {
-      const store = await FSBL.Clients.DistributedStoreClient.getStore({
-        store: 'FDC3ToExternalChannelPatches'
-      }, (err: any, storeObject: any) => err ? console.error(err) : storeObject);
-
-
+    FSBL.Clients.DistributedStoreClient.getStore({
+      store: 'FDC3ToExternalChannelPatches'
+    }, (err: any, storeObject: any) => {
+      if (err) throw new Error(err)
+      return storeObject
+    }).then((err, store) => {
 
       store.addListener({}, (err: any, res: { value: { name: any; values: any } }) => {
         if (!err) {
@@ -70,9 +56,9 @@ export default function App() {
       })
 
       setFSBLStore(store)
-    }
+    })
 
-    getAndSetStore()
+
 
     return () => {
       FSBLStore.removeListener()
@@ -106,10 +92,18 @@ export default function App() {
 
   }
 
+  const selectUpdate = (e: any, direction: string, application: string) => {
+    console.group()
+    console.log(e);
+    console.log(direction);
+    console.log(application);
+    console.groupEnd()
+  }
 
 
-  const SelectItem = () =>
-    <select name="linker" onChange={e => console.log(e.target.value)
+
+  const SelectItem = ({ selectUpdate }) =>
+    <select name="linker" onChange={selectUpdate
     }>
       <option value="group1">🟪Purple</option>
       <option value="group2">🟨Yellow</option>
@@ -133,8 +127,8 @@ export default function App() {
           <div key={channelName} className="matcher-row">
             <p>{externalApplication}</p>
             <p>{channelName}</p>
-            {outbound ? <SelectItem /> : <p><i>Not Supported</i></p>}
-            {inbound ? <SelectItem /> : <p><i>Not Supported</i></p>}
+            {outbound ? <SelectItem selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
+            {inbound ? <SelectItem selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
           </div>)}
 
       </div>

@@ -15,6 +15,8 @@
     "fs-extra": "^9.0.0"
   },
   "dependencies": {
+    "@chartiq/finsemble": "^4.3.0",
+    "react": "^16.13.1",
     "typescript": "^3.9.5"
   }
 }
