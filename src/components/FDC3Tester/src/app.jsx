@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Tester from "./components/Tester";
-import CodeSnippets from "./components/CodeSnippets";
-import Sender from "./components/Sender";
+import Apps from "./components/Apps";
+import Intents from "./components/Intents";
+import Channels from "./components/Channels";
 
 function FDC3Tester() {
 	return (
 		<div>
-			<Sender />
-			<Tester />
-			<CodeSnippets />
+			<h1>FDC3 Testing Component</h1>
+			<Apps></Apps>
+			<Intents></Intents>
+			<Channels></Channels>
 		</div>
 	);
 }
