@@ -11,6 +11,11 @@ type ExternalApplication = {
   outbound: string | null
 }
 
+enum direction {
+  inbound = "inbound",
+  outbound = "outbound"
+}
+
 const FDC3ToExternalChannelPatches = {
   "Company1": {
     "Group-A": {
@@ -58,7 +63,7 @@ export default function App() {
           console.group()
           console.log(name)
           console.log(values)
-          console.groupEnd
+          console.groupEnd()
           setIntegrationProviders(values)
           setFormattedIntegrationProviders(formatProviders(values))
         } else {
@@ -93,18 +98,20 @@ export default function App() {
     FSBLStore?.getValue(value, console.log)
   }
 
-  const updateIntegrationProvidersAndStore = () => {
-    if (FSBLStore) { }
-    FSBLStore?.setValue({ field: 'field1', value: "new value" });
-
+  const updateIntegrationProvidersStore = (field: string, value: string | object) => {
+    if (FSBLStore) {
+      FSBLStore.setValue({ field, value });
+    }
   }
 
-  const selectUpdate = (e: any, direction: string, application: string) => {
-    console.group()
-    console.log(e);
-    console.log(direction);
-    console.log(application);
-    console.groupEnd()
+  const selectUpdate = (finsembleGroup: any, providerChannelName: string, direction: direction, application: string) => {
+    //update the state to reflect
+    const providers = { ...integrationProviders }
+    providers[application][providerChannelName][direction] = finsembleGroup;
+    setFormattedIntegrationProviders(formatProviders(providers))
+
+    //TODO: add some feedback if this fails and can't update the UI
+    updateIntegrationProvidersStore(`${application}.${providerChannelName}.${direction}`, finsembleGroup)
   }
 
 
@@ -128,14 +135,14 @@ export default function App() {
           <h3>Integration</h3>
           <h3>External Group</h3>
           <h3>Inbound from external group</h3>
-          <h3>Outbound from external group</h3>
+          <h3>Outbound to external group</h3>
         </div>
         {formattedIntegrationProviders && formattedIntegrationProviders.map(({ externalApplication, channelName, outbound, inbound }) =>
           <div key={externalApplication + channelName} className="matcher-row">
             <p>{externalApplication}</p>
             <p>{channelName}</p>
-            {outbound ? <SelectItem value={outbound} selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
-            {inbound ? <SelectItem value={inbound} selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
+            {inbound ? <SelectItem value={inbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.inbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
+            {outbound ? <SelectItem value={outbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.outbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
           </div>)}
 
       </div>
