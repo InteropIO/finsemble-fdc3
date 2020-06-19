@@ -63,7 +63,7 @@ function updateSeed(action, currentPath, message, seedDirectory) {
     return
   }
 
-  if (action === "remove" || action === "unlinkDir") {
+  if (action === "unlink" || action === "unlinkDir") {
     remove(destinationPath)
       .then(() => console.log(message))
       .catch(err => console.error(`could not remove file or folder: ${err}`))

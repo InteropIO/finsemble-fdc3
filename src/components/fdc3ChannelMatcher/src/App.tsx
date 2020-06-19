@@ -2,7 +2,7 @@ import * as React from 'react'
 // import '@chartiq/finsemble/dist/types'
 
 
-const { useState, useEffect } = React
+const { useState, useEffect, useRef } = React
 
 type ExternalApplication = {
   channelName: string,
@@ -22,7 +22,7 @@ const FDC3ToExternalChannelPatches = {
       "outbound": "Blue"
     }
   },
-  "Comapany2": {
+  "Company2": {
     "Orange": {
       "inboud": "Yellow",
       "outbound": undefined   //indicates patch not supported
@@ -32,6 +32,7 @@ const FDC3ToExternalChannelPatches = {
 
 export default function App() {
   const [integrationProviders, setIntegrationProviders] = useState(FDC3ToExternalChannelPatches)
+  const [formattedIntegrationProviders, setFormattedIntegrationProviders] = useState(null)
 
   const [FSBLStore, setFSBLStore] = useState(null)
 
@@ -41,36 +42,42 @@ export default function App() {
       store: 'FDC3ToExternalChannelPatches'
     }, (err: any, storeObject: any) => {
       if (err) throw new Error(err)
+      setFSBLStore(storeObject)
       return storeObject
-    }).then((err, store) => {
+    })
 
-      store.addListener({}, (err: any, res: { value: { name: any; values: any } }) => {
+  }, [])
+
+
+  useEffect(() => {
+    if (FSBLStore) {
+      FSBLStore.addListener({}, (err: any, res: { value: { name: any; values: any } }) => {
         if (!err) {
           // name is the store name and values is the store vals
           const { name, values } = res.value
+          console.group()
+          console.log(name)
+          console.log(values)
+          console.groupEnd
           setIntegrationProviders(values)
+          setFormattedIntegrationProviders(formatProviders(values))
         } else {
           console.error(err)
         }
 
       })
-
-      setFSBLStore(store)
-    })
-
-
-
-    return () => {
-      FSBLStore.removeListener()
     }
 
-  }, [])
+    return () => {
+      FSBLStore && FSBLStore.removeListener()
+    }
+  }, [FSBLStore])
 
 
 
 
   // turn the object into an array and flatten it see the type
-  const formatProviders = (providerData): Array<ExternalApplication> => Object.entries(FDC3ToExternalChannelPatches)
+  const formatProviders = (providerData): Array<ExternalApplication> => Object.entries(providerData)
     .map(([externalApplication, value]) =>
       Object.entries(value).map(([key, { inbound, outbound }]) => ({
         externalApplication,
@@ -102,15 +109,15 @@ export default function App() {
 
 
 
-  const SelectItem = ({ selectUpdate }) =>
-    <select name="linker" onChange={selectUpdate
+  const SelectItem = ({ value, selectUpdate }) =>
+    <select name="linker" value={value} onChange={selectUpdate
     }>
-      <option value="group1">🟪Purple</option>
-      <option value="group2">🟨Yellow</option>
-      <option value="group3">🟩Green</option>
-      <option value="group4">🟥Red</option>
-      <option value="group5">🟦Blue</option>
-      <option value="group6">🟧Orange</option>
+      <option data-linker-group="group1" value="Purple">🟪Purple</option>
+      <option data-linker-group="group2" value="Yellow">🟨Yellow</option>
+      <option data-linker-group="group3" value="Green">🟩Green</option>
+      <option data-linker-group="group4" value="Red">🟥Red</option>
+      <option data-linker-group="group5" value="Blue">🟦Blue</option>
+      <option data-linker-group="group6" value="Orange">🟧Orange</option>
     </select>
 
   return (
@@ -123,12 +130,12 @@ export default function App() {
           <h3>Inbound from external group</h3>
           <h3>Outbound from external group</h3>
         </div>
-        {integrationProviders && formatProviders(integrationProviders).map(({ externalApplication, channelName, outbound, inbound }) =>
-          <div key={channelName} className="matcher-row">
+        {formattedIntegrationProviders && formattedIntegrationProviders.map(({ externalApplication, channelName, outbound, inbound }) =>
+          <div key={externalApplication + channelName} className="matcher-row">
             <p>{externalApplication}</p>
             <p>{channelName}</p>
-            {outbound ? <SelectItem selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
-            {inbound ? <SelectItem selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
+            {outbound ? <SelectItem value={outbound} selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
+            {inbound ? <SelectItem value={inbound} selectUpdate={(e: any) => selectUpdate(e.target.value, "outbound", externalApplication)} /> : <p><i>Not Supported</i></p>}
           </div>)}
 
       </div>

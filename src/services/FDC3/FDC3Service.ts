@@ -14,7 +14,6 @@ const {
   DistributedStoreClient,
   Logger,
 } = Finsemble.Clients;
-import ChannelMatcherStoreSetup from "./channelMatcherService";
 
 LinkerClient.start(() => {});
 DialogManager.initialize();
@@ -64,8 +63,27 @@ class FDC3Service extends BaseService {
     for (const channel of channels) {
       this.channels[channel.id] = channel;
     }
-    ChannelMatcherStoreSetup(DistributedStoreClient, Finsemble.Clients.Logger);
+    this.ChannelMatcherStoreSetup();
     cb();
+  }
+
+  ChannelMatcherStoreSetup() {
+    const { getStore, createStore } = DistributedStoreClient;
+
+    const storeParams = {
+      store: "FDC3ToExternalChannelPatches",
+      global: true,
+      values: {},
+    };
+
+    const callback = (err: any, data: string) =>
+      err
+        ? Logger.error(err)
+        : Logger.log("FDC3ToExternalChannelPatches store created: " + data);
+
+    RouterClient.query("storeService.createStore", storeParams, callback);
+    // does not work hence the query above
+    // createStore(storeParams,callback)
   }
 
   /**
@@ -230,8 +248,8 @@ const serviceInstance = new FDC3Service({
   name: "FDC3",
   startupDependencies: {
     // add any services or clients that should be started before your service
-    services: ["authenticationService"],
-    clients: [],
+    services: ["authenticationService", "routerClient"],
+    clients: ["distributedStoreClient"],
   },
 });
 
