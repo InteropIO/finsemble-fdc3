@@ -1,5 +1,6 @@
 import * as React from 'react'
 // import '@chartiq/finsemble/dist/types'
+import { onExternalProviderStoreUpdate } from './channelPatcher'
 
 
 const { useState, useEffect, useRef } = React
@@ -45,9 +46,13 @@ export default function App() {
   useEffect(() => {
     FSBL.Clients.DistributedStoreClient.getStore({
       store: 'FDC3ToExternalChannelPatches'
-    }, (err: any, storeObject: any) => {
+    }, async (err: any, storeObject: any) => {
       if (err) throw new Error(err)
+
+      //
+      const { } = await onExternalProviderStoreUpdate(storeObject, integrationProviders)
       setFSBLStore(storeObject)
+
       return storeObject
     })
 
@@ -134,8 +139,8 @@ export default function App() {
         <div className="matcher-row">
           <h3>Integration</h3>
           <h3>External Group</h3>
-          <h3>Inbound from external group</h3>
-          <h3>Outbound to external group</h3>
+          <h3>To FDC3</h3>
+          <h3>From FDC3</h3>
         </div>
         {formattedIntegrationProviders && formattedIntegrationProviders.map(({ externalApplication, channelName, outbound, inbound }) =>
           <div key={externalApplication + channelName} className="matcher-row">
