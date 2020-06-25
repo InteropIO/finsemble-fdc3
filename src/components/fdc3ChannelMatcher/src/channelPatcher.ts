@@ -1,5 +1,5 @@
-import { fdc3, Listener, Channel } from "../../../../FDC3-types";
-import { rawListeners } from "process";
+// import { fdc3, Listener, Channel } from "../../../../FDC3-types";
+
 const FSBL: any = {};
 
 const equals = (a, b) => {
@@ -43,17 +43,15 @@ const setProviderChannel = (
 
 async function channelSetup(newChannel: string) {
   // Finsemble store
-  const provider = "Fidessa"; // should this come from config?
+  const provider = "Company1";
   setProviderChannel(provider, { channelName: newChannel, inbound: null });
 
   // fdc3
   const channel = await fdc3.getOrCreateChannel(newChannel);
   const context = {};
   channel.broadcast(context);
-  channel.addContextListener((newContext) => {
-    // if the context is the same we do not need to run an update
-    if (!equals(context, newContext)) return;
-    // doSomethingHere(newContext)
+  channel.addContextListener((context) => {
+    // doSomethingHere(context)
   });
 }
 
@@ -111,37 +109,81 @@ interface ExternalProviderState {
  -
 */
 
-//N.B. inbound indicates messages coming in from the external source and being repeated onto the indicated FDC3 channel
-//outbound indicates messages coming from FDC3 and being sent out to the external source
-//inbound and outbound values should be FDC3 system channel names, null if not set or undefined if not supported.
-
-// const externalChannelsState: ExternalProviderState = {};
-
+/**
+ *
+ * @param distributedStoreValues "FSBL Distributed store used by third party "
+ * @param state "state used to compare changes against and to store listeners"
+ *
+ * Inbound indicates messages coming in from the external source and being forwarded onto the indicated FDC3 channel.
+ * Outbound indicates messages coming from FDC3 and being sent out to the external source.
+ * inbound and outbound values should be FDC3 system channel names, null if not set or undefined if not supported.
+ */
 async function onExternalProviderStoreUpdate(
-  distributedStoreValues,
+  distributedStoreValues: ExternalProviders,
   state: ExternalProviderState
 ): Promise<ExternalProviderState> {
-  const provider = "Company1"; // TODO: switch this out for the provider name
+  let externalChannelsState = { ...state };
 
-  let providerState = { ...state };
-  // const providers = Object.keys(distributedStoreValues);
-  await Object.entries(distributedStoreValues[provider]).forEach(
-    (channel): Promise<void> => {
-      setChannel(provider, channel, externalChannelsState);
+  const [thirdPartyProviderName, thirdPartyProviderChannels] = Object.entries(
+    distributedStoreValues
+  )[0];
+
+  const providerChannelList = Object.entries(thirdPartyProviderChannels);
+
+  const newState = providerChannelList.map(
+    async ([channelName, channelValues]): Promise<
+      ExternalChannel<ChannelListeners & ExternalChannelValues>
+    > => {
+      const { inbound, outbound } = channelValues;
+      const { inboundListener, outboundListener } = await setChannel(
+        thirdPartyProviderName,
+        channelName,
+        channelValues,
+        externalChannelsState
+      );
+
+      const newProviderState = {
+        [channelName]: {
+          inbound,
+          outbound,
+          inboundListener,
+          outboundListener,
+        },
+      };
+      return newProviderState;
     }
   );
+
+  // The map above resolves to multiple promises in an array, need to wait for them and then format
+  const settlePromises = await Promise.all(newState);
+  const formatReturnedValues = settlePromises.reduce(
+    (acc, curr) => ({ ...acc, ...curr }),
+    {}
+  );
+
+  externalChannelsState[thirdPartyProviderName] = formatReturnedValues;
+
+  return externalChannelsState;
 }
 
+/**
+ *
+ * @param thirdPartyProvider "Company Name"
+ * @param channelName "e.g. Group A or Yellow"
+ * @param channelValues "inbound and outbound"
+ * @param state "current state to compare against, matches the store value closely"
+ */
 async function setChannel(
-  provider: string,
-  [channel, channelValues]: [string, ExternalChannelValues],
+  thirdPartyProvider: string,
+  channelName: string,
+  channelValues: ExternalChannelValues,
   state: ExternalProviderState
 ): Promise<ChannelListeners> {
   try {
     const { inbound, outbound } = channelValues;
-    const thirdPartyChannel = await fdc3.getOrCreateChannel(`${channel}`);
+    const thirdPartyChannel = await fdc3.getOrCreateChannel(`${channelName}`);
 
-    const channelState = state?.[provider]?.[channel];
+    const channelState = state?.[thirdPartyProvider]?.[channelName];
     const inboundState = channelState.inbound;
     const outboundState = channelState.outbound;
     let inboundListener: Listener;
@@ -170,6 +212,11 @@ async function setChannel(
   }
 }
 
+/**
+ *
+ * @param thirdPartyChannel ""
+ * @param inbound
+ */
 async function setOrUpdateInboundChannel(
   thirdPartyChannel: Channel,
   inbound: string
@@ -265,4 +312,9 @@ const formatExternalChannelStore = (externalChannelStore: {}): ChannelStore[] =>
 
 // __________________ exports _______________
 
-export { onExternalProviderStoreUpdate };
+export {
+  onExternalProviderStoreUpdate,
+  setChannel,
+  setOrUpdateInboundChannel,
+  setOrUpdateOutboundChannel,
+};
