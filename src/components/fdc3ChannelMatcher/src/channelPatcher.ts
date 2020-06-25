@@ -154,8 +154,9 @@ async function onExternalProviderStoreUpdate(
     }
   );
 
-  // The map above resolves to multiple promises in an array, need to wait for them and then format
+  // The map above resolves to multiple promises in an array resolve them here.
   const settlePromises = await Promise.all(newState);
+  // The promises return an array of objects that need to be merged back to one object.
   const formatReturnedValues = settlePromises.reduce(
     (acc, curr) => ({ ...acc, ...curr }),
     {}
@@ -184,8 +185,8 @@ async function setChannel(
     const thirdPartyChannel = await fdc3.getOrCreateChannel(`${channelName}`);
 
     const channelState = state?.[thirdPartyProvider]?.[channelName];
-    const inboundState = channelState.inbound;
-    const outboundState = channelState.outbound;
+    const inboundState = channelState?.inbound;
+    const outboundState = channelState?.outbound;
     let inboundListener: Listener;
     let outboundListener: Listener;
 
@@ -248,11 +249,17 @@ async function setOrUpdateOutboundChannel(
 ): Promise<Listener> {
   try {
     const outboundChannel = await fdc3.getOrCreateChannel(`${outbound}`);
-    const outboundListener = outboundChannel.addContextListener((context) => {
-      // TODO: does this need to check the current context the same way as the inbound
 
-      thirdPartyChannel.broadcast(context);
-    });
+    const outboundListener = outboundChannel.addContextListener(
+      async (context: Context) => {
+        const currentContext = await thirdPartyChannel.getCurrentContext();
+
+        // prevent a loop when sending and listening to context
+        if (equals(context, currentContext)) return;
+
+        thirdPartyChannel.broadcast(context);
+      }
+    );
 
     return outboundListener;
   } catch (error) {
