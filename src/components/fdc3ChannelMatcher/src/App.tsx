@@ -17,74 +17,75 @@ enum direction {
   outbound = "outbound"
 }
 
-const FDC3ToExternalChannelPatches = {
-  "Company1": {
-    "Group-A": {
-      "inboud": null, //indicate patch not set
-      "outbound": "Yellow" //name of FDC channel
-    },
-    "Group-B": {
-      "inboud": "Blue",
-      "outbound": "Blue"
-    }
-  },
-  "Company2": {
-    "Orange": {
-      "inboud": "Yellow",
-      "outbound": undefined   //indicates patch not supported
-    }
-  }
+// const FDC3ToExternalChannelPatches = {
+//   "Company1": {
+//     "Group-A": {
+//       "inboud": null, //indicate patch not set
+//       "outbound": "group1" //name of FDC channel
+//     },
+//     "Group-B": {
+//       "inboud": "group5",
+//       "outbound": "group5"
+//     }
+//   },
+//   "Company2": {
+//     "Orange": {
+//       "inboud": "group2",
+//       "outbound": undefined   //indicates patch not supported
+//     }
+//   }
+// }
+
+function usePrevious(value: any) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
 
 export default function App() {
-  const [integrationProviders, setIntegrationProviders] = useState(FDC3ToExternalChannelPatches)
+  const [integrationProviders, setIntegrationProviders] = useState({})
   const [formattedIntegrationProviders, setFormattedIntegrationProviders] = useState(null)
-
-  const [FSBLStore, setFSBLStore] = useState(null)
-
-
-  useEffect(() => {
-    FSBL.Clients.DistributedStoreClient.getStore({
-      store: 'FDC3ToExternalChannelPatches'
-    }, async (err: any, storeObject: any) => {
-      if (err) throw new Error(err)
-
-      //
-      const { } = await onExternalProviderStoreUpdate(storeObject, integrationProviders)
-      setFSBLStore(storeObject)
-
-      return storeObject
-    })
-
-  }, [])
+  // const thirdPartyState = useRef(integrationProviders)
+  const previousState = usePrevious(integrationProviders)
+  const finsembleStore = useRef({})
 
 
   useEffect(() => {
-    if (FSBLStore) {
-      FSBLStore.addListener({}, (err: any, res: { value: { name: any; values: any } }) => {
+    const setUpStore = async () => {
+      await FSBL.Clients.DistributedStoreClient.getStore({
+        store: 'FDC3ToExternalChannelPatches'
+      }, (err: any, storeObject: any) => {
+        if (err) throw new Error(err)
+        finsembleStore.current = storeObject
+        return storeObject
+      })
+
+      await finsembleStore.current.addListener({}, async (err: any, res: { value: { name: any; values: any } }) => {
         if (!err) {
-          // name is the store name and values is the store vals
-          const { name, values } = res.value
+          const { name: storeName, values: thirdPartyProvider }: { name: string, values: {} } = res.value
           console.group()
-          console.log(name)
-          console.log(values)
+          console.log(storeName)
+          console.log(thirdPartyProvider)
           console.groupEnd()
-          setIntegrationProviders(values)
-          setFormattedIntegrationProviders(formatProviders(values))
+
+          console.log(integrationProviders)
+          const newState = await onExternalProviderStoreUpdate(thirdPartyProvider, integrationProviders)
+          setIntegrationProviders(newState)
+          setFormattedIntegrationProviders(formatProviders(thirdPartyProvider))
+
         } else {
           console.error(err)
         }
 
+
       })
     }
 
-    return () => {
-      FSBLStore && FSBLStore.removeListener()
-    }
-  }, [FSBLStore])
+    setUpStore()
 
-
-
+  }, [])
 
   // turn the object into an array and flatten it see the type
   const formatProviders = (providerData): Array<ExternalApplication> => Object.entries(providerData)
@@ -98,14 +99,11 @@ export default function App() {
     )
     .flat();
 
-  // may not be needed
-  const getValueFromStore = (value) => {
-    FSBLStore?.getValue(value, console.log)
-  }
+
 
   const updateIntegrationProvidersStore = (field: string, value: string | object) => {
-    if (FSBLStore) {
-      FSBLStore.setValue({ field, value });
+    if (finsembleStore.current) {
+      finsembleStore.current.setValue({ field, value });
     }
   }
 
@@ -124,12 +122,12 @@ export default function App() {
   const SelectItem = ({ value, selectUpdate }) =>
     <select name="linker" value={value} onChange={selectUpdate
     }>
-      <option data-linker-group="group1" value="Purple">🟪Purple</option>
-      <option data-linker-group="group2" value="Yellow">🟨Yellow</option>
-      <option data-linker-group="group3" value="Green">🟩Green</option>
-      <option data-linker-group="group4" value="Red">🟥Red</option>
-      <option data-linker-group="group5" value="Blue">🟦Blue</option>
-      <option data-linker-group="group6" value="Orange">🟧Orange</option>
+      <option data-linker-group="group1" value="group1">🟪Purple</option>
+      <option data-linker-group="group2" value="group2">🟨Yellow</option>
+      <option data-linker-group="group3" value="group3">🟩Green</option>
+      <option data-linker-group="group4" value="group4">🟥Red</option>
+      <option data-linker-group="group5" value="group5">🟦Blue</option>
+      <option data-linker-group="group6" value="group6">🟧Orange</option>
     </select>
 
   return (
