@@ -36,6 +36,7 @@ Logger.log("Desktop Agent starting up");
 class FDC3Service extends BaseService {
   desktopAgent: DesktopAgent;
   channels: { [key: string]: Channel } = {};
+  DistributedStoreClient: any;
 
   constructor(params: {
     name: string;
@@ -68,8 +69,6 @@ class FDC3Service extends BaseService {
   }
 
   ChannelMatcherStoreSetup() {
-    const { getStore, createStore } = DistributedStoreClient;
-
     const storeParams = {
       store: "FDC3ToExternalChannelPatches",
       global: true,
@@ -81,9 +80,8 @@ class FDC3Service extends BaseService {
         ? Logger.error(err)
         : Logger.log("FDC3ToExternalChannelPatches store created: " + data);
 
-    RouterClient.query("storeService.createStore", storeParams, callback);
-    // does not work hence the query above
-    // createStore(storeParams,callback)
+    // do not destructure the distributed store as it breaks the reference to this
+    DistributedStoreClient.createStore(storeParams, callback);
   }
 
   /**

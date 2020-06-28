@@ -1,6 +1,7 @@
 import * as React from 'react'
+import { produce } from 'immer'
 // import '@chartiq/finsemble/dist/types'
-import { onExternalProviderStoreUpdate } from './channelPatcher'
+import { onExternalProviderStoreUpdate, ExternalProviders } from './channelPatcher'
 
 
 const { useState, useEffect, useRef } = React
@@ -36,24 +37,34 @@ enum direction {
 //   }
 // }
 
-function usePrevious(value: any) {
-  const ref = useRef();
+/**
+ * Used to track the previous state and the new state.
+ * Also used for listeners - state doesn't work in listeners but refs do
+ * @param initialValue
+ */
+function useStateRef(initialValue: any) {
+  const [value, setValue] = useState(initialValue);
+
+  const ref = useRef(value);
+
   useEffect(() => {
     ref.current = value;
-  });
-  return ref.current;
+  }, [value]);
+
+  return [value, setValue, ref];
 }
 
 export default function App() {
-  const [integrationProviders, setIntegrationProviders] = useState({})
-  const [formattedIntegrationProviders, setFormattedIntegrationProviders] = useState(null)
-  // const thirdPartyState = useRef(integrationProviders)
-  const previousState = usePrevious(integrationProviders)
   const finsembleStore = useRef({})
+  const [integrationProviders, setIntegrationProviders, integrationProvidersPrevious] = useStateRef({})
+  const [formattedIntegrationProviders, setFormattedIntegrationProviders] = useState(null)
 
 
   useEffect(() => {
+    // set this up once on initial load and store in a state value the Finsemble distributed store if needed for later.
+    //
     const setUpStore = async () => {
+      //  the store is set up by the FDC3 service so it should always be available.
       await FSBL.Clients.DistributedStoreClient.getStore({
         store: 'FDC3ToExternalChannelPatches'
       }, (err: any, storeObject: any) => {
@@ -71,15 +82,15 @@ export default function App() {
           console.groupEnd()
 
           console.log(integrationProviders)
-          const newState = await onExternalProviderStoreUpdate(thirdPartyProvider, integrationProviders)
+          console.log(integrationProvidersPrevious)
+          const newState = await onExternalProviderStoreUpdate(thirdPartyProvider, integrationProvidersPrevious.current);
           setIntegrationProviders(newState)
+          // TODO: look at moving this out to it's own useEffect based on the change to IntegrationProviders state
           setFormattedIntegrationProviders(formatProviders(thirdPartyProvider))
 
         } else {
           console.error(err)
         }
-
-
       })
     }
 
@@ -87,17 +98,22 @@ export default function App() {
 
   }, [])
 
-  // turn the object into an array and flatten it see the type
-  const formatProviders = (providerData): Array<ExternalApplication> => Object.entries(providerData)
-    .map(([externalApplication, value]) =>
-      Object.entries(value).map(([key, { inbound, outbound }]) => ({
-        externalApplication,
-        channelName: key,
-        inbound,
-        outbound,
-      }))
-    )
-    .flat();
+
+  /**
+   * Turn the object into an array and flatten it see the type for an example
+   * @param providerData
+   */
+  const formatProviders = (providerData: { [provider: string]: unknown }): Array<ExternalApplication> =>
+    Object.entries(providerData)
+      .map(([externalApplication, value]) =>
+        Object.entries(value).map(([key, { inbound, outbound }]) => ({
+          externalApplication,
+          channelName: key,
+          inbound,
+          outbound,
+        }))
+      )
+      .flat();
 
 
 
@@ -107,14 +123,29 @@ export default function App() {
     }
   }
 
-  const selectUpdate = (finsembleGroup: any, providerChannelName: string, direction: direction, application: string) => {
-    //update the state to reflect
-    const providers = { ...integrationProviders }
-    providers[application][providerChannelName][direction] = finsembleGroup;
-    setFormattedIntegrationProviders(formatProviders(providers))
+  /**
+   * Triggered by the select changing - a channel has changed.
+   * @param finsembleGroup - Also referred to as Finsemble Channels e.g. group1 (Purple Channel)
+   * @param providerChannelName - e.g "Orange" or "GroupA"
+   * @param direction - Inbound or Outbound
+   * @param provider - This could be "Company A"
+   */
+  const selectUpdate = (finsembleGroup: any, providerChannelName: string, direction: direction, provider: string) => {
+
+    // TODO: fix this type
+    const newIntegrationProviderState: any = produce(integrationProviders, (draft: object): void => {
+      draft[provider][providerChannelName][direction] = finsembleGroup;
+    })
+
+    //shape of the data is different to the shape of the UI.
+    // Aim is to provide an instant UI update while the store updated in the background, could do with a debounce.
+    // TODO: find a better way to shape the UI top the state to avoid formatting
+    const formattedIntegrationProviderState = formatProviders(newIntegrationProviderState)
+    setFormattedIntegrationProviders(formattedIntegrationProviderState)
 
     //TODO: add some feedback if this fails and can't update the UI
-    updateIntegrationProvidersStore(`${application}.${providerChannelName}.${direction}`, finsembleGroup)
+    updateIntegrationProvidersStore(`${provider}.${providerChannelName}.${direction}`, finsembleGroup)
+
   }
 
 

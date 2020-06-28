@@ -1,4 +1,4 @@
-// import { fdc3, Listener, Channel } from "../../../../FDC3-types";
+// import { fdc3, Listener, Channel, Context } from "../../../../FDC3-types";
 
 const FSBL: any = {};
 
@@ -77,7 +77,7 @@ const externalChannelExample: ExternalProviders = {
   },
 };
 
-interface ExternalProviders {
+export interface ExternalProviders {
   [externalProvider: string]: ExternalChannel<ExternalChannelValues>;
 }
 
@@ -120,17 +120,15 @@ interface ExternalProviderState {
  */
 async function onExternalProviderStoreUpdate(
   distributedStoreValues: ExternalProviders,
-  state: ExternalProviderState
+  externalChannelsState: ExternalProviderState
 ): Promise<ExternalProviderState> {
-  let externalChannelsState = { ...state };
-
   const [thirdPartyProviderName, thirdPartyProviderChannels] = Object.entries(
     distributedStoreValues
   )[0];
 
   const providerChannelList = Object.entries(thirdPartyProviderChannels);
 
-  const newState = providerChannelList.map(
+  const updatedChannelValues = providerChannelList.map(
     async ([channelName, channelValues]): Promise<
       ExternalChannel<ChannelListeners & ExternalChannelValues>
     > => {
@@ -155,16 +153,16 @@ async function onExternalProviderStoreUpdate(
   );
 
   // The map above resolves to multiple promises in an array resolve them here.
-  const settlePromises = await Promise.all(newState);
+  const settlePromises = await Promise.all(updatedChannelValues);
   // The promises return an array of objects that need to be merged back to one object.
   const formatReturnedValues = settlePromises.reduce(
     (acc, curr) => ({ ...acc, ...curr }),
     {}
   );
 
-  externalChannelsState[thirdPartyProviderName] = formatReturnedValues;
+  const newState = { [thirdPartyProviderName]: await formatReturnedValues };
 
-  return externalChannelsState;
+  return newState;
 }
 
 /**
@@ -177,7 +175,7 @@ async function onExternalProviderStoreUpdate(
 async function setChannel(
   thirdPartyProvider: string,
   channelName: string,
-  channelValues: ExternalChannelValues,
+  channelValues: ExternalChannelValues & ChannelListeners,
   state: ExternalProviderState
 ): Promise<ChannelListeners> {
   try {
@@ -187,8 +185,8 @@ async function setChannel(
     const channelState = state?.[thirdPartyProvider]?.[channelName];
     const inboundState = channelState?.inbound;
     const outboundState = channelState?.outbound;
-    let inboundListener: Listener;
-    let outboundListener: Listener;
+    let inboundListener: Listener = channelValues?.inboundListener;
+    let outboundListener: Listener = channelValues?.outboundListener;
 
     if (inbound && !equals(inbound, inboundState)) {
       channelState?.inboundListener.unsubscribe();
@@ -226,7 +224,7 @@ async function setOrUpdateInboundChannel(
     const inboundChannel = await fdc3.getOrCreateChannel(`${inbound}`);
 
     const inboundListener = thirdPartyChannel.addContextListener(
-      async (context) => {
+      async (context: Context) => {
         const currentContext = await inboundChannel.getCurrentContext();
 
         // prevent a loop when sending and listening to context

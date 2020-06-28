@@ -4,17 +4,29 @@
   "description": "Finsemble FDC3 Desktop Agent implementation. See https://github.com/ChartIQ/finsemble-fdc3 for details",
   "main": "src/services/FDC3/FDC3Client.ts",
   "scripts": {
-    "watch": "node ./fpe-scripts/watch.js"
+    "watch": "node ./fpe-scripts/watch.js",
+    "test": "jest"
   },
-  "keywords": ["Finsemble","FDC3","interop","desktop agent"],
+  "keywords": [
+    "Finsemble",
+    "FDC3",
+    "interop",
+    "desktop agent"
+  ],
   "author": "ChartIQ <support@finsemble.com> (https://www.chartiq.com/finsemble/)",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-typescript": "^7.10.1",
+    "babel-jest": "^26.1.0",
     "chokidar": "^3.4.0",
     "fs-extra": "^9.0.0"
   },
   "dependencies": {
     "@chartiq/finsemble": "^4.3.0",
+    "immer": "^7.0.5",
+    "jest": "^26.1.0",
     "react": "^16.13.1",
     "typescript": "^3.9.5"
   }
