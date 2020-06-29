@@ -81,37 +81,30 @@ class testFDC3Service extends Finsemble.baseService {
 	readyHandler(callback) {
 		this.createRouterEndpoints();
 		Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-		this.setUpFDC3()
+		this.fdc3Ready()
 		callback();
 
 	}
 
-	async setUpFDC3() {
-		log("hit FDC3Setup")
-		log(Finsemble.Clients.WindowClient.getWindowIdentifier())
-		try {
-			this.FDC3DesktopAgent = new FDC3Client(Finsemble)
-			this.FDC3 = await this.FDC3DesktopAgent.getOrCreateDesktopAgent('service')
+	// add any functionality that requires FDC3 in here
+	fdc3Ready() {
+		this.FDC3Client = new FDC3Client(Finsemble);
+		window.FSBL = {};
+		FSBL.Clients = Finsemble.Clients;
+		window.addEventListener("fdc3Ready", () => {
 
-			const FDC3 = this.FDC3
+			const channelName = "myFDC3Channel"
+			const contextExample = { type: "fdc3.instrument", id: { ticker: "MSFT" } }
 
-			const channelList = await FDC3.getSystemChannels()
-			log(FDC3)
-			log(channelList)
-			channelList[1].addContextListener((data) => {
-				log('listening to context on ' + channelList[1].id)
-				log(data)
-			})
-		} catch (err) {
-			error(err)
-		}
+			const channel = await fdc3.getOrCreateChannel(channelName);
 
-		await log("complete FDC3Setup")
+			// ? use this if you want to send data
+			channel.broadcast(contextExample);
 
-	}
-	// Implement service functionality
-	myFunction(data) {
-		return `Data passed into query: \n${JSON.stringify(data, null, "\t")}`;
+			// ? use this if you want to listen to incoming data
+			channel.addContextListener((context) => { });
+
+		});
 	}
 
 	/**
