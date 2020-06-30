@@ -91,7 +91,7 @@ class testFDC3Service extends Finsemble.baseService {
 		this.FDC3Client = new FDC3Client(Finsemble);
 		window.FSBL = {};
 		FSBL.Clients = Finsemble.Clients;
-		window.addEventListener("fdc3Ready", () => {
+		window.addEventListener("fdc3Ready", async () => {
 
 			const channelName = "myFDC3Channel"
 			const contextExample = { type: "fdc3.instrument", id: { ticker: "MSFT" } }

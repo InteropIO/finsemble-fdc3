@@ -14,7 +14,7 @@
       },
       "useWindow": true,
       "active": true,
-      "name": "FDC3",
+      "name": "testFDC3",
       "file": "$applicationRoot/services/testFDC3/testFDC3Service.js",
       "visible": false,
       "html": "$applicationRoot/services/testFDC3/testFDC3.html"
