@@ -82,44 +82,6 @@ export default class C implements Channel {
 				}
 			}
 		}
-
-
-
-        if (this.id == "global") {
-            if (typeof contextTypeOrHandler === "string") { // context type specified
-                const routerHandler: StandardCallback = (err, response) => { handler(response.data) };
-                this.#FSBL.Clients.RouterClient.addListener(`FDC3.broadcast.${contextTypeOrHandler}`, routerHandler);
-                return {
-                    unsubscribe: () => {
-                        this.#FSBL.Clients.RouterClient.removeListener(`FDC3.broadcast.${contextTypeOrHandler}`, routerHandler);
-                    }
-                }
-            } else { // context type not specified
-                const routerHandler: StandardCallback = (err, response) => { contextTypeOrHandler(response.data) };
-                this.#FSBL.Clients.RouterClient.addListener(`FDC3.broadcast`, routerHandler);
-                return {
-                    unsubscribe: () => {
-                        this.#FSBL.Clients.RouterClient.removeListener(`FDC3.broadcast`, routerHandler);
-                    }
-                }
-            }
-        }
-        this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
-        if (typeof contextTypeOrHandler === "string") { // context type specified
-            this.#FSBL.Clients.LinkerClient.subscribe(`FDC3.broadcast.${contextTypeOrHandler}`, handler);
-            return {
-                unsubscribe: () => {
-                    this.#FSBL.Clients.LinkerClient.unsubscribe(`FDC3.broadcast.${contextTypeOrHandler}`, handler);
-                }
-            }
-        } else { // context type not specified
-            this.#FSBL.Clients.LinkerClient.subscribe(`FDC3.broadcast`, contextTypeOrHandler);
-            return {
-                unsubscribe: () => {
-                    this.#FSBL.Clients.LinkerClient.unsubscribe(`FDC3.broadcast`, contextTypeOrHandler);
-                }
-            }
-        }
     }
 
 }
