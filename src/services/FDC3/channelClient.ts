@@ -19,7 +19,8 @@ export default class C implements Channel {
 
     broadcast(context: object): void {
         this.#FSBL.Clients.RouterClient.query("FDC3.Channel.broadcast", {
-            channel: this.id,
+			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
+			channel: this.id,
             context
         }, () => { });
     }
@@ -39,41 +40,48 @@ export default class C implements Channel {
     addContextListener(handler: ContextHandler): Listener;
     addContextListener(contextType: string, handler: ContextHandler): Listener;
     addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
-        if (this.id == "global") {
-            if (typeof contextTypeOrHandler === "string") { // context type specified
-                const routerHandler: StandardCallback = (err, response) => { handler(response.data) };
-                this.#FSBL.Clients.RouterClient.addListener(`FDC3.broadcast.${contextTypeOrHandler}`, routerHandler);
-                return {
-                    unsubscribe: () => {
-                        this.#FSBL.Clients.RouterClient.removeListener(`FDC3.broadcast.${contextTypeOrHandler}`, routerHandler);
-                    }
-                }
-            } else { // context type not specified
-                const routerHandler: StandardCallback = (err, response) => { contextTypeOrHandler(response.data) };
-                this.#FSBL.Clients.RouterClient.addListener(`FDC3.broadcast`, routerHandler);
-                return {
-                    unsubscribe: () => {
-                        this.#FSBL.Clients.RouterClient.removeListener(`FDC3.broadcast`, routerHandler);
-                    }
-                }
-            }
-        }
-        this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
-        if (typeof contextTypeOrHandler === "string") { // context type specified
-            this.#FSBL.Clients.LinkerClient.subscribe(`FDC3.broadcast.${contextTypeOrHandler}`, handler);
-            return {
-                unsubscribe: () => {
-                    this.#FSBL.Clients.LinkerClient.unsubscribe(`FDC3.broadcast.${contextTypeOrHandler}`, handler);
-                }
-            }
-        } else { // context type not specified
-            this.#FSBL.Clients.LinkerClient.subscribe(`FDC3.broadcast`, contextTypeOrHandler);
-            return {
-                unsubscribe: () => {
-                    this.#FSBL.Clients.LinkerClient.unsubscribe(`FDC3.broadcast`, contextTypeOrHandler);
-                }
-            }
-        }
+		let theHandler: ContextHandler = null;
+		let theListenerName: string = null;
+
+		//disambiguate arguments
+		if (typeof contextTypeOrHandler === "string") {
+			theHandler = handler;
+			theListenerName = `FDC3.broadcast.${contextTypeOrHandler}`
+		} else {
+			theHandler = contextTypeOrHandler;
+			theListenerName = `FDC3.broadcast`;
+		}
+
+		if (this.id == "global") {
+			const routerHandler: StandardCallback = (err, response) => {
+				//prevent message loops
+				if (response.data.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
+					//delete response.data.source // delete non standard source field we added
+					theHandler(response.data);
+				}
+			};
+			this.#FSBL.Clients.RouterClient.addListener(theListenerName, routerHandler);
+			return {
+				unsubscribe: () => {
+					this.#FSBL.Clients.RouterClient.removeListener(theListenerName, routerHandler);
+				}
+			}
+		} else {
+			const linkerHandler: StandardCallback = (err, response) => {
+				//prevent message loops
+				if (response.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
+					//delete response.source // delete non standard source field we added
+					theHandler(response);
+				}
+			};
+			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
+			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, linkerHandler);
+			return {
+				unsubscribe: () => {
+					this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, linkerHandler);
+				}
+			}
+		}
     }
 
 }
