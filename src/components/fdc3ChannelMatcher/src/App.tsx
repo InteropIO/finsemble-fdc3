@@ -1,38 +1,46 @@
 import * as React from 'react'
 import { produce } from 'immer'
-// import '@chartiq/finsemble/dist/types'
-import { onExternalProviderStoreUpdate, ExternalProviders } from './channelPatcher'
+import '@chartiq/finsemble/dist/types'
+// import { fdc3, Listener, Channel, Context } from "../../../../FDC3-types";
 
+import { equals } from './utils'
 
 const { useState, useEffect, useRef } = React
 
-type ExternalApplication = {
-  channelName: string,
-  externalApplication: string,
-  inbound: string | null,
-  outbound: string | null
+interface ExternalProviders {
+  [externalProvider: string]: ExternalChannel;
 }
 
+interface ExternalChannel {
+  [externalChannel: string]: ExternalChannelValues;
+}
+
+interface ExternalChannelValues {
+  sendToFDC3: direction.sendToFDC3 | null | undefined,
+  receiveFromFDC3: direction.receiveFromFDC3 | null | undefined
+}
+
+
 enum direction {
-  inbound = "inbound",
-  outbound = "outbound"
+  sendToFDC3 = "sendToFDC3",
+  receiveFromFDC3 = "receiveFromFDC3"
 }
 
 // const FDC3ToExternalChannelPatches = {
 //   "Company1": {
 //     "Group-A": {
-//       "inboud": null, //indicate patch not set
-//       "outbound": "group1" //name of FDC channel
+//       "sendToFDC3": null, //indicate patch not set
+//       "receiveFromFDC3": "group1" //name of FDC channel
 //     },
 //     "Group-B": {
-//       "inboud": "group5",
-//       "outbound": "group5"
+//       "sendToFDC3": "group5",
+//       "receiveFromFDC3": "group5"
 //     }
 //   },
 //   "Company2": {
 //     "Orange": {
-//       "inboud": "group2",
-//       "outbound": undefined   //indicates patch not supported
+//       "sendToFDC3": "group2",
+//       "receiveFromFDC3": undefined   //indicates patch not supported
 //     }
 //   }
 // }
@@ -42,8 +50,8 @@ enum direction {
  * Also used for listeners - state doesn't work in listeners but refs do
  * @param initialValue
  */
-function useStateRef(initialValue: any) {
-  const [value, setValue] = useState(initialValue);
+function useStateRef(initialValue: ExternalProviders = null): [ExternalProviders, (T: any) => {}, ExternalProviders] {
+  const [value, setValue] = useState<ExternalProviders | null>(initialValue);
 
   const ref = useRef(value);
 
@@ -55,9 +63,8 @@ function useStateRef(initialValue: any) {
 }
 
 export default function App() {
-  const finsembleStore = useRef({})
-  const [integrationProviders, setIntegrationProviders, integrationProvidersPrevious] = useStateRef({})
-  const [formattedIntegrationProviders, setFormattedIntegrationProviders] = useState(null)
+  const finsembleDistributedStore = useRef({})
+  const [externalProvidersState, setExternalProvidersState, externalProvidersPrevious] = useStateRef()
 
 
   useEffect(() => {
@@ -69,25 +76,25 @@ export default function App() {
         store: 'FDC3ToExternalChannelPatches'
       }, (err: any, storeObject: any) => {
         if (err) throw new Error(err)
-        finsembleStore.current = storeObject
+        finsembleDistributedStore.current = storeObject
         return storeObject
       })
 
-      await finsembleStore.current.addListener({}, async (err: any, res: { value: { name: any; values: any } }) => {
+      await finsembleDistributedStore.current.addListener({}, async (err: any, res: { value: { name: any; values: any } }) => {
         if (!err) {
-          const { name: storeName, values: thirdPartyProvider }: { name: string, values: {} } = res.value
+          const { name: storeName, values: externalProvider }: { name: string, values: ExternalProviders } = res.value
           console.group()
           console.log(storeName)
-          console.log(thirdPartyProvider)
+          console.log(externalProvider)
           console.groupEnd()
 
-          console.log(integrationProviders)
-          console.log(integrationProvidersPrevious)
-          const newState = await onExternalProviderStoreUpdate(thirdPartyProvider, integrationProvidersPrevious.current);
-          setIntegrationProviders(newState)
-          // TODO: look at moving this out to it's own useEffect based on the change to IntegrationProviders state
-          setFormattedIntegrationProviders(formatProviders(thirdPartyProvider))
-
+          if (!equals(externalProvider, externalProvidersPrevious.current)) {
+            // update state
+            const updatedState = produce(externalProvidersState, (draft: object): void => {
+              draft[externalProvider]
+            })
+            setExternalProvidersState(updatedState)
+          }
         } else {
           console.error(err)
         }
@@ -98,54 +105,27 @@ export default function App() {
 
   }, [])
 
-
-  /**
-   * Turn the object into an array and flatten it see the type for an example
-   * @param providerData
-   */
-  const formatProviders = (providerData: { [provider: string]: unknown }): Array<ExternalApplication> =>
-    Object.entries(providerData)
-      .map(([externalApplication, value]) =>
-        Object.entries(value).map(([key, { inbound, outbound }]) => ({
-          externalApplication,
-          channelName: key,
-          inbound,
-          outbound,
-        }))
-      )
-      .flat();
-
-
-
-  const updateIntegrationProvidersStore = (field: string, value: string | object) => {
-    if (finsembleStore.current) {
-      finsembleStore.current.setValue({ field, value });
-    }
-  }
-
+  //TODO: add some feedback if this fails and can't update the UI
   /**
    * Triggered by the select changing - a channel has changed.
    * @param finsembleGroup - Also referred to as Finsemble Channels e.g. group1 (Purple Channel)
    * @param providerChannelName - e.g "Orange" or "GroupA"
-   * @param direction - Inbound or Outbound
+   * @param direction - sendToFDC3 or receiveFromFDC3
    * @param provider - This could be "Company A"
    */
-  const selectUpdate = (finsembleGroup: any, providerChannelName: string, direction: direction, provider: string) => {
+  const selectUpdate = (finsembleGroup: string, providerChannelName: string, direction: direction, provider: string) => {
 
-    // TODO: fix this type
-    const newIntegrationProviderState: any = produce(integrationProviders, (draft: object): void => {
+    // ? should state be updated or allow the distributed store to set the state?
+    const newIntegrationProviderState: any = produce(externalProvidersState, (draft: object): void => {
       draft[provider][providerChannelName][direction] = finsembleGroup;
     })
 
-    //shape of the data is different to the shape of the UI.
-    // Aim is to provide an instant UI update while the store updated in the background, could do with a debounce.
-    // TODO: find a better way to shape the UI top the state to avoid formatting
-    const formattedIntegrationProviderState = formatProviders(newIntegrationProviderState)
-    setFormattedIntegrationProviders(formattedIntegrationProviderState)
+    if (finsembleDistributedStore?.current) {
+      const field = `${provider}.${providerChannelName}.${direction}`
+      const value = finsembleGroup
 
-    //TODO: add some feedback if this fails and can't update the UI
-    updateIntegrationProvidersStore(`${provider}.${providerChannelName}.${direction}`, finsembleGroup)
-
+      finsembleDistributedStore?.current?.setValue({ field, value });
+    }
   }
 
 
@@ -166,18 +146,29 @@ export default function App() {
       <h1>Channel Matcher</h1>
       <div className="matcher-grid">
         <div className="matcher-row">
-          <h3>Integration</h3>
+          <h3>External Provider</h3>
           <h3>External Group</h3>
-          <h3>To FDC3</h3>
-          <h3>From FDC3</h3>
+          <h3>Send To FDC3</h3>
+          <h3>Receive From FDC3</h3>
         </div>
-        {formattedIntegrationProviders && formattedIntegrationProviders.map(({ externalApplication, channelName, outbound, inbound }) =>
-          <div key={externalApplication + channelName} className="matcher-row">
-            <p>{externalApplication}</p>
-            <p>{channelName}</p>
-            {inbound ? <SelectItem value={inbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.inbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
-            {outbound ? <SelectItem value={outbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.outbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
-          </div>)}
+
+        {externalProvidersState && Object.entries(externalProvidersState).map(([externalApplication, groups]) =>
+          Object.entries(groups).map(([channelName, { sendToFDC3, receiveFromFDC3 }]) => (
+
+            <div key={externalApplication + channelName} className="matcher-row">
+              <p>{externalApplication}</p>
+              <p>{channelName}</p>
+
+              {sendToFDC3 ? <SelectItem value={sendToFDC3} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.sendToFDC3, externalApplication)} /> : <p><i>Not Supported</i></p>}
+
+              {receiveFromFDC3 ? <SelectItem value={receiveFromFDC3} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.receiveFromFDC3, externalApplication)} /> : <p><i>Not Supported</i></p>}
+
+            </div>
+
+          )
+          )
+        )
+        }
 
       </div>
     </div>

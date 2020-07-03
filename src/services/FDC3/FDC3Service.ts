@@ -64,25 +64,9 @@ class FDC3Service extends BaseService {
     for (const channel of channels) {
       this.channels[channel.id] = channel;
     }
-    this.ChannelMatcherStoreSetup();
     cb();
   }
 
-  ChannelMatcherStoreSetup() {
-    const storeParams = {
-      store: "FDC3ToExternalChannelPatches",
-      global: true,
-      values: {},
-    };
-
-    const callback = (err: any, data: string) =>
-      err
-        ? Logger.error(err)
-        : Logger.log("FDC3ToExternalChannelPatches store created: " + data);
-
-    // do not destructure the distributed store as it breaks the reference to this
-    DistributedStoreClient.createStore(storeParams, callback);
-  }
 
   /**
    * Creates router endpoints for all of our client APIs. Add servers or listeners for requests coming from your clients.
