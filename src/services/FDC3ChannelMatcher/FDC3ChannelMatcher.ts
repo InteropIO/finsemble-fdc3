@@ -69,7 +69,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         ],
       },
     });
-
+    this.channelState = {};
     this.readyHandler = this.readyHandler.bind(this);
     this.setUpFDC3 = this.setUpFDC3.bind(this);
     this.onBaseServiceReady(this.readyHandler);
@@ -82,8 +82,8 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   readyHandler(callback) {
     this.createRouterEndpoints();
     Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-    this.ChannelMatcherStoreSetup();
     this.fdc3Ready();
+    this.ChannelMatcherStoreSetup();
     callback();
   }
 
@@ -94,168 +94,82 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       values: {},
     };
 
-    const callback = (err: any, data: string) =>
-      err
-        ? error(err)
-        : log("FDC3ToExternalChannelPatches store created: " + data);
+    const callback = (err: any, store: any) => {
+      if (err) {
+        error(err);
+        return;
+      }
+
+      log("FDC3ToExternalChannelPatches store created: " + store);
+      store.addListener(
+        this.onExternalProviderStoreUpdate(),
+        log("FDC3ToExternalChannelPatches store listener added")
+      );
+    };
 
     // do not destructure the distributed store as it breaks the reference to this
     DistributedStoreClient.createStore(storeParams, callback);
   }
 
-  channelMatcherLogic() {
-    /**
-     *
-     * @param distributedStoreValues "FSBL Distributed store used by third party "
-     * @param state "state used to compare changes against and to store listeners"
-     *
-     * Inbound indicates messages coming in from the external source and being forwarded onto the indicated FDC3 channel.
-     * Outbound indicates messages coming from FDC3 and being sent out to the external source.
-     * inbound and outbound values should be FDC3 system channel names, null if not set or undefined if not supported.
-     */
-    async function onExternalProviderStoreUpdate(
-      distributedStoreValues: ExternalProviders,
-      externalChannelsState: ExternalProviderState
-    ): Promise<ExternalProviderState> {
-      const [
-        thirdPartyProviderName,
-        thirdPartyProviderChannels,
-      ] = Object.entries(distributedStoreValues)[0];
+  /**
+   *
+   * @param distributedStoreValues "FSBL Distributed store used by third party "
+   * @param state "state used to compare changes against and to store listeners"
+   *
+   * Inbound indicates messages coming in from the external source and being forwarded onto the indicated FDC3 channel.
+   * Outbound indicates messages coming from FDC3 and being sent out to the external source.
+   * inbound and outbound values should be FDC3 system channel names, null if not set or undefined if not supported.
+   */
+  async onExternalProviderStoreUpdate(
+    distributedStoreValues: ExternalProviders,
+    externalChannelsState: ExternalProviderState
+  ): Promise<ExternalProviderState> {
+    const [thirdPartyProviderName, thirdPartyProviderChannels] = Object.entries(
+      distributedStoreValues
+    )[0];
 
-      const providerChannelList = Object.entries(thirdPartyProviderChannels);
+    const providerChannelList = Object.entries(thirdPartyProviderChannels);
 
-      const updatedChannelValues = providerChannelList.map(
-        async ([channelName, channelValues]): Promise<
-          ExternalChannel<ChannelListeners & ExternalChannelValues>
-        > => {
-          const { inbound, outbound } = channelValues;
-          const { inboundListener, outboundListener } = await setChannel(
-            thirdPartyProviderName,
-            channelName,
-            channelValues,
-            externalChannelsState
-          );
-
-          const newProviderState = {
-            [channelName]: {
-              inbound,
-              outbound,
-              inboundListener,
-              outboundListener,
-            },
-          };
-          return newProviderState;
-        }
-      );
-
-      // The map above resolves to multiple promises in an array resolve them here.
-      const settlePromises = await Promise.all(updatedChannelValues);
-      // The promises return an array of objects that need to be merged back to one object.
-      const formatReturnedValues = settlePromises.reduce(
-        (acc, curr) => ({ ...acc, ...curr }),
-        {}
-      );
-
-      const newState = { [thirdPartyProviderName]: await formatReturnedValues };
-
-      return newState;
-    }
-
-    /**
-     *
-     * @param thirdPartyProvider "Company Name"
-     * @param channelName "e.g. Group A or Yellow"
-     * @param channelValues "inbound and outbound"
-     * @param state "current state to compare against, matches the store value closely"
-     */
-    async function setChannel(
-      thirdPartyProvider: string,
-      channelName: string,
-      channelValues: ExternalChannelValues & ChannelListeners,
-      state: ExternalProviderState
-    ): Promise<ChannelListeners> {
-      try {
+    const updatedChannelValues = providerChannelList.map(
+      async ([channelName, channelValues]): Promise<
+        ExternalChannel<ChannelListeners & ExternalChannelValues>
+      > => {
         const { inbound, outbound } = channelValues;
-        const thirdPartyChannel = await fdc3.getOrCreateChannel(
-          `${channelName}`
+        const { inboundListener, outboundListener } = await setChannel(
+          thirdPartyProviderName,
+          channelName,
+          channelValues,
+          externalChannelsState
         );
 
-        const channelState = state?.[thirdPartyProvider]?.[channelName];
-        const inboundState = channelState?.inbound;
-        const outboundState = channelState?.outbound;
-        let inboundListener: Listener = channelValues?.inboundListener;
-        let outboundListener: Listener = channelValues?.outboundListener;
-
-        if (inbound && !equals(inbound, inboundState)) {
-          channelState?.inboundListener.unsubscribe();
-          inboundListener = await setOrUpdateInboundChannel(
-            thirdPartyChannel,
-            inbound
-          );
-        }
-
-        if (outbound && !equals(outbound, outboundState)) {
-          channelState?.outboundListener.unsubscribe();
-          outboundListener = await setOrUpdateOutboundChannel(
-            thirdPartyChannel,
-            outbound
-          );
-        }
-
-        return { inboundListener, outboundListener };
-      } catch (error) {
-        console.error(error);
-        return error;
+        const newProviderState = {
+          [channelName]: {
+            inbound,
+            outbound,
+            inboundListener,
+            outboundListener,
+          },
+        };
+        return newProviderState;
       }
-    }
+    );
 
-    /**
-     *
-     * @param thirdPartyChannel ""
-     * @param inbound
-     */
-    async function setOrUpdateInboundChannel(
-      thirdPartyChannel: Channel,
-      inbound: string
-    ): Promise<Listener> {
-      try {
-        const inboundChannel = await fdc3.getOrCreateChannel(`${inbound}`);
+    // The map above resolves to multiple promises in an array resolve them here.
+    const settlePromises = await Promise.all(updatedChannelValues);
+    // The promises return an array of objects that need to be merged back to one object.
+    const formatReturnedValues = settlePromises.reduce(
+      (acc, curr) => ({ ...acc, ...curr }),
+      {}
+    );
 
-        const inboundListener = thirdPartyChannel.addContextListener(
-          async (context: Context) => inboundChannel.broadcast(context)
-        );
+    const newState = { [thirdPartyProviderName]: await formatReturnedValues };
 
-        return inboundListener;
-      } catch (error) {
-        console.error(error);
-        return error;
-      }
-    }
-
-    //======
-    async function setOrUpdateOutboundChannel(
-      thirdPartyChannel: Channel,
-      outbound: string
-    ): Promise<Listener> {
-      try {
-        const outboundChannel = await fdc3.getOrCreateChannel(`${outbound}`);
-
-        const outboundListener = outboundChannel.addContextListener(
-          async (context: Context) => thirdPartyChannel.broadcast(context)
-        );
-
-        return outboundListener;
-      } catch (error) {
-        console.error(error);
-        return error;
-      }
-    }
-
-    // ------ end
+    return newState;
   }
+  // ------ end
 
   // add any functionality that requires FDC3 in here
-  fdc3Ready() {
+  fdc3Ready(callback) {
     this.FDC3Client = new FDC3Client(Finsemble);
     window.FSBL = {};
     FSBL.Clients = Finsemble.Clients;
