@@ -1,3 +1,4 @@
+require('dotenv').config()
 const chokidar = require('chokidar');
 const chalk = require('chalk')
 const path = require("path");
@@ -22,7 +23,8 @@ const state = {
   importConfig: []
 }
 
-const seedDirectory = path.join(configJSON.seedProjectDirectory)
+const seedProjectPath = process.env.SEED || configJSON.seedProjectDirectory
+const seedDirectory = path.join(seedProjectPath)
 
 access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
   if (err) {
