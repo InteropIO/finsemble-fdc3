@@ -71,7 +71,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     });
     this.channelState = {};
     this.readyHandler = this.readyHandler.bind(this);
-    this.setUpFDC3 = this.setUpFDC3.bind(this);
+    this.fdc3Ready = this.fdc3Ready.bind(this);
     this.onBaseServiceReady(this.readyHandler);
   }
 
@@ -82,17 +82,43 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   readyHandler(callback) {
     this.createRouterEndpoints();
     Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-    this.fdc3Ready();
     this.ChannelMatcherStoreSetup();
+    this.fdc3Ready();
     callback();
   }
 
   ChannelMatcherStoreSetup() {
+    // ! check to see if store exists first, if not create it
+
+    //   store = {
+    //     "providers": {
+    //         "Fidessa_FCI": {
+    //             "Fidessa_FCI_Yellow": {
+    //                 "inbound": "group1",
+    //                 "outbound": null;
+    //         },
+    //         "Bloomberg": {
+    //             "Bloomberg_Group-A": {
+    //                 "inbound": "group1",
+    //                 "outbound": "group1";
+    //             }
+    //         }
+    //     }
+    //  }
+
+    // store.setValue({ field:'providers.Fidessa_FCI.Fidessa_FCI_Yellow', value:{ "inbound": "group1", outbound": null } });
+
+
+
+    //FSBL.Clients.DistributedStoreClient.createStore({store:"testStore", global:true, persist: true, values:{mappings:[]}}, (err,store) => window.store=store)
     const storeParams = {
       store: "FDC3ToExternalChannelPatches",
       global: true,
+      persist: true,
       values: {},
     };
+
+    // store.getValue('mappings', function(err, mappings) { /* do somethign with mappings  */ });
 
     const callback = (err: any, store: any) => {
       if (err) {
@@ -169,7 +195,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   // ------ end
 
   // add any functionality that requires FDC3 in here
-  fdc3Ready(callback) {
+  fdc3Ready() {
     this.FDC3Client = new FDC3Client(Finsemble);
     window.FSBL = {};
     FSBL.Clients = Finsemble.Clients;
@@ -187,7 +213,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       channel.broadcast(contextExample);
 
       // ? use this if you want to listen to incoming data
-      channel.addContextListener((context) => {});
+      channel.addContextListener((context) => { });
     });
   }
 

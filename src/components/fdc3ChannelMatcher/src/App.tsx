@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { produce } from 'immer'
-import '@chartiq/finsemble/dist/types'
+// import '@chartiq/finsemble/dist/types'
 // import { fdc3, Listener, Channel, Context } from "../../../../FDC3-types";
 
 import { equals } from './utils'

@@ -1,7 +1,7 @@
 {
   "comment": "Houses config for any custom services that you'd like to import into Finsemble.",
   "services": {
-    "FDC3ChannelMatcher": {
+    "FDC3ChannelMatcherService": {
       "bootParams": {
         "stage": "preuser",
         "stopOnFailure": false,
@@ -14,10 +14,10 @@
       },
       "useWindow": true,
       "active": true,
-      "name": "FDC3ChannelMatcher",
-      "file": "$applicationRoot/services/FDC3ChannelMatcher/FDC3ChannelMatcherService.js",
+      "name": "FDC3ChannelMatcherService",
+      "file": "$applicationRoot/services/FDC3ChannelMatcherService/FDC3ChannelMatcherService.js",
       "visible": false,
-      "html": "$applicationRoot/services/FDC3ChannelMatcher/FDC3ChannelMatcher.html"
+      "html": "$applicationRoot/services/FDC3ChannelMatcherService/FDC3ChannelMatcherService.html"
     }
   }
 }
