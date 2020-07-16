@@ -7,18 +7,17 @@ const Finsemble = require("@chartiq/finsemble");
 const BaseService = Finsemble.baseService;
 const { RouterClient, LinkerClient, DialogManager, WindowClient, LauncherClient, DistributedStoreClient, Logger } = Finsemble.Clients;
 
-LinkerClient.start(()=>{});
+LinkerClient.start(() => { });
 DialogManager.initialize();
 LauncherClient.initialize();
 Logger.start();
 WindowClient.initialize();
 DistributedStoreClient.initialize();
-DialogManager.createStore(()=>{});
+DialogManager.createStore(() => { });
 
 
 import DesktopAgent from './desktopAgent'
 // const queryJSON = require('./objectQuery/queryJSON.js');
-
 
 Logger.log("Desktop Agent starting up");
 
@@ -158,7 +157,7 @@ class FDC3Service extends BaseService {
 							})
 							break;
 						case "broadcast":
-							response = await channel.broadcast(queryMessage.data.context);
+							response = await channel.broadcast(queryMessage.data);
 							break;
 						case "getCurrentContext":
 							response = await channel.getCurrentContext(queryMessage.data.contextType);
