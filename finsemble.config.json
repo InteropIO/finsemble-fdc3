@@ -4,6 +4,6 @@
     "$applicationRoot/components/FDC3Tester/config.json",
     "$applicationRoot/components/intentResolver/config.json",
     "$applicationRoot/services/FDC3/config.json",
-    "$applicationRoot/services/testFDC3/config.json"
+    "$applicationRoot/services/exampleFDC3Serice/config.json"
   ]
 }
