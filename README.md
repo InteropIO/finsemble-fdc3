@@ -65,20 +65,20 @@ The Finsemble implementation of the FDC3 DesktopAgent and Channels APIs can be u
 ### FDC3 in Finsemble Components
 The FDC3 client is most easily made available to your components via preload, which will give your component access to it as if it were any other Finsemble client. It is anticipated that later versions of Finsemble will include the FDC3 client by default.
 
-**Component Config**
+#### Component Config
 To use the FDC3 client in your component, you will need to make 3 additions to your component's configuration: 
 - Preload the client, 
 - Ensure that you have a Toolbar Icon URL set 
 - Add FDC3 specific configuration
 
 
-**Preload**
+##### Preload
 To add the FDC3 preload to your component, set `component.preload` in its configuration to the path to the built preload script, e.g. `"$applicationRoot/preloads/FDC3Client.js"`, or if using multiple preload scripts add it to an array of their paths (see the config example below).
 
-**Toolbar Icon URL**
+##### Toolbar Icon URL
 The icon url is used by the intent resolver to display the logo of your component. This URL can use the `$applicationRoot` variable to set a local path or can be an external URL. Supported formats: `.jpg`, `.png`, `.svg`.
 
-**FDC3 configuration**
+##### FDC3 configuration
 An additional section in your component config, `foreign.services.fdc3`, is used to specify intents and associated context types that your
  component can accept. See the section **fdc3** in the example below.
 
