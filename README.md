@@ -380,7 +380,7 @@ try {
 It depends on if you want to listen for context on the channel you are joined to or a different channel(s).
 
 If you are joined to a channel you can use the following:
-```
+```javascript
 // any context
 const listener = fdc3.addContextListener(context => { ... });
 
