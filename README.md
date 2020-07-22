@@ -298,7 +298,7 @@ fdc3.open("ChartIQ",{
  });
 ```
 
-> I want to send an instrument (MSFT) but I want the user to choose the application they want to display it with, how would do I that?
+> I want to send an instrument (MSFT) but I want the user to choose the application they want to display it with, how would I do that?
 
 This is where you can raise an intent. Once the intent has been raised it will show all the apps capable of dealing with your intent in the intent resolver. This works in a similar fashion to your phone when you want to share a link or open a calendar invite and it asks which application you would like to use.
 To do this you need two things
