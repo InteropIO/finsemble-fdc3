@@ -266,7 +266,7 @@ interface Channel {
   <td><code>fdc3.joinChannel('channel1')</code></td>
 </tr>
 <tr>
-  <td> <code>getCurrentChannel(): Promise&lt;void></code> </td>
+  <td> <code>getCurrentChannel(): Promise&lt;Channel></code> </td>
   <td>Returns the channel that you are currently joined to.</td>
   <td><code>fdc3.getCurrentChannel()</code></td>
 </tr>
