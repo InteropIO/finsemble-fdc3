@@ -1,3 +1,4 @@
+import produce from "immer"
 import './FDC3ChannelMatcherTypes'
 import '../FDC3/interfaces/Channel'
 import '../FDC3/interfaces'
@@ -174,7 +175,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         const { inboundListener, outboundListener } = await this.setFDC3ProviderChannel(providerName, channelName, channelValues, this.state)
 
         // update state
-        const nextState = produce(this.providersState, draftState => {
+        const newState = produce(this.providersState, draftState => {
           draftState.providers[providerName][channelName] = {
             inbound,
             outbound,
@@ -182,6 +183,8 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
             outboundListener
           }
         })
+        this.providerState = newState
+
       } catch (error) {
         Logger.error('could not add or update the external provider. ' + error)
       }
