@@ -75,11 +75,12 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       },
     });
     // needed for fdc3 to attach to the window object
-    window.FSBL = { Clients: Finsemble.Clients }
+
 
     this.providersState = {};
     this.readyHandler = this.readyHandler.bind(this);
     this.ChannelMatcherStoreSetup = this.ChannelMatcherStoreSetup.bind(this)
+    this.fdc3Ready = this.fdc3Ready.bind(this);
     this.updateProviderChannelState = this.updateProviderChannelState.bind(this)
     this.onBaseServiceReady(this.readyHandler);
   }
@@ -91,12 +92,16 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   readyHandler(callback) {
     this.createRouterEndpoints();
     Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-    window.addEventListener("fdc3Ready", this.ChannelMatcherStoreSetup); // ensure FDC3 is ready as ChannelMatcherStoreSetup relies on fdc3
+    // this.fdc3Ready()
     callback();
   }
 
+  fdc3Ready() {
+    window.FSBL = { Clients: Finsemble.Clients }
+    window.addEventListener("fdc3Ready", this.ChannelMatcherStoreSetup); // ensure FDC3 is ready as ChannelMatcherStoreSetup relies on fdc3
+  }
+
   async ChannelMatcherStoreSetup() {
-    // TODO: check to see if store exists first, if not create it
 
     //EXAMPLE STORE:
     // const store: ThirdPartyProviders = {
