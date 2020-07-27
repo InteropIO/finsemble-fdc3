@@ -4,10 +4,8 @@ import '../FDC3/interfaces/Channel'
 import '../FDC3/interfaces'
 const Finsemble = require("@chartiq/finsemble");
 const FDC3Client = require("../FDC3/FDC3Client").default;
-new FDC3Client(Finsemble);
 
 const { Logger, DistributedStoreClient } = Finsemble.Clients;
-const { log, error } = Logger;
 
 Finsemble.Clients.Logger.start();
 Finsemble.Clients.Logger.log("FDC3ChannelMatcher Service starting up");
@@ -43,7 +41,6 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         // should be listed as a service start up dependency.
         services: [
           "FDC3",
-          "FDC3Service",
           // "assimilationService",
           // "authenticationService",
           // "configService",
@@ -66,10 +63,10 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
           // "dragAndDropClient",
           // "hotkeyClient",
           // "launcherClient",
-          "linkerClient",
+          // "linkerClient",
           // "searchClient
           // "storageClient",
-          "windowClient",
+          // "windowClient",
           // "workspaceClient",
         ],
       },
@@ -79,9 +76,9 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
     this.providersState = {};
     this.readyHandler = this.readyHandler.bind(this);
-    this.ChannelMatcherStoreSetup = this.ChannelMatcherStoreSetup.bind(this)
+    this.channelMatcherStoreSetup = this.channelMatcherStoreSetup.bind(this)
+    this.onExternalProviderStoreUpdate = this.onExternalProviderStoreUpdate.bind(this)
     this.fdc3Ready = this.fdc3Ready.bind(this);
-    this.updateProviderChannelState = this.updateProviderChannelState.bind(this)
     this.onBaseServiceReady(this.readyHandler);
   }
 
@@ -92,16 +89,19 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   readyHandler(callback) {
     this.createRouterEndpoints();
     Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-    // this.fdc3Ready()
+    this.fdc3Ready()
     callback();
   }
 
   fdc3Ready() {
-    window.FSBL = { Clients: Finsemble.Clients }
-    window.addEventListener("fdc3Ready", this.ChannelMatcherStoreSetup); // ensure FDC3 is ready as ChannelMatcherStoreSetup relies on fdc3
+    window.FSBL = {};
+    FSBL.Clients = Finsemble.Clients;
+    // window.FSBL = { Clients: Finsemble.Clients }
+    this.FDC3Client = new FDC3Client(Finsemble);
+    window.addEventListener("fdc3Ready", this.channelMatcherStoreSetup); // ensure FDC3 is ready as ChannelMatcherStoreSetup relies on fdc3
   }
 
-  async ChannelMatcherStoreSetup() {
+  async channelMatcherStoreSetup() {
 
     //EXAMPLE STORE:
     // const store: ThirdPartyProviders = {
@@ -159,14 +159,14 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     }
 
 
-    store.addListener({ field: 'providers' }, (err: string, result: { field: string, value: any }) => {
+    this.store.addListener({ field: 'providers' }, (err: string, result: { field: string, value: any }) => {
       if (err) {
         Logger.error("Issue with returning data from FDC3ToExternalChannelPatches listener" + err)
         return err
       }
       this.onExternalProviderStoreUpdate(result)
     },
-      log("FDC3ToExternalChannelPatches store listener added")
+      Logger.log("FDC3ToExternalChannelPatches store listener added")
     )
 
   }
@@ -313,17 +313,6 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         Finsemble.Clients.Logger.log(
           "TestFDC3 Query: " + JSON.stringify(message)
         );
-
-        try {
-          // Data in query message can be passed as parameters to a method in the service.
-          const data = this.myFunction(message.data);
-
-          // Send query response to the function call, with optional data, back to the caller.
-          message.sendQueryResponse(null, data);
-        } catch (e) {
-          // If there is an error, send it back to the caller
-          message.sendQueryResponse(e);
-        }
       }
     );
   }

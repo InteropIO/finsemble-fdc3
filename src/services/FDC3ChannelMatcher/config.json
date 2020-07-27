@@ -7,7 +7,7 @@
         "stopOnFailure": false,
         "autoStart": true,
         "customFailureMessage": null,
-        "timeout": 10000,
+        "timeout": 20000,
         "dependencies": [
           "FDC3"
         ]
