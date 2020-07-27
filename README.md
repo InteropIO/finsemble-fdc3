@@ -335,7 +335,7 @@ Many applications can be joined to a single-channel e.g App A, B and C can all b
 
 > What do I need to do to enable the channels so that my end users can start using it?
 >
-Finsemble includes user interface for selecting built-in (or system) colour channels, normally used with the Finsemble Linker API. The FInsemble FDC3 implementation, if preloaded into a component, will take over the Linker UI allowing you to use it select FDC3 system channels instead. All you need to do is add the FDC3 preload to your component then set up a [context listener](#context-listener) and Finsemble will handle the rest. Your end-users can now use the Finsemble Linker button to change the FDC3 channel they are joined to.
+Finsemble includes user interface for selecting built-in (or system) color channels, normally used with the Finsemble Linker API. The Finsemble FDC3 implementation, if preloaded into a component, will take over the Linker UI allowing you to use it select FDC3 system channels instead. All you need to do is add the FDC3 preload to your component then set up a [context listener](#context-listener) and Finsemble will handle the rest. Your end-users can now use the Finsemble Linker button to change the FDC3 channel they are joined to.
 
 > How do I know what channels I have access to?
 >
