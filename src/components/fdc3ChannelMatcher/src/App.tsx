@@ -7,6 +7,10 @@ import { equals } from './utils'
 
 const { useState, useEffect, useRef } = React
 
+interface ProviderState {
+  providers: ExternalProviders
+}
+
 interface ExternalProviders {
   [externalProvider: string]: ExternalChannel;
 }
@@ -16,31 +20,31 @@ interface ExternalChannel {
 }
 
 interface ExternalChannelValues {
-  sendToFDC3: direction.sendToFDC3 | null | undefined,
-  receiveFromFDC3: direction.receiveFromFDC3 | null | undefined
+  inbound: direction.inbound | null | undefined,
+  outbound: direction.outbound | null | undefined
 }
 
 
 enum direction {
-  sendToFDC3 = "sendToFDC3",
-  receiveFromFDC3 = "receiveFromFDC3"
+  inbound = "inbound",
+  outbound = "outbound"
 }
 
 // const FDC3ToExternalChannelPatches = {
 //   "Company1": {
 //     "Group-A": {
-//       "sendToFDC3": null, //indicate patch not set
-//       "receiveFromFDC3": "group1" //name of FDC channel
+//       "inbound": null, //indicate patch not set
+//       "outbound": "group1" //name of FDC channel
 //     },
 //     "Group-B": {
-//       "sendToFDC3": "group5",
-//       "receiveFromFDC3": "group5"
+//       "inbound": "group5",
+//       "outbound": "group5"
 //     }
 //   },
 //   "Company2": {
 //     "Orange": {
-//       "sendToFDC3": "group2",
-//       "receiveFromFDC3": undefined   //indicates patch not supported
+//       "inbound": "group2",
+//       "outbound": undefined   //indicates patch not supported
 //     }
 //   }
 // }
@@ -50,8 +54,8 @@ enum direction {
  * Also used for listeners - state doesn't work in listeners but refs do
  * @param initialValue
  */
-function useStateRef(initialValue: ExternalProviders = null): [ExternalProviders, (T: any) => {}, ExternalProviders] {
-  const [value, setValue] = useState<ExternalProviders | null>(initialValue);
+function useStateRef(initialValue: ProviderState): [ProviderState, React.Dispatch<React.SetStateAction<ProviderState>>, React.MutableRefObject<ProviderState>] {
+  const [value, setValue] = useState<ProviderState | null>(initialValue);
 
   const ref = useRef(value);
 
@@ -63,8 +67,8 @@ function useStateRef(initialValue: ExternalProviders = null): [ExternalProviders
 }
 
 export default function App() {
-  const finsembleDistributedStore = useRef({})
-  const [externalProvidersState, setExternalProvidersState, externalProvidersPrevious] = useStateRef()
+  const finsembleDistributedStore: React.MutableRefObject<{ [key: string]: any }> = useRef({})
+  const [externalProvidersState, setExternalProvidersState, externalProvidersPrevious] = useStateRef({ providers: {} })
 
 
   useEffect(() => {
@@ -77,21 +81,29 @@ export default function App() {
       }, (err: any, storeObject: any) => {
         if (err) throw new Error(err)
         finsembleDistributedStore.current = storeObject
+        // set the state
+        const updatedState = produce(externalProvidersState, draft => {
+          draft.providers = storeObject.values.providers
+        })
+        setExternalProvidersState(updatedState)
         return storeObject
       })
 
-      await finsembleDistributedStore.current.addListener({}, async (err: any, res: { value: { name: any; values: any } }) => {
+      // ! SEE the empty object this will return all the items in the store
+      // await finsembleDistributedStore.current.addListener({}, async (err: any, res: { value: { name: any; values: any } }) => {
+      await finsembleDistributedStore.current.addListener({ field: 'providers' }, async (err: any, data: { field: string; value: ExternalProviders; }) => {
         if (!err) {
-          const { name: storeName, values: externalProvider }: { name: string, values: ExternalProviders } = res.value
+          const { field, value: providers } = data
+          const [providerName] = Object.keys(providers)
           console.group()
-          console.log(storeName)
-          console.log(externalProvider)
+          console.log(field)
+          console.log(providers)
           console.groupEnd()
 
-          if (!equals(externalProvider, externalProvidersPrevious.current)) {
+          if (!equals(providers, externalProvidersPrevious.current)) {
             // update state
-            const updatedState = produce(externalProvidersState, (draft: object): void => {
-              draft[externalProvider]
+            const updatedState = produce(externalProvidersState, (draft): void => {
+              draft.providers = providers
             })
             setExternalProvidersState(updatedState)
           }
@@ -110,18 +122,18 @@ export default function App() {
    * Triggered by the select changing - a channel has changed.
    * @param finsembleGroup - Also referred to as Finsemble Channels e.g. group1 (Purple Channel)
    * @param providerChannelName - e.g "Orange" or "GroupA"
-   * @param direction - sendToFDC3 or receiveFromFDC3
+   * @param direction - inbound or outbound
    * @param provider - This could be "Company A"
    */
   const selectUpdate = (finsembleGroup: string, providerChannelName: string, direction: direction, provider: string) => {
 
     // ? should state be updated or allow the distributed store to set the state?
-    const newIntegrationProviderState: any = produce(externalProvidersState, (draft: object): void => {
-      draft[provider][providerChannelName][direction] = finsembleGroup;
+    const newIntegrationProviderState: any = produce(externalProvidersState, draft => {
+      draft.providers[provider][providerChannelName][direction] = finsembleGroup;
     })
 
     if (finsembleDistributedStore?.current) {
-      const field = `${provider}.${providerChannelName}.${direction}`
+      const field = `providers.${provider}.${providerChannelName}.${direction}`
       const value = finsembleGroup
 
       finsembleDistributedStore?.current?.setValue({ field, value });
@@ -152,22 +164,24 @@ export default function App() {
           <h3>Receive From FDC3</h3>
         </div>
 
-        {externalProvidersState && Object.entries(externalProvidersState).map(([externalApplication, groups]) =>
-          Object.entries(groups).map(([channelName, { sendToFDC3, receiveFromFDC3 }]) => (
+        {!externalProvidersState?.providers ?
+          <p>No providers</p>
+          : Object.entries(externalProvidersState.providers).map(([externalApplication, groups]) =>
+            Object.entries(groups).map(([channelName, { inbound: inbound, outbound: outbound }]) => (
 
-            <div key={externalApplication + channelName} className="matcher-row">
-              <p>{externalApplication}</p>
-              <p>{channelName}</p>
+              <div key={externalApplication + channelName} className="matcher-row">
+                <p>{externalApplication}</p>
+                <p>{channelName}</p>
 
-              {sendToFDC3 ? <SelectItem value={sendToFDC3} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.sendToFDC3, externalApplication)} /> : <p><i>Not Supported</i></p>}
+                {inbound ? <SelectItem value={inbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.inbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
 
-              {receiveFromFDC3 ? <SelectItem value={receiveFromFDC3} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.receiveFromFDC3, externalApplication)} /> : <p><i>Not Supported</i></p>}
+                {outbound ? <SelectItem value={outbound} selectUpdate={(e: any) => selectUpdate(e.target.value, channelName, direction.outbound, externalApplication)} /> : <p><i>Not Supported</i></p>}
 
-            </div>
+              </div>
 
+            )
+            )
           )
-          )
-        )
         }
 
       </div>
