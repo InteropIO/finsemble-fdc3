@@ -9,7 +9,7 @@ const { Logger, DistributedStoreClient } = Finsemble.Clients;
 
 Finsemble.Clients.Logger.start();
 Finsemble.Clients.Logger.log("FDC3ChannelMatcher Service starting up");
-
+LinkerClient.start(() => { });
 // Add and initialize any other clients you need to use (services are initialized by the system, clients are not):
 // Finsemble.Clients.AuthenticationClient.initialize();
 // Finsemble.Clients.ConfigClient.initialize();
@@ -46,7 +46,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
           // "configService",
           // "hotkeysService",
           // "loggerService",
-          // "linkerService",
+          "linkerService",
           // "searchService",
           // "storageService",
           // "windowService",
@@ -74,7 +74,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     // needed for fdc3 to attach to the window object
 
 
-    this.providersState = {};
+    this.providerState = {};
     this.readyHandler = this.readyHandler.bind(this);
     this.channelMatcherStoreSetup = this.channelMatcherStoreSetup.bind(this)
     this.onExternalProviderStoreUpdate = this.onExternalProviderStoreUpdate.bind(this)
@@ -133,7 +133,10 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       if (err) {
         Logger.error(err);
         return;
-      } else {
+      }
+      if (store) {
+        this.store = store
+        // this.providerState = store.values
         Logger.log("FDC3ToExternalChannelPatches store created: " + store);
       }
     };
@@ -172,15 +175,15 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
   }
 
   onExternalProviderStoreUpdate(result: { field: string; value: any; }) {
-    const { field, value: thirdPartyProviders }: { field: string, value: ThirdPartyProviders } = result;
+    const { field, value: thirdPartyProvider }: { field: string, value: Provider } = result;
 
     const updateProviderChannel = async (providerName: string, channelName: string, channelValues: ProviderChannel) => {
       try {
         const { inbound = null, outbound = null } = channelValues
-        const { inboundListener, outboundListener } = await this.setFDC3ProviderChannel(providerName, channelName, channelValues, this.state)
+        const { inboundListener, outboundListener } = await this.setFDC3ProviderChannel(providerName, channelName, channelValues, this.providerState)
 
         // update state
-        const newState = produce(this.providersState, draftState => {
+        const newState = produce(this.providerState, draftState => {
           draftState.providers[providerName][channelName] = {
             inbound,
             outbound,
@@ -196,7 +199,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
     }
 
-    const providers: [string, ProviderChannels][] = Object.entries(thirdPartyProviders.providers)
+    const providers: [string, ProviderChannels][] = Object.entries(thirdPartyProvider)
     providers.forEach(([providerName, providerChannels]) => {
       Object.entries(providerChannels)
         .forEach(([channelName, channelValues]) =>
@@ -215,7 +218,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     try {
       const { inbound, outbound } = providerChannel;
 
-      const fdc3ThirdPartyChannel: Channel = await fdc3.getOrCreateChannel(`${providerChannelName}`);
+      const fdc3ThirdPartyChannel: Channel = await fdc3.getOrCreateChannel(providerChannelName);
 
       const channelState = state.providers?.[providerName]?.[providerChannelName];
 
@@ -225,7 +228,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       let inboundListener: Listener = channelState?.inboundListener;
       let outboundListener: Listener = channelState?.outboundListener;
 
-      if (inbound && (inbound !== inboundState)) {
+      if (inbound && !inboundListener && (inbound !== inboundState)) {
         // unsubscribe before setting up a new listener
         if (inboundListener) inboundListener.unsubscribe()
 
@@ -235,7 +238,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         );
       }
 
-      if (outbound && (outbound !== outboundState)) {
+      if (outbound && !outboundListener && (outbound !== outboundState)) {
         // unsubscribe before setting up a new listener
         if (outboundListener) outboundListener.unsubscribe()
 
@@ -247,7 +250,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
       return { inboundListener, outboundListener };
     } catch (error) {
-      Logger.error(error);
+      Logger.error("Error setting up FDC3 Provider Channel. " + error);
       return;
     }
 
@@ -259,10 +262,10 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     ): Promise<Listener> {
       try {
 
-        const inboundChannel = await fdc3.getOrCreateChannel(`${inbound}`);
+        const inboundChannel = await fdc3.getOrCreateChannel(inbound);
 
         const inboundListener = thirdPartyChannel.addContextListener(
-          async (context: Context) => inboundChannel.broadcast(context)
+          inboundChannel.broadcast
         );
 
         return inboundListener;
@@ -278,10 +281,10 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     ): Promise<Listener> {
       try {
 
-        const outboundChannel = await fdc3.getOrCreateChannel(`${outbound}`);
+        const outboundChannel = await fdc3.getOrCreateChannel(outbound);
 
         const outboundListener = outboundChannel.addContextListener(
-          async (context: Context) => thirdPartyChannel.broadcast(context)
+          (context: Context) => thirdPartyChannel.broadcast(context)
         );
 
         return outboundListener;
