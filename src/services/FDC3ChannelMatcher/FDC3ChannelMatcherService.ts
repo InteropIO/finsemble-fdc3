@@ -5,7 +5,7 @@ import '../FDC3/interfaces'
 const Finsemble = require("@chartiq/finsemble");
 const FDC3Client = require("../FDC3/FDC3Client").default;
 
-const { Logger, DistributedStoreClient } = Finsemble.Clients;
+const { Logger, DistributedStoreClient, LinkerClient } = Finsemble.Clients;
 
 Finsemble.Clients.Logger.start();
 Finsemble.Clients.Logger.log("FDC3ChannelMatcher Service starting up");
@@ -74,7 +74,7 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     // needed for fdc3 to attach to the window object
 
 
-    this.providerState = {};
+    this.providerState = { providers: {} };
     this.readyHandler = this.readyHandler.bind(this);
     this.channelMatcherStoreSetup = this.channelMatcherStoreSetup.bind(this)
     this.onExternalProviderStoreUpdate = this.onExternalProviderStoreUpdate.bind(this)
@@ -106,14 +106,14 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     //EXAMPLE STORE:
     // const store: ThirdPartyProviders = {
     //   "providers": {
-    //     "Fidessa_FCI": {
-    //       "Fidessa_FCI_Yellow": {
+    //     "CompanyA": {
+    //       "CompanyA_FCI_Yellow": {
     //         inbound: "group1",
     //         outbound: null
     //       }
     //     },
-    //     "Bloomberg": {
-    //       "Bloomberg_Group-A": {
+    //     "CompanyB": {
+    //       "CompanyB_Group-A": {
     //         inbound: "group1",
     //         outbound: "group1"
     //       }
@@ -184,6 +184,11 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
         // update state
         const newState = produce(this.providerState, draftState => {
+          // if the provider does not exist in state add it as an empty object
+          if (!draftState.providers?.[providerName]) {
+            draftState.providers[providerName] = {}
+          }
+          // update the provider channel in state
           draftState.providers[providerName][channelName] = {
             inbound,
             outbound,
@@ -265,7 +270,8 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         const inboundChannel = await fdc3.getOrCreateChannel(inbound);
 
         const inboundListener = thirdPartyChannel.addContextListener(
-          inboundChannel.broadcast
+          // TODO: look at why context is coming through in this format
+          (context) => inboundChannel.broadcast(context.data)
         );
 
         return inboundListener;
@@ -284,7 +290,8 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         const outboundChannel = await fdc3.getOrCreateChannel(outbound);
 
         const outboundListener = outboundChannel.addContextListener(
-          (context: Context) => thirdPartyChannel.broadcast(context)
+          // TODO: look at why context is coming through in this format
+          (context: Context) => thirdPartyChannel.broadcast(context.data)
         );
 
         return outboundListener;
