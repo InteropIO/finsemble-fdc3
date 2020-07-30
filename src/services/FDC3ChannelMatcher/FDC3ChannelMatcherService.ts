@@ -142,12 +142,11 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     };
 
     // try and get the store, if it does not exist then set it up
-    const { data: store } = await DistributedStoreClient.getStore({
-      store: "FDC3ToExternalChannelPatches"
-    }, callback);
+    const { data: store } = await DistributedStoreClient.getStore(storeParams, (err: any, store: any) => {
+      if (err || !store) Logger.warn("FDC3ToExternalChannelPatches store not found trying to create the store...")
+    });
 
     if (store) {
-
       this.store = store
     } else {
       // do not destructure the distributed store as it breaks the reference to this
@@ -167,15 +166,14 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
         Logger.error("Issue with returning data from FDC3ToExternalChannelPatches listener" + err)
         return err
       }
-      this.onExternalProviderStoreUpdate(result)
+      this.onExternalProviderStoreUpdate(result.value)
     },
       Logger.log("FDC3ToExternalChannelPatches store listener added")
     )
 
   }
 
-  onExternalProviderStoreUpdate(result: { field: string; value: any; }) {
-    const { field, value: thirdPartyProvider }: { field: string, value: Provider } = result;
+  onExternalProviderStoreUpdate(thirdPartyProvider: Provider) {
 
     const updateProviderChannel = async (providerName: string, channelName: string, channelValues: ProviderChannel) => {
       try {
@@ -207,8 +205,8 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     const providers: [string, ProviderChannels][] = Object.entries(thirdPartyProvider)
     providers.forEach(([providerName, providerChannels]) => {
       Object.entries(providerChannels)
-        .forEach(([channelName, channelValues]) =>
-          updateProviderChannel(providerName, channelName, channelValues)
+        .forEach(async ([channelName, channelValues]) =>
+          await updateProviderChannel(providerName, channelName, channelValues)
         )
 
       // TODO: When FDC3 adds a method to remove channels, add the ability to remove channel listeners
@@ -223,8 +221,6 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
     try {
       const { inbound, outbound } = providerChannel;
 
-      const fdc3ThirdPartyChannel: Channel = await fdc3.getOrCreateChannel(providerChannelName);
-
       const channelState = state.providers?.[providerName]?.[providerChannelName];
 
       const inboundState = channelState?.inbound;
@@ -233,25 +229,16 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       let inboundListener: Listener = channelState?.inboundListener;
       let outboundListener: Listener = channelState?.outboundListener;
 
-      if (inbound && !inboundListener && (inbound !== inboundState)) {
-        // unsubscribe before setting up a new listener
-        if (inboundListener) inboundListener.unsubscribe()
 
-        inboundListener = await setOrUpdateInboundChannel(
-          fdc3ThirdPartyChannel,
-          inbound
-        );
-      }
+      inboundListener = inbound === inboundState ?
+        await setFDC3ChannelCommunication({ receivingChannelName: providerChannelName, broadcastingChannelName: inbound, receivingChannelListener: inboundListener })
+        : inboundListener
 
-      if (outbound && !outboundListener && (outbound !== outboundState)) {
-        // unsubscribe before setting up a new listener
-        if (outboundListener) outboundListener.unsubscribe()
 
-        outboundListener = await setOrUpdateOutboundChannel(
-          fdc3ThirdPartyChannel,
-          outbound
-        );
-      }
+      outboundListener = outbound === outboundState ?
+        await setFDC3ChannelCommunication({ receivingChannelName: outbound, broadcastingChannelName: providerChannelName, receivingChannelListener: outboundListener })
+        : outboundListener
+
 
       return { inboundListener, outboundListener };
     } catch (error) {
@@ -259,48 +246,35 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
       return;
     }
 
-
-    // create the fdc3 channel and add a listener
-    async function setOrUpdateInboundChannel(
-      thirdPartyChannel: Channel,
-      inbound: string
-    ): Promise<Listener> {
+    /**
+     *
+     * Set the channel that listens to fdc3 context via receivingChannel and send it on via broadcastingChannel
+     */
+    async function setFDC3ChannelCommunication(
+      { receivingChannelName, broadcastingChannelName, receivingChannelListener }: { receivingChannelName: string, broadcastingChannelName: string, receivingChannelListener: Listener }
+    ): Promise<Listener | null> {
       try {
+        // check for channels that are not set - this can be possible as inbound / outbound can be null (not supported)
+        if (receivingChannelName && broadcastingChannelName) {
 
-        const inboundChannel = await fdc3.getOrCreateChannel(inbound);
+          receivingChannelListener && receivingChannelListener.unsubscribe()
 
-        const inboundListener = thirdPartyChannel.addContextListener(
-          // TODO: look at why context is coming through in this format
-          (context) => inboundChannel.broadcast(context.data)
-        );
+          const receivingChannel = await fdc3.getOrCreateChannel(receivingChannelName)
+          const broadcastingChannel = await fdc3.getOrCreateChannel(broadcastingChannelName)
 
-        return inboundListener;
+          // proxy the calls from one channel to another
+          const listener = receivingChannel.addContextListener(
+            (context: Context) => broadcastingChannel.broadcast(context)
+          );
+
+          return listener;
+        }
+        return null
       } catch (error) {
         Logger.error(error);
         return;
       }
     }
-
-    async function setOrUpdateOutboundChannel(
-      thirdPartyChannel: Channel,
-      outbound: string
-    ): Promise<Listener> {
-      try {
-
-        const outboundChannel = await fdc3.getOrCreateChannel(outbound);
-
-        const outboundListener = outboundChannel.addContextListener(
-          // TODO: look at why context is coming through in this format
-          (context: Context) => thirdPartyChannel.broadcast(context.data)
-        );
-
-        return outboundListener;
-      } catch (error) {
-        Logger.error(error);
-        return;
-      }
-    }
-
 
   }
 
