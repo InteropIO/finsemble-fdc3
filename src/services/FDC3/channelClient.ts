@@ -6,40 +6,40 @@ declare global {
 
 const win = window as Window;
 export default class C implements Channel {
-    id: string;
-    type: string;
-    displayMetadata?: DisplayMetadata;
-    #FSBL: any;
-    constructor(params: any) {
-        this.id = params.id;
-        this.type = params.type;
-        this.displayMetadata = params.displayMetadata;
-        this.#FSBL = win.FSBL || params.FSBL
-    }
+	id: string;
+	type: string;
+	displayMetadata?: DisplayMetadata;
+	#FSBL: any;
+	constructor(params: any) {
+		this.id = params.id;
+		this.type = params.type;
+		this.displayMetadata = params.displayMetadata;
+		this.#FSBL = win.FSBL || params.FSBL
+	}
 
-    broadcast(context: object): void {
-        this.#FSBL.Clients.RouterClient.query("FDC3.Channel.broadcast", {
+	broadcast(context: object): void {
+		this.#FSBL.Clients.RouterClient.query("FDC3.Channel.broadcast", {
 			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
 			channel: this.id,
-            context
-        }, () => { });
-    }
+			context
+		}, () => { });
+	}
 
-    async getCurrentContext(contextType?: string): Promise<object> {
-        const { err, response } = await this.#FSBL.Clients.RouterClient.query("FDC3.Channel.getCurrentContext", {
-            channel: this.id,
-            contextType
-        }, () => { });
-        if (err) {
-            throw (err);
-        } else {
-            return response.data;
-        }
-    }
+	async getCurrentContext(contextType?: string): Promise<object> {
+		const { err, response } = await this.#FSBL.Clients.RouterClient.query("FDC3.Channel.getCurrentContext", {
+			channel: this.id,
+			contextType
+		}, () => { });
+		if (err) {
+			throw (err);
+		} else {
+			return response.data;
+		}
+	}
 
-    addContextListener(handler: ContextHandler): Listener;
-    addContextListener(contextType: string, handler: ContextHandler): Listener;
-    addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
+	addContextListener(handler: ContextHandler): Listener;
+	addContextListener(contextType: string, handler: ContextHandler): Listener;
+	addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
 		let theHandler: ContextHandler = null;
 		let theListenerName: string = null;
 
@@ -71,7 +71,7 @@ export default class C implements Channel {
 				//prevent message loops
 				if (response.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
 					//delete response.source // delete non standard source field we added
-					theHandler(response);
+					theHandler(response.data);
 				}
 			};
 			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
@@ -82,6 +82,6 @@ export default class C implements Channel {
 				}
 			}
 		}
-    }
+	}
 
 }
