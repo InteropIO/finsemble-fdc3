@@ -1,9 +1,5 @@
 import * as React from 'react'
 import { produce } from 'immer'
-// import '@chartiq/finsemble/dist/types'
-// import { fdc3, Listener, Channel, Context } from "../../../../FDC3-types";
-
-import { equals } from './utils'
 
 const { useState, useEffect, useRef } = React
 
@@ -48,6 +44,19 @@ enum direction {
 //     }
 //   }
 // }
+
+// https://www.30secondsofcode.org/js/s/equals
+const equals = (a, b) => {
+  if (a === b) return true;
+  if (a instanceof Date && b instanceof Date)
+    return a.getTime() === b.getTime();
+  if (!a || !b || (typeof a !== "object" && typeof b !== "object"))
+    return a === b;
+  if (a.prototype !== b.prototype) return false;
+  let keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((k) => equals(a[k], b[k]));
+};
 
 /**
  * Used to track the previous state and the new state.
