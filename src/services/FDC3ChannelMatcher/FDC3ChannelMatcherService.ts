@@ -30,6 +30,7 @@ Finsemble.Clients.WindowClient.initialize();
  * TODO: Add service description here
  */
 class FDC3ChannelMatcher extends Finsemble.baseService {
+  providerState: any;
   /**
    * Initializes a new instance of the FDC3ChannelMatcher class.
    */
@@ -204,9 +205,20 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
     const providers: [string, ProviderChannels][] = Object.entries(thirdPartyProvider)
     providers.forEach(([providerName, providerChannels]) => {
+      // find the channel(s) that have updated / changed and then update the fdc3channel and state
+      console.log([providerName, providerChannels])
       Object.entries(providerChannels)
-        .forEach(async ([channelName, channelValues]) =>
-          await updateProviderChannel(providerName, channelName, channelValues)
+        .filter(([providerChannelName, { inbound, outbound }]) => {
+          // check to see if the values have been updated since last time
+          const channelState = this.providerState.providers?.[providerName]?.[providerChannelName];
+          const inboundState = channelState?.inbound;
+          const outboundState = channelState?.outbound;
+
+          if (inbound !== inboundState || outbound !== outboundState) return true
+
+        })
+        .forEach(async ([providerChannelName, channelValues]) =>
+          await updateProviderChannel(providerName, providerChannelName, channelValues)
         )
 
       // TODO: When FDC3 adds a method to remove channels, add the ability to remove channel listeners
@@ -223,21 +235,25 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
       const channelState = state.providers?.[providerName]?.[providerChannelName];
 
-      const inboundState = channelState?.inbound;
-      const outboundState = channelState?.outbound;
       // set defaults for inbound and outbound listeners
       let inboundListener: Listener = channelState?.inboundListener;
       let outboundListener: Listener = channelState?.outboundListener;
 
 
-      inboundListener = inbound === inboundState ?
-        await setFDC3ChannelCommunication({ receivingChannelName: providerChannelName, broadcastingChannelName: inbound, receivingChannelListener: inboundListener })
-        : inboundListener
+      inboundListener = inbound &&
+        await setFDC3ChannelCommunication({
+          receivingChannelName: providerChannelName,
+          broadcastingChannelName: inbound,
+          receivingChannelListener: inboundListener
+        })
 
 
-      outboundListener = outbound === outboundState ?
-        await setFDC3ChannelCommunication({ receivingChannelName: outbound, broadcastingChannelName: providerChannelName, receivingChannelListener: outboundListener })
-        : outboundListener
+      outboundListener = outbound &&
+        await setFDC3ChannelCommunication({
+          receivingChannelName: outbound,
+          broadcastingChannelName: providerChannelName,
+          receivingChannelListener: outboundListener
+        })
 
 
       return { inboundListener, outboundListener };
@@ -261,10 +277,19 @@ class FDC3ChannelMatcher extends Finsemble.baseService {
 
           const receivingChannel = await fdc3.getOrCreateChannel(receivingChannelName)
           const broadcastingChannel = await fdc3.getOrCreateChannel(broadcastingChannelName)
+          console.log(`${receivingChannelName} will listen to incoming and then ${broadcastingChannelName} will broadcast it on`)
 
           // proxy the calls from one channel to another
-          const listener = receivingChannel.addContextListener(
-            (context: Context) => broadcastingChannel.broadcast(context)
+          const listener = await receivingChannel.addContextListener(
+            async (context: Context) => {
+              console.group();
+              console.log(`recievingChannel: ${receivingChannelName} && broadcastingChannel: ${broadcastingChannelName} --- context: `)
+              console.log(receivingChannel)
+              console.log(broadcastingChannel)
+              console.log(context)
+              console.groupEnd()
+              await broadcastingChannel.broadcast(context)
+            }
           );
 
           return listener;
