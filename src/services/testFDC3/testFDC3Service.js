@@ -69,7 +69,7 @@ class testFDC3Service extends Finsemble.baseService {
 		});
 
 		this.readyHandler = this.readyHandler.bind(this);
-		this.setUpFDC3 = this.setUpFDC3.bind(this);
+		this.fdc3Ready = this.fdc3Ready.bind(this);
 		this.onBaseServiceReady(this.readyHandler);
 
 	}
@@ -81,33 +81,21 @@ class testFDC3Service extends Finsemble.baseService {
 	readyHandler(callback) {
 		this.createRouterEndpoints();
 		Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-		this.setUpFDC3()
+		this.fdc3Ready()
 		callback();
 
 	}
 
-	async setUpFDC3() {
-		log("hit FDC3Setup")
-		log(Finsemble.Clients.WindowClient.getWindowIdentifier())
-		try {
-			this.FDC3DesktopAgent = new FDC3Client(Finsemble)
-			this.FDC3 = await this.FDC3DesktopAgent.getOrCreateDesktopAgent('service')
-
-			const FDC3 = this.FDC3
-
-			const channelList = await FDC3.getSystemChannels()
-			log(FDC3)
-			log(channelList)
-			channelList[1].addContextListener((data) => {
-				log('listening to context on ' + channelList[1].id)
-				log(data)
-			})
-		} catch (err) {
-			error(err)
-		}
-
-		await log("complete FDC3Setup")
-
+	/**
+	 * Initialize FDC3 - wait for fdc3 to be ready
+	 * @param  {...function} fns - functions to be executed when fdc3 is ready
+	 */
+	fdc3Ready(...fns) {
+		// add any functionality that requires FDC3 in here
+		window.FSBL = {};
+		FSBL.Clients = Finsemble.Clients;
+		this.FDC3Client = new FDC3Client(Finsemble);
+		window.addEventListener("fdc3Ready", () => fns.map(fn => fn()));
 	}
 	// Implement service functionality
 	myFunction(data) {
