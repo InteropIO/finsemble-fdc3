@@ -53,12 +53,19 @@ export default class C implements Channel {
 		}
 
 		if (this.id == "global") {
-			const routerHandler: StandardCallback = (err, response) => {
-				//prevent message loops
-				if (response.data.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
-					//delete response.data.source // delete non standard source field we added
-					theHandler(response.data.context);
+			const routerHandler: StandardCallback = (err: any, response: { data: { source: string; context: Context; }; }) => {
+
+				const { source, context } = response.data
+				const windowIdentifier = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
+
+				if (err) {
+					// ! TODO: this function always returns an error and will need to be fixed
+					// this.#FSBL.Clients.Logger.error(err)
+					// return
 				}
+				//prevent message loops
+				if (source != windowIdentifier) theHandler(context);
+
 			};
 			this.#FSBL.Clients.RouterClient.addListener(theListenerName, routerHandler);
 			return {
@@ -67,12 +74,19 @@ export default class C implements Channel {
 				}
 			}
 		} else {
-			const linkerHandler: StandardCallback = (err, response) => {
-				//prevent message loops
-				if (response.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
-					//delete response.source // delete non standard source field we added
-					theHandler(response.data.context);
+			const linkerHandler: StandardCallback = (err: any, response: { data: { source: string; context: Context; }; }) => {
+
+				const { source, context } = response.data
+				const windowIdentifier = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
+
+				if (err) {
+					// ! TODO: this function always returns an error and will need to be fixed
+					// this.#FSBL.Clients.Logger.error(err)
+					// return
 				}
+				//prevent message loops
+				if (source != windowIdentifier) theHandler(context);
+
 			};
 			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
 			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, linkerHandler);
