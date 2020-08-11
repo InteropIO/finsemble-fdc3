@@ -19,7 +19,6 @@ DialogManager.createStore(() => { });
 import DesktopAgent from './desktopAgent'
 // const queryJSON = require('./objectQuery/queryJSON.js');
 
-
 Logger.log("Desktop Agent starting up");
 
 /**
