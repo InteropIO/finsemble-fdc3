@@ -42,6 +42,7 @@ export default class C implements Channel {
   addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
     let theHandler: ContextHandler = null;
     let theListenerName: string = null;
+    const currentWindowName = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
 
     //disambiguate arguments
     if (typeof contextTypeOrHandler === "string") {
@@ -52,49 +53,32 @@ export default class C implements Channel {
       theListenerName = `FDC3.broadcast`;
     }
 
+    //only send the context data on if it did not get broadcast from this window
+    const messageLoopPrevention = (_arg1: string | Error | null, { data }) =>
+      data.source !== currentWindowName && theHandler(data.context)
+
+
     if (this.id == "global") {
-      const routerHandler: StandardCallback = (err: any, response: { data: { source: string; context: Context; }; }) => {
 
-        const { source, context } = response.data
-        const windowIdentifier = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
+      this.#FSBL.Clients.RouterClient.addListener(theListenerName, messageLoopPrevention);
 
-        if (err) {
-          // ! TODO: this function always returns an error and will need to be fixed
-          // this.#FSBL.Clients.Logger.error(err)
-          // return
-        }
-        //prevent message loops
-        if (source != windowIdentifier) theHandler(context);
-
-      };
-      this.#FSBL.Clients.RouterClient.addListener(theListenerName, routerHandler);
       return {
         unsubscribe: () => {
-          this.#FSBL.Clients.RouterClient.removeListener(theListenerName, routerHandler);
+          this.#FSBL.Clients.RouterClient.removeListener(theListenerName, messageLoopPrevention);
         }
       }
+
     } else {
-      const linkerHandler: StandardCallback = (err: any, response: { data: { source: string; context: Context; }; }) => {
 
-        const { source, context } = response.data
-        const windowIdentifier = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
-
-        if (err) {
-          // ! TODO: this function always returns an error and will need to be fixed
-          // this.#FSBL.Clients.Logger.error(err)
-          // return
-        }
-        //prevent message loops
-        if (source != windowIdentifier) theHandler(context);
-
-      };
       this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
-      this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, linkerHandler);
+      this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, messageLoopPrevention);
+
       return {
         unsubscribe: () => {
-          this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, linkerHandler);
+          this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, messageLoopPrevention);
         }
       }
+
     }
   }
 
