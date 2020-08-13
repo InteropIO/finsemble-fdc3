@@ -3,7 +3,7 @@
   "services": {
     "testFDC3": {
       "bootParams": {
-        "stage": "preuser",
+        "stage": "user",
         "stopOnFailure": false,
         "autoStart": true,
         "customFailureMessage": null,

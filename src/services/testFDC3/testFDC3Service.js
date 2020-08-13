@@ -12,18 +12,16 @@ Finsemble.Clients.Logger.log("TestFDC3 Service starting up");
 // Finsemble.Clients.DistributedStoreClient.initialize();
 // Finsemble.Clients.DragAndDropClient.initialize();
 // Finsemble.Clients.LauncherClient.initialize();
-Finsemble.Clients.LinkerClient.initialize();
+// Finsemble.Clients.LinkerClient.initialize();
 // Finsemble.Clients.HotkeyClient.initialize();
 // Finsemble.Clients.SearchClient.initialize();
 // Finsemble.Clients.StorageClient.initialize();
-Finsemble.Clients.WindowClient.initialize();
+// Finsemble.Clients.WindowClient.initialize();
 // Finsemble.Clients.WorkspaceClient.initialize();
 
 // NOTE: When adding the above clients to a service, be sure to add them to the start up dependencies.
 
-/**
- * TODO: Add service description here
- */
+
 class testFDC3Service extends Finsemble.baseService {
 	/**
 	 * Initializes a new instance of the TestFDC3Service class.
@@ -35,8 +33,7 @@ class testFDC3Service extends Finsemble.baseService {
 				// If the service is using another service directly via an event listener or a responder, that service
 				// should be listed as a service start up dependency.
 				services: [
-					"FDC3",
-					"FDC3Service"
+					// "FDC3"
 					// "assimilationService",
 					// "authenticationService",
 					// "configService",
@@ -59,17 +56,17 @@ class testFDC3Service extends Finsemble.baseService {
 					// "dragAndDropClient",
 					// "hotkeyClient",
 					// "launcherClient",
-					"linkerClient",
+					// "linkerClient",
 					// "searchClient
 					// "storageClient",
-					"windowClient",
+					// "windowClient",
 					// "workspaceClient",
 				]
 			}
 		});
 
 		this.readyHandler = this.readyHandler.bind(this);
-		this.setUpFDC3 = this.setUpFDC3.bind(this);
+		this.fdc3Ready = this.fdc3Ready.bind(this);
 		this.onBaseServiceReady(this.readyHandler);
 
 	}
@@ -81,30 +78,30 @@ class testFDC3Service extends Finsemble.baseService {
 	readyHandler(callback) {
 		this.createRouterEndpoints();
 		Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-		this.fdc3Ready()
+		this.fdc3Ready(this.fdc3Example)
 		callback();
-
 	}
 
-	// add any functionality that requires FDC3 in here
-	fdc3Ready() {
-		this.FDC3Client = new FDC3Client(Finsemble);
+	/**
+	 * Initialize FDC3 - wait for fdc3 to be ready
+	 * @param  {...function} fns - functions to be executed when fdc3 is ready
+	 */
+	fdc3Ready(...fns) {
+		// add any functionality that requires FDC3 in here
 		window.FSBL = {};
 		FSBL.Clients = Finsemble.Clients;
-		window.addEventListener("fdc3Ready", async () => {
+		this.FDC3Client = new FDC3Client(Finsemble);
+		window.addEventListener("fdc3Ready", () => fns.map(fn => fn()));
+	}
 
-			const channelName = "myFDC3Channel"
-			const contextExample = { type: "fdc3.instrument", id: { ticker: "MSFT" } }
+	fdc3Example() {
+		const systemChannels = fdc3.getSystemChannels()
+		console.log(systemChannels)
+	}
 
-			const channel = await fdc3.getOrCreateChannel(channelName);
-
-			// ? use this if you want to send data
-			channel.broadcast(contextExample);
-
-			// ? use this if you want to listen to incoming data
-			channel.addContextListener((context) => { });
-
-		});
+	// Implement service functionality
+	myFunction(data) {
+		return `Data passed into query: \n${JSON.stringify(data, null, "\t")}`;
 	}
 
 	/**
