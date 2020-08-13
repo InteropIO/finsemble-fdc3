@@ -1,15 +1,19 @@
 {
-  "name": "fpe-template-gen",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "finsemble-fdc3",
+  "version": "4.3.0",
+  "description": "Finsemble FDC3 Desktop Agent implementation. See https://github.com/ChartIQ/finsemble-fdc3 for details",
+  "main": "src/services/FDC3/FDC3Client.ts",
   "scripts": {
-    "watch": "node ./fpe-scripts/watch.js",
-    "setup": "node ./fpe-scripts/setup.js"
+    "watch": "node ./fpe-scripts/watch.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "Finsemble",
+    "FDC3",
+    "interop",
+    "desktop agent"
+  ],
+  "author": "ChartIQ <support@finsemble.com> (https://www.chartiq.com/finsemble/)",
+  "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
     "chokidar": "^3.4.0",
     "fs-extra": "^9.0.0"
