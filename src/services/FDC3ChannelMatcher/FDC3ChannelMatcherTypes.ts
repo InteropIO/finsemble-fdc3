@@ -1,24 +1,24 @@
 interface Listener {
-  unsubscribe(): void;
+	unsubscribe(): void;
 }
 
 interface ProviderChannel {
-  inbound: string | null;
-  outbound: string | null;
+	inbound: string | null;
+	outbound: string | null;
 }
 
 interface Provider {
-  [providerName: string]: ProviderChannels
+	[providerName: string]: ProviderChannels;
 }
 
 interface ProviderChannels {
-  [providerFDC3ChannelName: string]: ProviderChannel
+	[providerFDC3ChannelName: string]: ProviderChannel;
 }
 interface ThirdPartyProviders {
-  providers: Provider
+	providers: Provider;
 }
 
 interface StateProviderChannel extends ProviderChannel {
-  inboundListener?: Listener;
-  outboundListener?: Listener;
+	inboundListener?: Listener;
+	outboundListener?: Listener;
 }
