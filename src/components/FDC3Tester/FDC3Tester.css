@@ -1,14 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400&display=swap");
+/* TODO: replace this with a local version */
+
 body {
   margin: 0px;
   background-color: var(--content-background-color);
   color: #d2d2d2;
 }
+header {
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+}
+img {
+  height: 162px;
+  margin: 0px;
+  position: absolute;
+  top: 4px;
+  opacity: 10%;
+}
 
 #FDC3Tester-component-wrapper {
   padding: 10px;
-  font-family: roboto;
+  font-family: "roboto", sans-serif;
 }
-
+h1 {
+  color: var(--accent-primary);
+  text-align: center;
+  margin: 70px;
+  font-family: "Poppins";
+}
+h2 {
+  background: hsla(191, 48%, 32%, 0.19);
+  max-width: 100%;
+  margin: 0;
+  border-radius: 2px;
+  padding: 2px;
+  border-top: 1px solid hsla(191, 48%, 32%, 1);
+  text-align: center;
+  font-weight: 400;
+  letter-spacing: -1px;
+  font-size: 1.7em;
+  font-family: Poppins;
+}
+h3 {
+  font-family: Poppins;
+  font-weight: 200;
+  color: var(--accent-primary);
+  margin-bottom: 0px;
+}
+.api-description {
+  color: hsla(191, 48%, 32%, 0.6);
+  margin-top: 0px;
+  text-indent: 12px;
+  font-size: smaller;
+  margin-bottom: 8px;
+}
 form {
   position: relative;
   width: 740px;
@@ -17,3 +63,67 @@ form {
   box-sizing: border-box;
   display: grid;
 }
+
+.api-demo {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-gap: 15px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+
+button {
+  text-align: center !important;
+  width: fit-content;
+  -webkit-appearance: none;
+  background-color: var(--button-affirmative-background-color);
+  color: #fff;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 0.9em;
+  border: 0px;
+  border-radius: 4px;
+  padding: 4px 7px;
+  vertical-align: middle;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--button-affirmative-background-hover-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+label {
+  display: block;
+}
+
+.api-example {
+  position: relative;
+  font-size: 16px;
+  max-width: 100%;
+  margin: 0;
+  margin-bottom: 65px;
+}
+
+input {
+  color: var(--dialog-input-font-color);
+  font-size: var(--dialog-input-font-size);
+  background-color: var(--dialog-input-background-color);
+  width: 100%;
+  height: 33px;
+  max-width: 100%;
+  padding: 3px 10px;
+  border: 0px;
+  border-bottom: 2px solid var(--dialog-input-border-color);
+  box-sizing: border-box;
+  transition: 0.2s ease-in;
+  text-align: left;
+}
+
+input:focus {
+  border-bottom: 2px solid var(--dialog-input-border-focus-color);
+  outline: none;
+}
+
+.api-demo > div > div > pre;

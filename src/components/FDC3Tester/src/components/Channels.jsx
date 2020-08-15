@@ -1,6 +1,7 @@
 
 import React from 'react'
 import CodeBlock from './CodeBlock'
+import ApiExample from './ApiExample'
 
 export default function Channels() {
 
@@ -14,6 +15,15 @@ export default function Channels() {
   const leaveCurrentChannel = async () => { }
   return (
     <div>
+      <h2>Channels</h2>
+      <ApiExample
+        apiName="getOrCreateChannel"
+        title="getOrCreateChannel"
+        description="Some Example needs to go here"
+        codeAction={context => fdc3.findIntentsByContext(context)}
+        snippet={(context) => `fdc3.findIntentsByContext("${context}")`}
+        inputLabel="Context:"
+      />
       <div>
         <h3>getOrCreateChannel
         </h3>

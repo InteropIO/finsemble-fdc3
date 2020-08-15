@@ -8,7 +8,7 @@ export default function Intents() {
 
   return (
     <div>
-
+      <h2>Intents</h2>
       <ApiExample
         apiName="findIntent"
         title="findIntent"
@@ -39,7 +39,7 @@ export default function Intents() {
         description="Adds a listener for incoming Intents from the Agent."
         codeAction={listener => fdc3.addIntentListener(listener, console.log)}
         snippet={(listener) => `fdc3.addIntentListener("${listener},(context)=>{//do something with the context}")`}
-        inputLabel=":"
+        inputLabel="addIntentListener:"
       />
 
       {/* findIntent(intent: string, context?: Context): Promise<AppIntent>;

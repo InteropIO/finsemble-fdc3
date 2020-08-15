@@ -1,32 +1,17 @@
 import React, { useState } from 'react'
 import CodeBlock from './CodeBlock'
 
-// function MyComp() {
-
-//   return (
-//     <APIExample
-//       apiName=""
-//       title=""
-//       description=""
-//       codeAction=""
-//       snippet=""
-//       inputLabel=""
-
-//     />
-//   )
-// }
-
 export default function ApiExample(props) {
 
-  const { apiName, title, description, snippet, codeAction, inputLabel } = props
+  const { apiName, title, description, snippet, codeAction, inputLabel, inputs = null } = props
   const [apiResult, setApiResult] = useState(null)
   const [inputValueForSnippet, setInputValueForSnippet] = useState("")
 
   return (
-    <div>
+    <div className="api-example">
       <h3>{title}</h3>
-      <p>{description}</p>
-      <InteractiveDemo apiName={apiName} inputLabel={inputLabel} buttonAction={codeAction} setApiResult={setApiResult} setInputValueForSnippet={setInputValueForSnippet} />
+      <p className="api-description">{description}</p>
+      <InteractiveDemo apiName={apiName} inputLabel={inputLabel} buttonAction={codeAction} setApiResult={setApiResult} setInputValueForSnippet={setInputValueForSnippet} inputs={inputs} />
       <CodeSection snippet={typeof snippet === "string" ? snippet : snippet(inputValueForSnippet)} result={apiResult} />
     </div>
   )
@@ -34,8 +19,17 @@ export default function ApiExample(props) {
 }
 
 function InteractiveDemo(props) {
-  const { inputLabel, apiName, buttonAction, setApiResult, setInputValueForSnippet } = props
+  const { inputLabel, apiName, buttonAction, setApiResult, setInputValueForSnippet, inputs } = props
   const [inputValue, setInputValue] = useState("")
+
+  // TODO: add the ability to use muliple inputs inputs will be an array of objects see example below
+
+  const exampleInputs = [
+    { label: "", name: "" }, // name would be a prop?
+    { label: "", name: "" },
+    { label: "", name: "" },
+  ]
+
 
   const updatePatentState = async () => {
     const result = await buttonAction(inputValue)
@@ -51,10 +45,10 @@ function InteractiveDemo(props) {
   }
 
   return (
-    <div>
+    <div className="api-demo">
       <label htmlFor={apiName}>{inputLabel}</label>
       <input onChange={handleInput} name={apiName}></input>
-      <button onClick={updatePatentState}>{apiName}</button>
+      <button onClick={updatePatentState}>run code</button>
     </div>
   )
 
@@ -63,25 +57,27 @@ function InteractiveDemo(props) {
 function CodeSection(props) {
   const { snippet, result = null } = props
   const [showCodeSnippet, setShowCodeSnippet] = useState(true)
-  const [showCodeResult, setShowCodeResult] = useState(true)
+  const [showCodeResult, setShowCodeResult] = useState(false)
   return (
     <div>
-      <span onClick={() => setShowCodeSnippet(!showCodeSnippet)}>{showCodeSnippet ? "hide" : "show"}</span>
+      {/* <span onClick={() => setShowCodeSnippet(!showCodeSnippet)}>{!showCodeSnippet ? "show code result 🔽" : "hide code result 🔼"}</span> */}
 
       {showCodeSnippet &&
         <div>
-          <p>Code Example:</p>
+          {/* <p>Code Example:</p> */}
           <CodeBlock>
             {
-              snippet
+              `// code example
+${snippet}`
             }
           </CodeBlock>
         </div>
 
       }
-      <span onClick={() => setShowCodeResult(!showCodeResult)}>{showCodeResult ? "hide" : "show"}</span>
+      {/* <span onClick={() => setShowCodeResult(!showCodeResult)}>{!showCodeResult ? "show code result 🔽" : "hide code result"}</span> */}
 
-      {result && showCodeResult &&
+      {
+        result && showCodeResult &&
         <div>
           <p>Code Result:</p>
           <CodeBlock language="json" >{`${JSON.stringify(result, null, 2)}`} </CodeBlock>

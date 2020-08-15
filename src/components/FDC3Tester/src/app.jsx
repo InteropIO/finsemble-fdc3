@@ -7,7 +7,12 @@ import Channels from "./components/Channels";
 function FDC3Tester() {
 	return (
 		<div>
-			<h1>FDC3 Testing Component</h1>
+			<header>
+				<img src="https://fdc3.finos.org/img/fdc3-icon-2019.svg" />
+				<h1>
+					FDC3 Testing Component
+				</h1>
+			</header>
 			<Apps></Apps>
 			<Intents></Intents>
 			<Channels></Channels>
