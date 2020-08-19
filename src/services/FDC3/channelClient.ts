@@ -18,6 +18,11 @@ export default class C implements Channel {
 	}
 
 	broadcast(context: object): void {
+		this.#FSBL.Clients.RouterClient.query(`FDC3.broadcast.${(context as any).type}`, {
+			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
+			channel: this.id,
+			context
+		}, () => { });
 		this.#FSBL.Clients.RouterClient.query("FDC3.Channel.broadcast", {
 			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
 			channel: this.id,
@@ -42,6 +47,7 @@ export default class C implements Channel {
 	addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
 		let theHandler: ContextHandler = null;
 		let theListenerName: string = null;
+		const currentWindowName = this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName
 
 		//disambiguate arguments
 		if (typeof contextTypeOrHandler === "string") {
@@ -52,35 +58,32 @@ export default class C implements Channel {
 			theListenerName = `FDC3.broadcast`;
 		}
 
+		//only send the context data on if it did not get broadcast from this window
+		const messageLoopPrevention = (_arg1: string | Error | null, { data }) =>
+			data.source !== currentWindowName && theHandler(data.context)
+
+
 		if (this.id == "global") {
-			const routerHandler: StandardCallback = (err, response) => {
-				//prevent message loops
-				if (response.data.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
-					//delete response.data.source // delete non standard source field we added
-					theHandler(response.data.context);
-				}
-			};
-			this.#FSBL.Clients.RouterClient.addListener(theListenerName, routerHandler);
+
+			this.#FSBL.Clients.RouterClient.addListener(theListenerName, messageLoopPrevention);
+
 			return {
 				unsubscribe: () => {
-					this.#FSBL.Clients.RouterClient.removeListener(theListenerName, routerHandler);
+					this.#FSBL.Clients.RouterClient.removeListener(theListenerName, messageLoopPrevention);
 				}
 			}
+
 		} else {
-			const linkerHandler: StandardCallback = (err, response) => {
-				//prevent message loops
-				if (response.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
-					//delete response.source // delete non standard source field we added
-					theHandler(response.data.context);
-				}
-			};
+
 			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
-			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, linkerHandler);
+			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, messageLoopPrevention);
+
 			return {
 				unsubscribe: () => {
-					this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, linkerHandler);
+					this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, messageLoopPrevention);
 				}
 			}
+
 		}
 	}
 
