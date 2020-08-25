@@ -1,19 +1,31 @@
+require('dotenv').config()
 const chokidar = require('chokidar');
+const chalk = require('chalk')
 const path = require("path");
 const { copy, mkdirp, access, constants, readJson, writeJson, remove } = require("fs-extra");
+
+const errorColor = chalk.bold.red;
+const warningColor = chalk.keyword('orange');
+const successColor = chalk.bold.green;
+const infoColor = chalk.cyan;
+const errorLog = (value) => console.error(errorColor(value))
+const successLog = (value) => console.log(successColor(value))
+const infoLog = (value) => console.log(infoColor(value))
 
 const configJSON = require("../finsemble.config.json")
 const SRC_FOLDER = "./src"
 const FINSEMBLE_CONFIG = "finsemble.config.json"
 
-const seedDirectory = path.join(configJSON.seedProjectDirectory);
+const state = {
+  importConfig: []
+}
 
-
-let watcher;
+const seedProjectPath = process.env.SEED || configJSON.seedProjectDirectory
+const seedDirectory = path.join(seedProjectPath)
 
 access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
   if (err) {
-    console.error(
+    errorLog(
       `${seedDirectory} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
   } else {
     beginWatch(seedDirectory)
@@ -22,19 +34,18 @@ access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
 
 function beginWatch(seedDirectory) {
   // Initialize watcher.
-
-  watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG], {
+  const watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG, "package.json"], {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true
   });
   // Add event listeners.
   watcher
-    .on('add', path => updateSeed('add', path, `File ${path} has been added`, seedDirectory))
-    .on('change', path => updateSeed('add', path, `File ${path} has been changed`, seedDirectory))
-    .on('unlink', path => updateSeed('add', path, `File ${path} has been removed`, seedDirectory))
-    .on('addDir', path => updateSeed('addDir', path, `Directory ${path} has been added`, seedDirectory))
-    .on('unlinkDir', path => updateSeed('unlinkDir', path, `Directory ${path} has been removed`, seedDirectory))
-    .on('error', error => console.log(`Watcher error: ${error}`, seedDirectory))
+    .on('add', path => updateSeed('add', path, `Added File: ${path}`, seedDirectory))
+    .on('change', path => updateSeed('add', path, `Updated: ${path}`, seedDirectory))
+    .on('unlink', path => updateSeed('add', path, `Removed: ${path}`, seedDirectory))
+    .on('addDir', path => updateSeed('addDir', path, `Added Directory: ${path}`, seedDirectory))
+    .on('unlinkDir', path => updateSeed('unlinkDir', path, `Removed Directory: ${path}`, seedDirectory))
+    .on('error', error => errorLog(`Watcher error: ${error}`, seedDirectory))
     .on('ready', () => ready(seedDirectory))
 }
 
@@ -52,21 +63,26 @@ function updateSeed(action, currentPath, message, seedDirectory) {
     return
   }
 
+  if (currentPath === "package.json") {
+    updatePackageJSON(currentPath, seedDirectory)
+    return
+  }
+
   if (action === "addDir") {
     mkdirp(destinationPath)
   }
 
   if (action === "change" || action === "add") {
     copy(currentPath, destinationPath)
-      .then(() => console.log(message))
-      .catch(err => console.error(`could not change or add file or folder: ${err}`))
+      .then(() => infoLog(message))
+      .catch(err => errorLog(`could not change or add file or folder: ${err}`))
     return
   }
 
-  if (action === "remove" || action === "unlinkDir") {
+  if (action === "unlink" || action === "unlinkDir") {
     remove(destinationPath)
-      .then(() => console.log(message))
-      .catch(err => console.error(`could not remove file or folder: ${err}`))
+      .then(() => infoLog(message))
+      .catch(err => errorLog(`could not remove file or folder: ${err}`))
     return
   }
 }
@@ -77,7 +93,7 @@ function ready(seedDirectory) {
     watcher.close()
   }
 
-  console.log(`
+  successLog(`
   ✔ Seed Project Folder Found at ${seedDirectory}
   ✔ src folder found
 
@@ -90,18 +106,29 @@ async function updateConfig(seedDirectory, currentFile) {
   const seedConfigPath = path.join(seedDirectory, 'configs/application/config.json')
 
   try {
-    const seedConfig = await readJson(seedConfigPath)
     const projectConfig = await readJson(currentFile)
+    const oldProjectImportConfigValues = state.importConfig;
+    const deletedConfigValues = oldProjectImportConfigValues.filter(configValue => !projectConfig.importConfig.includes(configValue)
+    )
 
-    const importConfig = [...seedConfig.importConfig, ...projectConfig.importConfig]
-    seedConfig.importConfig = Array.from(new Set(importConfig))
+    let seedConfig = await readJson(seedConfigPath)
+    let newConfig = [...seedConfig.importConfig, ...projectConfig.importConfig]
 
-    const output = await writeJson(seedConfigPath, seedConfig, { spaces: 2 })
-    if (output) console.log('success writing config!')
+    // remove old unused or deleted config values
+    newConfig = newConfig.filter(configValue => !deletedConfigValues.includes(configValue))
 
+    // only get unique values, no duplicates
+    seedConfig.importConfig = Array.from(new Set(newConfig))
+
+    await writeJson(seedConfigPath, seedConfig, { spaces: 2 })
+
+    state.importConfig = projectConfig.importConfig;
+    successLog(`
+    📑 success updating config
+    `)
 
   } catch (error) {
-    console.error(error)
+    errorLog(error)
   }
 
 }
