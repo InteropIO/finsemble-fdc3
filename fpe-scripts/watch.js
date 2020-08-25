@@ -3,12 +3,13 @@ const path = require("path");
 const { copy, mkdirp, access, constants, readJson, writeJson, remove } = require("fs-extra");
 
 const configJSON = require("../finsemble.config.json")
-
-
 const SRC_FOLDER = "./src"
 const FINSEMBLE_CONFIG = "finsemble.config.json"
 
-const seedDirectory = path.join(configJSON.seedProjectDirectory)
+const seedDirectory = path.join(configJSON.seedProjectDirectory);
+
+
+let watcher;
 
 access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
   if (err) {
@@ -21,12 +22,11 @@ access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
 
 function beginWatch(seedDirectory) {
   // Initialize watcher.
-  const watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG], {
+
+  watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG], {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true
   });
-
-
   // Add event listeners.
   watcher
     .on('add', path => updateSeed('add', path, `File ${path} has been added`, seedDirectory))
@@ -72,6 +72,11 @@ function updateSeed(action, currentPath, message, seedDirectory) {
 }
 
 function ready(seedDirectory) {
+  // exit if only copy vs watch
+  if (process.argv.includes("copy")) {
+    watcher.close()
+  }
+
   console.log(`
   ✔ Seed Project Folder Found at ${seedDirectory}
   ✔ src folder found
@@ -97,6 +102,31 @@ async function updateConfig(seedDirectory, currentFile) {
 
   } catch (error) {
     console.error(error)
+  }
+
+}
+
+async function updatePackageJSON(currentFile, seedDirectory) {
+  const seedPackageJSONPath = path.join(seedDirectory, 'package.json')
+
+  try {
+
+    // get the seed package.json file
+    let seedPackageJSON = await readJson(seedPackageJSONPath)
+    // get the current package.json file
+    const projectPackageJSON = await readJson(currentFile)
+
+    seedPackageJSON.dependencies = { ...seedPackageJSON.dependencies, ...projectPackageJSON.dependencies }
+
+
+    await writeJson(seedPackageJSONPath, seedPackageJSON, { spaces: 2 })
+
+    successLog(`
+    ✔ success updating package.json
+    `)
+
+  } catch (error) {
+    errorLog(error)
   }
 
 }
