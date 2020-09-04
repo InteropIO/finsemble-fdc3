@@ -17,6 +17,12 @@
     - [Intents](#intents)
     - [Channels](#channels)
   - [Example use cases](#example-use-cases)
+  - [FDC3 in Finsemble Dot-Net Components](#fdc3-in-finsemble-dot-net-components)
+    - [API](#dot-net-api)
+      - [App](#dot-net-app)
+      - [Context](#ot-net-context)
+      - [Intents](#ot-net-intents)
+      - [Channels](#ot-net-channels)
 
 
 # Intro to FDC3
@@ -446,3 +452,166 @@ An example of a finsemble custom type may look like this:
   ]
 }
 ```
+## FDC3 in Finsemble Dot-Net Components
+You can use FDC3 in your dot-net application. The [finsemble-dotnet-seed](https://github.com/ChartIQ/finsemble-dotnet-seed) project provides a WPF Example on how to enable FDC3 support in dot-net application.
+
+To enable FDC3 in you Dot-Net components, in you dot-net component config set <code>component.useFdc3</code> to <code>true</code>. You can find example in the <code>wfpExample.json</code>
+### Dot-Net API
+#### Dot-Net App
+
+<table>
+<thead>
+<tr>
+  <th>API</th><th>Description</th><th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td> <code>void open(String name, JObject context, EventHandler < JObject > cb)</code> </td>
+  <td>Open a component and optionally send context for it to use. Name relates to a Finsemble Component type such as "Welcome Component"</td>
+  <td><code>FSBL.FDC3Client.fdc3.open('ChartIQ Chart')</code></td>
+</tr>
+</tbody>
+</table>
+
+<br/>
+
+#### Dot-Net Context
+<table>
+<thead>
+<tr>
+  <th>API</th><th>Description</th><th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>void broadcast(JObject context);</code></td>
+  <td>Send context to the channel the app is currently join to. We default applications to join on the Global Channel.</td>
+  <td><code>FSBL.FDC3Client.fdc3.open(componentName, new JObject
+					{
+						["type"] = "fdc3.instrument",
+						["name"] = "AAPL",
+						["id"] = new JObject
+						{
+							["ticker"] = "AAPL"
+						}
+					}, (s, args) => { });</code></td>
+</tr>
+
+<tr>
+  <td>
+  <code>IListener addContextListener(String contextType, EventHandler< JObject > handler);
+  
+  IListener addContextListener(EventHandler< JObject > handler);</code>
+  </td>
+  <td>Listen to broadcast context on the channel the app is currently join to. We default applications to join on the Global Channel.</td>
+  <td><code>
+FSBL.FDC3Client.fdc3.addContextListener((s, context) => {});
+FSBL.FDC3Client.fdc3.addContextListener("fdc3.instrument", (s, context) => {});</code> </td>
+</tr>
+</tbody>
+</table>
+
+<br/>
+
+#### Dot-Net Intents
+<table>
+<thead>
+<tr>
+  <th>API</th><th>Description</th><th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>void findIntent(String intent, JObject context, EventHandler< JObject > cb);
+  
+  void findIntent(String intent, EventHandler< JObject > cb);</code></td>
+  <td>List all the applications that can deal with a certain intent.</td>
+  <td><code>FSBL.FDC3Client.fdc3.findIntent("ViewChart", (s, intent) =>{ });</code></td>
+</tr>
+
+<tr>
+  <td><code>void findIntentsByContext(JObject context, EventHandler< JArray > cb);</code></td>
+  <td>List all the applications that can deal with a certain context.</td>
+  <td><code>FSBL.FDC3Client.fdc3.findIntentsByContext(new JObject{
+						["type"] = "fdc3.instrument"
+					}, (s, intents) =>
+					{
+					}
+					);</code></td>
+</tr>
+
+<tr>
+  <td><code>void raiseIntent(String intent, JObject context, EventHandler< JObject > cb);</code></td>
+  <td>Open an application by name and optionally pass context to be used by that app.</td>
+  <td><code>FSBL.FDC3Client.fdc3.raiseIntent("ViewChart", new JObject
+					{
+						["type"] = "fdc3.instrument",
+						["name"] = "AAPL",
+						["id"] = new JObject
+						{
+							["ticker"] = "AAPL"
+						}
+					}, (s, args) => { });</code></td>
+</tr>
+
+<tr>
+  <td><code>IListener addIntentListener(String intent, EventHandler< JObject > handler);</code></td>
+  <td>Add this to your component so that it can action intents when they are sent.</td>
+  <td><code>FSBL.FDC3Client.fdc3.addIntentListener("ViewChart", (s, context) => { });</code></td>
+</tr>
+</tbody>
+</table>
+
+<br/>
+
+#### Dot-Net Channels
+
+The DesktopAgent API will allow you to join, listen to and broadcast context to a single 'channel' via its API. However, you can also interact directly with FDC3 channels, which have the following interface:
+
+```c#
+public interface IChannel
+{
+  String id { get; }
+  String type { get; }
+  DisplayMetadata displayMetadata { get; }
+  void broadcast(JObject context);
+  void getCurrentContext(String contextType, EventHandler<JObject> cb);
+  IListener addContextListener(EventHandler<JObject> handler);
+  IListener addContextListener(String contextType, EventHandler<JObject> handler);
+}
+```
+
+<table>
+<thead>
+<tr>
+  <th>API</th><th>Description</th><th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+  <td> <code>void getOrCreateChannel(String channelId, EventHandler< IChannel > cb);</code> </td>
+  <td>If the channel does not exist it will be created.</td>
+  <td><code>FSBL.FDC3Client.fdc3.getOrCreateChannel("channel1", (s, args) => { });</code></td>
+</tr>
+<tr>
+  <td> <code>void getSystemChannels(EventHandler< List< IChannel > > cb);</code> </td>
+  <td>List all the system channels including the "global" channel.</td>
+  <td><code>FSBL.FDC3Client.fdc3.getSystemChannels((s, channelList) => {});</code></td>
+</tr>
+<tr>
+  <td> <code>void joinChannel(String channelId);</code> </td>
+  <td>Join a channel by using it's name. If the channel is not found it will Error. <b>You can only join one channel at a time.</b> </td>
+  <td><code>FSBL.FDC3Client.fdc3.joinChannel("group1");</code></td>
+</tr>
+<tr>
+  <td> <code>IChannel getCurrentChannel(EventHandler< IChannel > cb);</code> </td>
+  <td>Returns the channel that you are currently joined to.</td>
+  <td><code>FSBL.FDC3Client.fdc3.getCurrentChannel((s, channel) => {});</code></td>
+</tr>
+<tr>
+  <td> <code>void leaveCurrentChannel(EventHandler< JObject > cb);</code> </td>
+  <td>Leave the channel that you are currently joined to.</td>
+  <td><code>FSBL.FDC3Client.fdc3.leaveCurrentChannel((s, args) => {});</code></td>
+</tr>
+</tbody>
+</table>
