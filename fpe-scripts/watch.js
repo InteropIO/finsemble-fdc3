@@ -12,6 +12,8 @@ const errorLog = (value) => console.error(errorColor(value))
 const successLog = (value) => console.log(successColor(value))
 const infoLog = (value) => console.log(infoColor(value))
 
+let watcher;
+
 const configJSON = require("../finsemble.config.json")
 const SRC_FOLDER = "./src"
 const FINSEMBLE_CONFIG = "finsemble.config.json"
@@ -34,7 +36,7 @@ access(seedDirectory, constants.F_OK | constants.W_OK, (err) => {
 
 function beginWatch(seedDirectory) {
   // Initialize watcher.
-  const watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG, "package.json"], {
+  watcher = chokidar.watch([SRC_FOLDER, FINSEMBLE_CONFIG, "package.json"], {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true
   });
