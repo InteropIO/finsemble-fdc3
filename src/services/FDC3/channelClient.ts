@@ -18,11 +18,6 @@ export default class C implements Channel {
 	}
 
 	broadcast(context: object): void {
-		this.#FSBL.Clients.RouterClient.query(`FDC3.broadcast.${(context as any).type}`, {
-			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
-			channel: this.id,
-			context
-		}, () => { });
 		this.#FSBL.Clients.RouterClient.query("FDC3.Channel.broadcast", {
 			source: this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName, //used to prevent message loops
 			channel: this.id,
