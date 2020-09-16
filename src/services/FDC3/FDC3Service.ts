@@ -117,7 +117,6 @@ class FDC3Service extends BaseService {
 							this.channels[queryMessage.data.channelId] = response;
 							break;
 						case "getSystemChannels":
-							debugger;
 							response = await this.desktopAgent.getSystemChannels();
 							break;
 						case "joinChannel":
