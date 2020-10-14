@@ -126,4 +126,22 @@ input:focus {
   outline: none;
 }
 
-.api-demo > div > div > pre;
+span.snippet-buttons {
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: white;
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #ffffff21;
+}
+
+span.snippet-buttons-disabled {
+  cursor: default;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.26);
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #ffffff21;
+}

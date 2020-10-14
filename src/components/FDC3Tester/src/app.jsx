@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Apps from "./components/Apps";
-import Intents from "./components/Intents";
-import Channels from "./components/Channels";
+import Apps from "./Apps";
+import Intents from "./Intents";
+import Channels from "./Channels";
+import Context from "./Context";
+
 
 function FDC3Tester() {
 	return (
@@ -16,6 +18,7 @@ function FDC3Tester() {
 			<Apps></Apps>
 			<Intents></Intents>
 			<Channels></Channels>
+			<Context></Context>
 		</div>
 	);
 }

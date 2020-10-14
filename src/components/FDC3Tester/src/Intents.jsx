@@ -1,6 +1,6 @@
 
 import React from 'react'
-import ApiExample from './ApiExample'
+import ApiExample from './components/ApiExample'
 
 
 export default function Intents() {
@@ -9,6 +9,7 @@ export default function Intents() {
   return (
     <div>
       <h2>Intents</h2>
+      {/* findIntent */}
       <ApiExample
         apiName="findIntent"
         title="findIntent"
@@ -17,22 +18,27 @@ export default function Intents() {
         snippet={(intent) => `fdc3.findIntent("${intent}")`}
         inputLabel="Intent:"
       />
+
+      {/* findIntentsByContext */}
       <ApiExample
         apiName="findIntentsByContext"
         title="findIntentsByContext"
-        description="Some Example needs to go here"
+        description="Find all available intents by context type."
         codeAction={context => fdc3.findIntentsByContext(context)}
         snippet={(context) => `fdc3.findIntentsByContext("${context}")`}
         inputLabel="Context:"
       />
+
+      {/* raiseIntent */}
       <ApiExample
         apiName="raiseIntent"
         title="raiseIntent"
-        description="Some Example needs to go here"
+        description="Raise an Intent."
         codeAction={intent => fdc3.raiseIntent(intent)}
         snippet={(intent) => `fdc3.raiseIntent("${intent}")`}
         inputLabel="Intent:"
       />
+      {/* addIntentListener */}
       <ApiExample
         apiName="addIntentListener"
         title="addIntentListener"
@@ -41,11 +47,6 @@ export default function Intents() {
         snippet={(listener) => `fdc3.addIntentListener("${listener},(context)=>{//do something with the context}")`}
         inputLabel="addIntentListener:"
       />
-
-      {/* findIntent(intent: string, context?: Context): Promise<AppIntent>;
-  findIntentsByContext(context: Context): Promise<Array<AppIntent>>;
-  raiseIntent(intent: string, context: Context, target?: string): Promise<IntentResolution>;
-  addIntentListener(intent: string, handler: ContextHandler): Listener; */}
 
     </div>
   )

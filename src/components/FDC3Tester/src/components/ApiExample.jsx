@@ -9,9 +9,13 @@ export default function ApiExample(props) {
 
   return (
     <div className="api-example">
+
       <h3>{title}</h3>
+
       <p className="api-description">{description}</p>
+
       <InteractiveDemo apiName={apiName} inputLabel={inputLabel} buttonAction={codeAction} setApiResult={setApiResult} setInputValueForSnippet={setInputValueForSnippet} inputs={inputs} />
+
       <CodeSection snippet={typeof snippet === "string" ? snippet : snippet(inputValueForSnippet)} result={apiResult} />
     </div>
   )
@@ -19,16 +23,8 @@ export default function ApiExample(props) {
 }
 
 function InteractiveDemo(props) {
-  const { inputLabel, apiName, buttonAction, setApiResult, setInputValueForSnippet, inputs } = props
+  const { inputLabel = false, apiName, buttonAction, setApiResult, setInputValueForSnippet } = props
   const [inputValue, setInputValue] = useState("")
-
-  // TODO: add the ability to use muliple inputs inputs will be an array of objects see example below
-
-  const exampleInputs = [
-    { label: "", name: "" }, // name would be a prop?
-    { label: "", name: "" },
-    { label: "", name: "" },
-  ]
 
 
   const updatePatentState = async () => {
@@ -44,10 +40,29 @@ function InteractiveDemo(props) {
     }
   }
 
+  const InputArea = ({ inputLabel }) => (
+    Array.isArray(inputLabel) ?
+
+      inputLabel.map((item, index) => (
+        <div>
+          <label htmlFor={item}>{inputLabel}</label>
+          <input onChange={handleInput} name={item} value={inputValue}></input>
+        </div>
+      ))
+      :
+      <div>
+        <label htmlFor={apiName}>{inputLabel}</label>
+        <input onChange={handleInput} name={apiName} value={inputValue}></input>
+      </div>
+  )
+
   return (
     <div className="api-demo">
-      <label htmlFor={apiName}>{inputLabel}</label>
-      <input onChange={handleInput} name={apiName}></input>
+      {/* <div>
+
+      </div> */}
+      {!inputLabel ? "" : <InputArea inputLabel={inputLabel} />}
+
       <button onClick={updatePatentState}>run code</button>
     </div>
   )
@@ -58,9 +73,11 @@ function CodeSection(props) {
   const { snippet, result = null } = props
   const [showCodeSnippet, setShowCodeSnippet] = useState(true)
   const [showCodeResult, setShowCodeResult] = useState(false)
+
   return (
     <div>
-      {/* <span onClick={() => setShowCodeSnippet(!showCodeSnippet)}>{!showCodeSnippet ? "show code result 🔽" : "hide code result 🔼"}</span> */}
+      <span className="snippet-buttons" onClick={() => setShowCodeSnippet(!showCodeSnippet)}>{!showCodeSnippet ? "show code snippet  ➕" : "hide code snippet ➖"}</span>
+      <span className={`snippet-buttons${result ? "" : "-disabled"}`} onClick={() => result && setShowCodeResult(!showCodeResult)}>{!showCodeResult ? "show code result ➕" : "hide code result ➖"}</span>
 
       {showCodeSnippet &&
         <div>
@@ -74,7 +91,6 @@ ${snippet}`
         </div>
 
       }
-      {/* <span onClick={() => setShowCodeResult(!showCodeResult)}>{!showCodeResult ? "show code result 🔽" : "hide code result"}</span> */}
 
       {
         result && showCodeResult &&
