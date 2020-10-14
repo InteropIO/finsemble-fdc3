@@ -1,5 +1,5 @@
 import * as React from 'react'
-// import { FinsembleDialog } from "@chartiq/finsemble-react-controls";
+
 import "../intentResolver.css";
 import CloseIcon from './CloseIcon';
 import AddBoxIcon from './AddBoxIcon';
