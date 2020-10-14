@@ -105,7 +105,7 @@ export default function App() {
         (component: FinsembleComponent) =>
           // if the component matches with an app of the same name return it
           apps.some(
-            (app: AppMetadata): boolean => app.name === component.customData.component.type
+            (app: AppMetadata): boolean => app.name === component?.customData?.component?.type
           )
       ).map(
         (component: FinsembleComponent): FinsembleIntentApp => {
