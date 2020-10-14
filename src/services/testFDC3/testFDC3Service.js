@@ -1,4 +1,4 @@
-const Finsemble = require("@chartiq/finsemble");
+const Finsemble = require("@finsemble/finsemble-core");
 
 const FDC3Client = require('../FDC3/FDC3Client').default
 const { log, error } = Finsemble.Clients.Logger

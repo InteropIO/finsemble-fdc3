@@ -3,7 +3,7 @@
 * All rights reserved.
 */
 
-const Finsemble = require("@chartiq/finsemble");
+const Finsemble = require("@finsemble/finsemble-core");
 const BaseService = Finsemble.baseService;
 const { RouterClient, LinkerClient, DialogManager, WindowClient, LauncherClient, DistributedStoreClient, Logger } = Finsemble.Clients;
 
