@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import CodeBlock from './CodeBlock'
 
 export default function ApiExample(props) {
@@ -25,6 +25,24 @@ export default function ApiExample(props) {
 function InteractiveDemo(props) {
   const { inputLabel, apiName, buttonAction, setApiResult, setInputValueForSnippet, placeholder } = props
   const [inputValue, setInputValue] = useState("")
+  const [clipboardCopyMessageVisible, setClipboardCopyMessageVisible] = useState(false)
+
+
+
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(placeholder)
+    setClipboardCopyMessageVisible(true)
+
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => setClipboardCopyMessageVisible(false)
+      , 5000)
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [clipboardCopyMessageVisible])
 
 
   const updatePatentState = async () => {
@@ -32,7 +50,7 @@ function InteractiveDemo(props) {
       // TODO:Remove the hardcoded values
       let result;
       if (inputValue) {
-        if (apiName.includes("addContextListener") || apiName.includes("broadcast")) {
+        if (apiName.includes("addContextListener") || apiName.includes("broadcast") || apiName.includes("findIntentsByContext")) {
           result = await buttonAction(JSON.parse(inputValue))
         } else {
           result = await buttonAction(inputValue)
@@ -42,6 +60,7 @@ function InteractiveDemo(props) {
       }
       await setApiResult(result)
     } catch (error) {
+      console.log(error);
       setApiResult(error)
     }
 
@@ -58,7 +77,12 @@ function InteractiveDemo(props) {
   return (
     <div className="api-demo" key={apiName}>
       {!inputLabel ? "" : <div>
-        <label htmlFor={apiName}>{inputLabel} {placeholder && <span onClick={() => navigator.clipboard.writeText(placeholder)} style={{ cursor: "pointer" }}>📋</span>}</label>
+        <label htmlFor={apiName}>
+          {inputLabel}
+          {placeholder &&
+            <span onClick={copyToClipboard} style={{ cursor: "pointer" }}>📋</span>}
+          <i>{clipboardCopyMessageVisible && "Copied to clipboard!"}</i>
+        </label>
         <input onChange={handleInput} name={apiName} value={inputValue} placeholder={placeholder && `Example:${placeholder}`}></input>
       </div>}
 
@@ -68,6 +92,10 @@ function InteractiveDemo(props) {
 
 }
 
+/**
+ * Code Section
+ * @param {*} props
+ */
 function CodeSection(props) {
   const { snippet, result = null } = props
   const [showCodeSnippet, setShowCodeSnippet] = useState(true)
