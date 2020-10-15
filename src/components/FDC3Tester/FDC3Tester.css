@@ -3,9 +3,19 @@
 
 @import "../../../assets/css/theme.css";
 
+:root{
+  --tester-primary-color:#2196f3;
+  --tester-bg-color: #171a20;
+  --tester-accent-color: rgb(0, 217, 255);
+  --tester-button-color: #36788b;
+  --tester-button-color-hover: #43a8c4;
+  --tester-font-color-primary: white;
+  --tester-font-color-secondary: black;
+}
+
 body {
   margin: 0px;
-  background-color: var(--content-background-color);
+  background-color: var(--content-background-color,var(--tester-bg-color));
   color: #d2d2d2;
 }
 header {
@@ -26,7 +36,7 @@ img {
   font-family: "roboto", sans-serif;
 }
 h1 {
-  color: var(--accent-primary);
+  color: var(--accent-primary,var(--tester-accent-color));
   text-align: center;
   margin: 70px;
   font-family: "Poppins";
@@ -47,7 +57,7 @@ h2 {
 h3 {
   font-family: Poppins;
   font-weight: 200;
-  color: var(--accent-primary);
+  color: var(--accent-primary,var(--tester-accent-color));
   margin-bottom: 0px;
 }
 .api-description {
@@ -78,7 +88,7 @@ button {
   text-align: center !important;
   width: fit-content;
   -webkit-appearance: none;
-  background-color: var(--button-color-hover);
+  background-color: var(--button-color-hover,var(--tester-button-color-hover));
   color: #fff;
   font-family: var(--font-family);
   font-weight: 400;
@@ -91,7 +101,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--button-color) !important;
+  background-color: var(--button-color,var(--tester-button-color)) !important;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -115,15 +125,15 @@ input {
   max-width: 100%;
   padding: 3px 10px;
   border: 0px;
-  border-bottom: 2px solid var(--button-color-hover);
+  border-bottom: 2px solid var(--button-color-hover,var(--tester-button-color-hover));
   box-sizing: border-box;
   transition: 0.2s ease-in;
   text-align: left;
-  color: var(--font-color-2);
+  color: var(--font-color,var(--tester-font-color-primary));
 }
 
 input:focus {
-  border-bottom: 2px solid var(--button-color);
+  border-bottom: 2px solid var(--button-color,var(--tester-button-color));
   outline: none;
 }
 
