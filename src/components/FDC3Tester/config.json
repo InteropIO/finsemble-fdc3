@@ -14,9 +14,11 @@
         "height": 600
       },
       "component": {
+        "mode": "fdc3",
         "preload": "$applicationRoot/preloads/FDC3Client.js",
         "spawnOnStartup": false,
         "singleton": false,
+        "category": "system",
         "showDevConsoleOnVisible": false
       },
       "foreign": {
