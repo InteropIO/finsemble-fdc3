@@ -17,6 +17,7 @@ export default function Channels() {
         codeAction={channelId => fdc3.getOrCreateChannel(channelId)}
         snippet={(channelId) => `fdc3.getOrCreateChannel("${channelId}")`}
         inputLabel="getOrCreateChannel:"
+        placeholder="orange"
       />
 
       {/* getSystemChannels */}
@@ -36,6 +37,7 @@ export default function Channels() {
         codeAction={(channelId) => fdc3.joinChannel(channelId)}
         snippet={(channelId) => `fdc3.joinChannel("${channelId}")`}
         inputLabel="Channel Name:"
+        placeholder="group3"
 
       />{/* getCurrentChannel */}
       <ApiExample

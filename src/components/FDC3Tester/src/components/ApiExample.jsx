@@ -29,7 +29,17 @@ function InteractiveDemo(props) {
 
   const updatePatentState = async () => {
     try {
-      const result = await buttonAction(inputValue)
+      // TODO:Remove the hardcoded values
+      let result;
+      if (inputValue) {
+        if (apiName.includes("addContextListener") || apiName.includes("broadcast")) {
+          result = await buttonAction(JSON.parse(inputValue))
+        } else {
+          result = await buttonAction(inputValue)
+        }
+      } else {
+        result = await buttonAction()
+      }
       await setApiResult(result)
     } catch (error) {
       setApiResult(error)
@@ -45,28 +55,11 @@ function InteractiveDemo(props) {
     }
   }
 
-  // const InputArea = ({ inputLabel }) => (
-  //   Array.isArray(inputLabel) ?
-
-  //     inputLabel.map((item, index) => (
-  //       <div key={item}>
-  //         <label htmlFor={item}>{inputLabel}</label>
-  //         <input onChange={handleInput} name={item} value={inputValue}></input>
-  //       </div>
-  //     ))
-  //     :
-  //     <div key={inputLabel}>
-  //       <label htmlFor={apiName}>{inputLabel}</label>
-  //       <input onChange={handleInput} name={apiName} value={inputValue}></input>
-  //     </div>
-  // )
-
   return (
     <div className="api-demo" key={apiName}>
-      {/* {!inputLabel ? "" : <InputArea key={inputLabel} inputLabel={inputLabel} />} */}
       {!inputLabel ? "" : <div>
-        <label htmlFor={apiName}>{inputLabel}</label>
-        <input onChange={handleInput} name={apiName} value={inputValue} placeholder={placeholder}></input>
+        <label htmlFor={apiName}>{inputLabel} {placeholder && <span onClick={() => navigator.clipboard.writeText(placeholder)} style={{ cursor: "pointer" }}>📋</span>}</label>
+        <input onChange={handleInput} name={apiName} value={inputValue} placeholder={placeholder && `Example:${placeholder}`}></input>
       </div>}
 
       <button onClick={updatePatentState}>run code</button>
@@ -87,10 +80,9 @@ function CodeSection(props) {
 
       {showCodeSnippet &&
         <div>
-          {/* <p>Code Example:</p> */}
           <CodeBlock>
             {
-              `// code example
+              `// live code snippet
 ${snippet}`
             }
           </CodeBlock>

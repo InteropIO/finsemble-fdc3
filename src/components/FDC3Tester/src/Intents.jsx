@@ -17,6 +17,7 @@ export default function Intents() {
         codeAction={intent => fdc3.findIntent(intent)}
         snippet={(intent) => `fdc3.findIntent("${intent}")`}
         inputLabel="Intent:"
+        placeholder="ViewChart"
       />
 
       {/* findIntentsByContext */}
@@ -37,6 +38,7 @@ export default function Intents() {
         codeAction={intent => fdc3.raiseIntent(intent)}
         snippet={(intent) => `fdc3.raiseIntent("${intent}")`}
         inputLabel="Intent:"
+        placeholder="ViewChart"
       />
       {/* addIntentListener */}
       <ApiExample

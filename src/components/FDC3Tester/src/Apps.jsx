@@ -20,6 +20,7 @@ export default function Apps() {
                 }
        }`) => `fdc3.open("${componentAndContext}")`}
         inputLabel="Component and/or Context:"
+        placeholder="Welcome Component"
       />
     </div>
   )
