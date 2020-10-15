@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400&display=swap");
 /* TODO: replace this with a local version */
 
+@import "../../../assets/css/theme.css";
+
 body {
   margin: 0px;
   background-color: var(--content-background-color);
@@ -66,7 +68,7 @@ form {
 
 .api-demo {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   grid-gap: 15px;
   align-items: end;
   margin-bottom: 44px;

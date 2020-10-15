@@ -17,7 +17,8 @@
         "preload": "$applicationRoot/preloads/FDC3Client.js",
         "spawnOnStartup": true,
         "singleton": true,
-        "showDevConsoleOnVisible": false
+        "showDevConsoleOnVisible": false,
+        "category": "system"
       },
       "foreign": {
         "services": {

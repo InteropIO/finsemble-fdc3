@@ -1,5 +1,5 @@
 {
-  "seedProjectDirectory": "../../_FINSEMBLE_/finsemble-sales-demo",
+  "seedProjectDirectory": "../../client-POCs/Finsemble-CreditSuisse-POC",
   "importConfig": [
     "$applicationRoot/components/FDC3Tester/config.json",
     "$applicationRoot/components/intentResolver/config.json",

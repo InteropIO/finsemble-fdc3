@@ -35,6 +35,7 @@ export default function Channels() {
         description="Join a channel using the channelID."
         codeAction={(channelId) => fdc3.joinChannel(channelId)}
         snippet={(channelId) => `fdc3.joinChannel("${channelId}")`}
+        inputLabel="Channel Name:"
 
       />{/* getCurrentChannel */}
       <ApiExample

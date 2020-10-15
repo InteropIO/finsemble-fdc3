@@ -3,7 +3,7 @@ import CodeBlock from './CodeBlock'
 
 export default function ApiExample(props) {
 
-  const { apiName, title, description, snippet, codeAction, inputLabel, inputs = null } = props
+  const { apiName, title, description, snippet, codeAction, inputLabel = null, placeholder = null } = props
   const [apiResult, setApiResult] = useState(null)
   const [inputValueForSnippet, setInputValueForSnippet] = useState("")
 
@@ -14,7 +14,7 @@ export default function ApiExample(props) {
 
       <p className="api-description">{description}</p>
 
-      <InteractiveDemo apiName={apiName} inputLabel={inputLabel} buttonAction={codeAction} setApiResult={setApiResult} setInputValueForSnippet={setInputValueForSnippet} inputs={inputs} />
+      <InteractiveDemo apiName={apiName} inputLabel={inputLabel} buttonAction={codeAction} setApiResult={setApiResult} setInputValueForSnippet={setInputValueForSnippet} placeholder={placeholder} />
 
       <CodeSection snippet={typeof snippet === "string" ? snippet : snippet(inputValueForSnippet)} result={apiResult} />
     </div>
@@ -23,13 +23,18 @@ export default function ApiExample(props) {
 }
 
 function InteractiveDemo(props) {
-  const { inputLabel = false, apiName, buttonAction, setApiResult, setInputValueForSnippet } = props
+  const { inputLabel, apiName, buttonAction, setApiResult, setInputValueForSnippet, placeholder } = props
   const [inputValue, setInputValue] = useState("")
 
 
   const updatePatentState = async () => {
-    const result = await buttonAction(inputValue)
-    await setApiResult(result)
+    try {
+      const result = await buttonAction(inputValue)
+      await setApiResult(result)
+    } catch (error) {
+      setApiResult(error)
+    }
+
   }
 
   async function handleInput(e) {
@@ -40,28 +45,29 @@ function InteractiveDemo(props) {
     }
   }
 
-  const InputArea = ({ inputLabel }) => (
-    Array.isArray(inputLabel) ?
+  // const InputArea = ({ inputLabel }) => (
+  //   Array.isArray(inputLabel) ?
 
-      inputLabel.map((item, index) => (
-        <div>
-          <label htmlFor={item}>{inputLabel}</label>
-          <input onChange={handleInput} name={item} value={inputValue}></input>
-        </div>
-      ))
-      :
-      <div>
-        <label htmlFor={apiName}>{inputLabel}</label>
-        <input onChange={handleInput} name={apiName} value={inputValue}></input>
-      </div>
-  )
+  //     inputLabel.map((item, index) => (
+  //       <div key={item}>
+  //         <label htmlFor={item}>{inputLabel}</label>
+  //         <input onChange={handleInput} name={item} value={inputValue}></input>
+  //       </div>
+  //     ))
+  //     :
+  //     <div key={inputLabel}>
+  //       <label htmlFor={apiName}>{inputLabel}</label>
+  //       <input onChange={handleInput} name={apiName} value={inputValue}></input>
+  //     </div>
+  // )
 
   return (
-    <div className="api-demo">
-      {/* <div>
-
-      </div> */}
-      {!inputLabel ? "" : <InputArea inputLabel={inputLabel} />}
+    <div className="api-demo" key={apiName}>
+      {/* {!inputLabel ? "" : <InputArea key={inputLabel} inputLabel={inputLabel} />} */}
+      {!inputLabel ? "" : <div>
+        <label htmlFor={apiName}>{inputLabel}</label>
+        <input onChange={handleInput} name={apiName} value={inputValue} placeholder={placeholder}></input>
+      </div>}
 
       <button onClick={updatePatentState}>run code</button>
     </div>

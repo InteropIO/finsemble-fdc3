@@ -47,7 +47,8 @@
             "launchableByUser": true
           },
           "Window Manager": {
-            "alwaysOnTopIcon": true,
+            "alwaysOnTopIcon": false,
+            "showLinker": true,
             "title": "FDC3Tester",
             "persistWindowState": true
           },
