@@ -169,7 +169,7 @@ span.snippet-buttons-disabled {
 /* === Burger Menu === */
 .burger-icon {
   position: fixed;
-  top: 28px;
+  top: 5px;
   left: 4px;
   cursor: pointer;
   z-index: 90;
@@ -182,7 +182,7 @@ span.snippet-buttons-disabled {
   cursor: pointer;
   position: absolute;
   right: 0;
-  top: 26px;
+  top: 5x;
 }
 .burger-menu {
   background-color: var(--tester-button-color-hover);
@@ -214,7 +214,7 @@ span.snippet-buttons-disabled {
 .menu-item{
   padding: 5px;
   text-decoration: none;
-  color: var(--appMenu-actions-menu-background-color);
+  color: var(--appMenu-actions-menu-background-color,#223842);
 
 }
 .menu-item:hover{
