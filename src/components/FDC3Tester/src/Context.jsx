@@ -21,8 +21,8 @@ export default function Context() {
       <ApiExample
         apiName="addContextListener"
         title="addContextListener"
-        description="Adds a listener for incoming Context. PLEASE OPEN THE DEV CONSOLE TO SEE RESULTS"
-        codeAction={() => fdc3.addContextListener(console.log)}
+        description="Adds a listener for incoming Context."
+        codeAction={(...args) => fdc3.addContextListener(...args)}
         snippet={() => `fdc3.addContextListener((context)=>{...})`}
       />
 
@@ -31,9 +31,10 @@ export default function Context() {
         apiName="addContextListener"
         title="addContextListener"
         description="Adds a listener for incoming Context for a specified type."
-        codeAction={listener => fdc3.addContextListener(listener, console.log)}
-        snippet={(listener) => `fdc3.addContextListener(${listener},(context)=>{//do something with the context})`}
+        codeAction={(...args) => fdc3.addContextListener(...args)}
+        snippet={(listener) => `fdc3.addContextListener("${listener}",(context)=>{//do something with the context})`}
         inputLabel="addContextListener:"
+        placeholder="fdc3.instrument"
       />
 
     </div>

@@ -11,14 +11,18 @@ export default function Apps() {
         apiName="open"
         title="Open"
         description="Open a component and send context of Google instrument."
-        codeAction={componentAndContext => fdc3.open(componentAndContext)}
-        snippet={(componentAndContext = `"FDC3Tester",{
-        "type":"fdc3.instrument",
-        "name": "Google",
-          "id": {
-                  "ticker": "GOOGL"
-                }
-       }`) => `fdc3.open("${componentAndContext}")`}
+        codeAction={componentAndContext => fdc3.open(componentAndContext,
+          {
+            type: "fdc3.instrument", name: "Google", id: { ticker: "GOOGL" }
+          })}
+        snippet={componentAndContext =>
+          `fdc3.open("${componentAndContext}",{
+          "type":"fdc3.instrument",
+          "name": "Google",
+            "id": {
+                    "ticker": "GOOGL"
+                  }
+         })`}
         inputLabel="Component and/or Context:"
         placeholder="Welcome Component"
       />

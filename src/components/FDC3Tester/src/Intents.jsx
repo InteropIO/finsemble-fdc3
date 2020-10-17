@@ -28,6 +28,7 @@ export default function Intents() {
         codeAction={context => fdc3.findIntentsByContext(context)}
         snippet={(context) => `fdc3.findIntentsByContext("${context}")`}
         inputLabel="Context:"
+        placeholder='{"type":"fdc3.instrument","id":{"ticker":"AAPL"}}'
       />
 
       {/* raiseIntent */}
@@ -45,9 +46,10 @@ export default function Intents() {
         apiName="addIntentListener"
         title="addIntentListener"
         description="Adds a listener for incoming Intents from the Agent."
-        codeAction={listener => fdc3.addIntentListener(listener, console.log)}
-        snippet={(listener) => `fdc3.addIntentListener("${listener},(context)=>{//do something with the context}")`}
+        codeAction={(...args) => fdc3.addIntentListener(...args)}
+        snippet={(listener) => `fdc3.addIntentListener("${listener}",(context)=>{//do something with the context})`}
         inputLabel="addIntentListener:"
+        placeholder="ViewChart"
       />
 
     </div>

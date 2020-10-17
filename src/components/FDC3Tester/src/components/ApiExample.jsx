@@ -10,7 +10,7 @@ export default function ApiExample(props) {
   return (
     <div className="api-example">
 
-      <h3>{title}</h3>
+      <h3 id={`api-${title}`}>{title}</h3>
 
       <p className="api-description">{description}</p>
 
@@ -29,12 +29,21 @@ function InteractiveDemo(props) {
 
 
 
-
+  // copy the code example to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(placeholder)
     setClipboardCopyMessageVisible(true)
 
   }
+
+  // Display the copied to clipboard message for a short time and then disappear
+  useEffect(() => {
+    const timer = setTimeout(() => setClipboardCopyMessageVisible(false)
+      , 5000)
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [clipboardCopyMessageVisible])
 
   useEffect(() => {
     const timer = setTimeout(() => setClipboardCopyMessageVisible(false)
@@ -44,13 +53,32 @@ function InteractiveDemo(props) {
     }
   }, [clipboardCopyMessageVisible])
 
+  const updateResult = (result) => {
+
+  }
+
 
   const updatePatentState = async () => {
     try {
+
+      if (apiName === "addContextListener") {
+        // this value updates in an async fashion via callback
+        buttonAction(setApiResult);
+        return
+      }
+      if (apiName === "addIntentListener") {
+        // this value updates in an async fashion via callback
+        buttonAction(inputValue, setApiResult);
+        return
+      }
+
+
+
+
       // TODO:Remove the hardcoded values
       let result;
       if (inputValue) {
-        if (apiName.includes("addContextListener") || apiName.includes("broadcast") || apiName.includes("findIntentsByContext")) {
+        if (apiName.includes("broadcast") || apiName.includes("findIntentsByContext")) {
           result = await buttonAction(JSON.parse(inputValue))
         } else {
           result = await buttonAction(inputValue)
@@ -60,8 +88,7 @@ function InteractiveDemo(props) {
       }
       await setApiResult(result)
     } catch (error) {
-      console.log(error);
-      setApiResult(error)
+      setApiResult(error.toString())
     }
 
   }
@@ -81,7 +108,7 @@ function InteractiveDemo(props) {
           {inputLabel}
           {placeholder &&
             <span onClick={copyToClipboard} style={{ cursor: "pointer" }}>📋</span>}
-          <i>{clipboardCopyMessageVisible && "Copied to clipboard!"}</i>
+          <i className="clipboard-message">{clipboardCopyMessageVisible && "Copied to clipboard!"}</i>
         </label>
         <input onChange={handleInput} name={apiName} value={inputValue} placeholder={placeholder && `Example:${placeholder}`}></input>
       </div>}
