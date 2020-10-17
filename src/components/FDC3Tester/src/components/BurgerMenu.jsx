@@ -25,7 +25,7 @@ export default function BurgerMenu(props) {
         "findIntentsByContext",
         "raiseIntent",
         "addIntentListener",
-        "Channels"]
+      ]
     },
     {
       apiName: "Channels",
