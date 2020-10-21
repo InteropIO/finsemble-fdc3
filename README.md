@@ -46,7 +46,7 @@ By following the 6 steps below you will be able to start working with FDC3 insid
 
 **How it works:**
 
-The project's watch script monitors the project for any changes in the src directory or config file. When folders or files are updated, added or removed the change will automatically be reflected in the Finsemble Seed Project. Source files are from this project's _src_ directory are synced to matching locations in the Finsemble Seed project, while the content of the _finsemble.config.json_ file is added to the seed project's _configs/application/config.json_ file.
+The project's watch script monitors the project for any changes in the _src_ directory or config file. When folders or files are updated, added or removed the change will automatically be reflected in the Finsemble Seed Project. Source files are from this project's _src_ directory are synced to matching locations in the Finsemble Seed project, while the content of the _finsemble.config.json_ file is added to the seed project's _configs/application/config.json_ file.
 
 #### Quick Install Steps
 
