@@ -40,8 +40,8 @@ export default class C implements Channel {
 	addContextListener(handler: ContextHandler): Listener;
 	addContextListener(contextType: string, handler: ContextHandler): Listener;
 	addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
-		let theHandler: ContextHandler = null;
-		let theListenerName: string = null;
+		let theHandler: ContextHandler | null = null;
+		let theListenerName: string | null = null;
 
 		//disambiguate arguments
 		if (typeof contextTypeOrHandler === "string") {
@@ -57,7 +57,7 @@ export default class C implements Channel {
 				//prevent message loops
 				if (response.data.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
 					//delete response.data.source // delete non standard source field we added
-					theHandler(response.data.context);
+					theHandler!(response.data.context);
 				}
 			};
 			this.#FSBL.Clients.RouterClient.addListener(theListenerName, routerHandler);
@@ -71,7 +71,7 @@ export default class C implements Channel {
 				//prevent message loops
 				if (response.source != this.#FSBL.Clients.WindowClient.getWindowIdentifier().windowName) {
 					//delete response.source // delete non standard source field we added
-					theHandler(response.data.context);
+					theHandler!(response.data.context);
 				}
 			};
 			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());

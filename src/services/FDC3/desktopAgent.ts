@@ -35,7 +35,7 @@ export default class D implements DesktopAgent {
 	appIntents: { [key: string]: AppIntent } = {};
 	appIntentsContext: { [key: string]: { [key: string]: AppIntent } } = {};
 	apps: { [key: string]: AppMetadata } = {};
-	windowName: string;
+	windowName: string = "";
 	globalChannel: Channel;
 
 	constructor(params: any) {
@@ -164,7 +164,7 @@ export default class D implements DesktopAgent {
 	/** ___________Intents ___________ */
 
 	async findIntent(intent: string, context?: Context): Promise<AppIntent> {
-		let appIntent: AppIntent;
+		let appIntent: AppIntent | undefined = undefined;
 		if (context) {
 			const contextType = (context as any).type;
 			if (this.appIntentsContext[contextType]) {
@@ -258,7 +258,7 @@ export default class D implements DesktopAgent {
 		return channels;
 	}
 
-	private findChannel(channelId: string): Channel {
+	private findChannel(channelId: string): Channel | null {
 		const systemChannel = this.systemChannels.find((channel) => channel.id === channelId);
 		if (systemChannel) {
 			return systemChannel;

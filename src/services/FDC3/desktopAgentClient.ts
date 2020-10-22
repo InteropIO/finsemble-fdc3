@@ -4,12 +4,12 @@ import { EventEmitter } from "events";
 interface ContextTypeAndHandler {
 	contextTypeOrHandler: string | ContextHandler,
 	handler?: ContextHandler,
-	listener: Listener
+	listener: Listener | null
 }
 export default class DesktopAgentClient extends EventEmitter implements DesktopAgent {
-	#currentChannel: Channel;
+	#currentChannel: Channel | null = null;
 	#contextHandlers: { [key: string]: ContextTypeAndHandler } = {};
-	#channelChanging: Boolean;
+	#channelChanging: Boolean = false;
 	#wait: (time: number) => Promise<void> = (time: number) => {
 		return new Promise((resolve) => setTimeout(resolve, time));
 	};
@@ -18,7 +18,7 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 	#FSBL: typeof FSBL;
 	#log: any = console.log; //this.#FSBL.Clients.Logger.log;
 
-	constructor(strict: Boolean, FDC3Client: any, Finsemble?: typeof FSBL) {
+	constructor(strict: Boolean, FDC3Client: any, Finsemble: typeof FSBL) {
 		super();
 		this.#strict = strict;
 		this.#FDC3Client = FDC3Client;
@@ -39,7 +39,7 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 		const { err, response } = await this.#FSBL.Clients.LauncherClient.spawn(name, {
 			data: {
 				fdc3: { context },
-				linker: (this.#currentChannel.id !== "global") ? { channels: [this.#currentChannel.id] } : undefined
+				linker: (this.#currentChannel && this.#currentChannel.id !== "global") ? { channels: [this.#currentChannel.id] } : undefined
 			},
 
 		}) as any;
@@ -77,8 +77,8 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 		let contextListener = null;
 		if (this.#currentChannel) {
 			if (typeof contextTypeOrHandler === "string") {
-				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler);
-				if (context) handler(context);
+				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler!);
+				if (context) handler!(context);
 			} else {
 				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler);
 				if (context) contextTypeOrHandler(context);
@@ -214,7 +214,7 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 			const contextHandler = this.#contextHandlers[contextHandlerId]
 			let contextListener;
 			if (typeof contextHandler.contextTypeOrHandler === "string") {
-				contextListener = this.#currentChannel.addContextListener(contextHandler.contextTypeOrHandler, contextHandler.handler);
+				contextListener = this.#currentChannel.addContextListener(contextHandler.contextTypeOrHandler, contextHandler.handler!);
 			} else {
 				contextListener = this.#currentChannel.addContextListener(contextHandler.contextTypeOrHandler);
 			}
@@ -253,7 +253,7 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 		const contextHandlerIds = Object.keys(this.#contextHandlers);
 		for (const contextHandlerId of contextHandlerIds) {
 			const contextHandler = this.#contextHandlers[contextHandlerId]
-			contextHandler.listener.unsubscribe();
+			contextHandler.listener?.unsubscribe();
 			contextHandler.listener = null;
 		}
 
