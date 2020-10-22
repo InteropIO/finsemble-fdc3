@@ -18,7 +18,7 @@ export default class C implements Channel {
 	type: string;
 	displayMetadata?: DisplayMetadata;
 	private contexts: { [contextType: string]: Context } = {};
-	private currentContext: Context;
+	private currentContext: Context | null = null;
 	#FSBL: typeof FSBL;
 
 	constructor(params: Params) {
