@@ -157,5 +157,5 @@ interface DesktopAgent {
 	 */
 	leaveCurrentChannel(): Promise<void>;
 
-	getCurrentChannel(): Promise<Channel>;
+	getCurrentChannel(): Promise<Channel | null>;
 }
