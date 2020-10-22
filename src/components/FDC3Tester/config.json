@@ -33,7 +33,7 @@
           "fdc3": {
             "intents": [
               {
-                "name": "fdc3.instrument",
+                "name": "ViewChart",
                 "displayName": "ViewChart",
                 "contexts": [
                   "fdc3.contact"
