@@ -40,8 +40,8 @@ export default class C implements Channel {
 	addContextListener(handler: ContextHandler): Listener;
 	addContextListener(contextType: string, handler: ContextHandler): Listener;
 	addContextListener(contextTypeOrHandler: string | ContextHandler, handler?: ContextHandler): Listener {
-		let theHandler: ContextHandler | null = null;
-		let theListenerName: string | null = null;
+		let theHandler: ContextHandler | undefined = undefined;
+		let theListenerName: string | undefined = undefined;
 
 		//disambiguate arguments
 		if (typeof contextTypeOrHandler === "string") {
@@ -83,5 +83,4 @@ export default class C implements Channel {
 			}
 		}
 	}
-
 }
