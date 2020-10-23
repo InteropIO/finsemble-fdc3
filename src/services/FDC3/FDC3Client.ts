@@ -19,10 +19,12 @@ class FDC3Client {
 		return new Promise((resolve) => setTimeout(resolve, time));
 	}
 	#FSBL: typeof FSBL;
-	#log: any = console.log; //this.#FSBL.Clients.Logger.log;
+	#log: any;
 
 	constructor(Finsemble?: typeof FSBL) {
 		this.#FSBL = win.FSBL || Finsemble
+		this.#log = this.#FSBL.Clients.Logger.log;
+
 		const setupAgents = async () => {
 			this.#log("FDC3Client: setupAgents");
 			const linkerState = this.#FSBL.Clients.LinkerClient.getState();

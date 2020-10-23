@@ -16,14 +16,14 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 	#strict: Boolean;
 	#FDC3Client: any;
 	#FSBL: typeof FSBL;
-	#log: any = console.log; //this.#FSBL.Clients.Logger.log;
+	#log: any;
 
 	constructor(strict: Boolean, FDC3Client: any, Finsemble?: typeof FSBL) {
 		super();
 		this.#strict = strict;
 		this.#FDC3Client = FDC3Client;
 		this.#FSBL = Finsemble;
-
+		this.#log = this.#FSBL.Clients.Logger.log;
 	}
 
 	get isChannelChanging() {
