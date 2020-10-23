@@ -1,3 +1,4 @@
+
 interface Params {
 	id: string;
 	type: string;

@@ -208,7 +208,7 @@ export default function App() {
 							}}>
 								{openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />}
 								<div className="app__header">
-									<img className="app__icon" src={`${app.icons[0] || app.icons[1] || "./src/launch.svg"}`} />
+									<img className="app__icon" src={`${app.icons?.[0] || app.icons?.[1] || "./src/launch.svg"}`} />
 									<h3 className="app__type">{app.name}</h3>
 
 								</div>

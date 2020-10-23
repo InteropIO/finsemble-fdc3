@@ -1,0 +1,69 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js
+
+PATH: 
+  C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\Watson\bin;C:\Python38\Scripts;C:\Python38;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files\AdoptOpenJDK\jdk-11.0.5.10-hotspot\bin;C:\Python27;C:\Python27\Scripts;C:\Program Files (x86)\Intel\iCLS Client;C:\Program Files\Intel\iCLS Client;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\dotnet;C:\Program Files\Microsoft SQL Server\130\Tools\Binn;C:\Program Files (x86)\dotnet;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Yarn\bin;C:\Users\CWatson\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Program Files\nodejs;C:\Users\Watson\.cargo\bin;C:\Users\Watson\AppData\Local\Microsoft\WindowsApps;C:\Users\Watson\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Watson\AppData\Local\hyper\app-3.0.2\resources\bin;C:\Users\Watson\AppData\Roaming\npm;C:\Program Files\heroku\bin;C:\Users\Watson\.dotnet\tools;C:\Program Files (x86)\GitHub CLI
+
+Yarn version: 
+  1.16.0
+
+Node version: 
+  12.18.3
+
+Platform: 
+  win32 x64
+
+Trace: 
+  SyntaxError: C:\Users\Watson\CIQDev\_FDC3\finsemble-fdc3\package.json: Unexpected token } in JSON at position 1119
+      at JSON.parse (<anonymous>)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (C:\Program Files (x86)\Yarn\lib\cli.js:304:30)
+      at C:\Program Files (x86)\Yarn\lib\cli.js:315:13
+
+npm manifest: 
+  {
+    "name": "finsemble-fdc3",
+    "version": "4.3.0",
+    "description": "Finsemble FDC3 Desktop Agent implementation. See https://github.com/ChartIQ/finsemble-fdc3 for details",
+    "main": "src/services/FDC3/FDC3Client.ts",
+    "scripts": {
+      "watch": "node ./fpe-scripts/watch.js",
+      "copy": "node ./fpe-scripts/watch.js copy",
+      "lintTS": "tsc --noemit && eslint . --ext .ts,.tsx"
+    },
+    "keywords": [
+      "Finsemble",
+      "FDC3",
+      "interop",
+      "desktop agent"
+    ],
+    "author": "ChartIQ <support@finsemble.com> (https://www.chartiq.com/finsemble/)",
+    "license": "SEE LICENSE IN LICENSE",
+    "devDependencies": {
+      "@finsemble/finsemble-core": "^5.0.1",
+      "@typescript-eslint/eslint-plugin": "^4.5.0",
+      "@typescript-eslint/parser": "^4.5.0",
+      "chokidar": "^3.4.0",
+      "fs-extra": "^9.0.0",
+      "chalk": "^4.1.0",
+      "dotenv": "^8.2.0",
+      "typescript": "^3.9.5",
+      "eslint": "^7.11.0",
+      "eslint-config-airbnb-typescript": "^12.0.0",
+      "eslint-plugin-import": "^2.22.1",
+      "eslint-plugin-jsx-a11y": "^6.3.1",
+      "eslint-plugin-react": "^7.21.5",
+      "eslint-plugin-react-hooks": "^4.2.0",
+    },
+    "dependencies": {
+      "react-syntax-highlighter": "^13.5.1",
+  
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"jsx": "react",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"preserveConstEnums": true,
+		"removeComments": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es2017",
+		"types": [
+			"@finsemble/finsemble-core"
+		]
+	},
+	"typedocOptions": {
+		"out": "./docs",
+		"readme": "./docs_src/README.md",
+		"inputFiles": "./src/clients",
+		"mode": "modules",
+		"media": "./docs_src/media",
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		""
+	]
+}

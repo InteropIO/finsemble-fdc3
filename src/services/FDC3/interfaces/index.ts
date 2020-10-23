@@ -3,7 +3,8 @@
  * Copyright 2019 FINOS FDC3 contributors - see NOTICE file
  */
 
-type Context = object;
+type Context = any;
+
 type ContextHandler = (context: Context) => void;
 
 const enum OpenError {
