@@ -1,4 +1,5 @@
-@import '../../../assets/css/theme.css';
+@import '/assets/css/theme.css';
+@import "~@finsemble/finsemble-ui/react/assets/css/finsemble.css";
 
 body {
     margin: 0px;
