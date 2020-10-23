@@ -143,7 +143,7 @@ export default function App() {
         const success = err ? false : true
           if (!err) {
             wrap.bringToFront();
-            RouterClient.transmit(`FDC3.intent.${intent.name}`, context);
+            RouterClient.transmit(`FDC3.intent.${intent.name}.${name}`, context);
 
             DialogManager.respondToOpener({ success, intent, context, source, target });
           }
