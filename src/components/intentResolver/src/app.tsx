@@ -3,9 +3,9 @@ import "../intentResolver.css";
 import CloseIcon from './CloseIcon';
 import AddBoxIcon from './AddBoxIcon';
 import BadgeIcon from './BadgeIcon';
-const { useState, useEffect } = React
+const { useState, useEffect } = React;
 
-const { DialogManager, LauncherClient, Logger, RouterClient } = FSBL.Clients
+const { DialogManager, LauncherClient, Logger, RouterClient } = FSBL.Clients;
 
 /**
  * Steps:
@@ -37,16 +37,16 @@ interface FinsembleIntentApp extends AppMetadata {
 }
 
 /**
-   * Groups the elements of an array based on the given function.
-
-  Use Array.prototype.map() to map the values of an array to a function or property name. Use Array.prototype.reduce() to create an object, where the keys are produced from the mapped results.
-   */
+  * Groups the elements of an array based on the given function. 
+  * 
+  * Use Array.prototype.map() to map the values of an array to a function or property name. Use Array.prototype.reduce() 
+  * to create an object, where the keys are produced from the mapped results.
+  */
 const groupBy = (arr: any[], fn: string | number) =>
 	arr.map(typeof fn === 'function' ? fn : val => val[fn]).reduce((acc, val, i) => {
 		acc[val] = (acc[val] || []).concat(arr[i]);
 		return acc;
 	}, {});
-
 
 export default function App() {
 	const [intent, setIntent] = useState<IntentMetadata>()
@@ -80,19 +80,16 @@ export default function App() {
 					// group the list of apps by the component type ie. WelcomeComponents:[]
 					(apps): { [key: string]: FinsembleIntentApp[] } => groupBy(apps, 'type'))
 				.then((res) => setOpenApps(res))
-
 		});
-
 	}, [])
-
 
 	// Grab all Finsemble's open components and match them to the list of apps.
 	// The list is of intentApps are Finsemble component types.
 	const getOpenApps = async (apps: Array<AppMetadata>): Promise<FinsembleIntentApp[]> => {
 		try {
-			const { err, data }: any = await LauncherClient.getActiveDescriptors()
+			const { err, data }: any = await LauncherClient.getActiveDescriptors();
 
-			if (err) throw Error(err)
+			if (err) throw Error(err);
 
 			const components = Object.values(data) as Array<FinsembleComponent>;
 			// Get all the open components that match the apps list
@@ -104,15 +101,13 @@ export default function App() {
 					const {
 						name, componentType, icon } = component
 					const iconURL = component.customData?.foreign?.components?.Toolbar?.iconURL
-					return { name, type: componentType, icons: [icon, iconURL] }
-				}
-				)
+					return { name, type: componentType, icons: [icon, iconURL] };
+				});
 
-			return openApps
-
+			return openApps;
 		} catch (err) {
-			Logger.error(err)
-			return err
+			Logger.error(err);
+			return err;
 		}
 	}
 
@@ -132,9 +127,9 @@ export default function App() {
 
 		if (action === "spawn") {
 			LauncherClient.spawn(componentType, { data: { fdc3: { intent, context } } }, (err: any, data: any) => {
-				const success = err ? false : true
+				const success = err ? false : true;
 
-				DialogManager.respondToOpener({ success, intent, context, source, target })
+				DialogManager.respondToOpener({ success, intent, context, source, target });
 			})
 		}
 
@@ -151,7 +146,6 @@ export default function App() {
 		}
 	}
 
-
 	const OpenAppsList = () => (
 		<div className="app__list">
 			{/* <img className="app__icon" src={`${selectedOpenApps[0].icons[0]}`} /> */}
@@ -162,8 +156,8 @@ export default function App() {
 					<li>
 						<button key={name} onClick={() => {
 							const i = intent as IntentMetadata;
-							openAppWithIntent("show", { name, componentType: type, context, intent: i })
-							setSelectedOpenApps([]) // reset to hide the panel
+							openAppWithIntent("show", { name, componentType: type, context, intent: i });
+							setSelectedOpenApps([]); // reset to hide the panel
 						}
 						}>
 							<img style={{ fill: 'white' }} src="./src/launch.svg"></img>{name}
@@ -174,19 +168,17 @@ export default function App() {
 			</ul>
 			<button className="app__new" onClick={() => {
 				const i = intent as IntentMetadata;
-				openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent: i, context })
-				setSelectedOpenApps([]) // reset to hide the panel
+				openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent: i, context });
+				setSelectedOpenApps([]); // reset to hide the panel
 			}
 			} ><span><AddBoxIcon /></span> <span>new</span>  </button>
 		</div>
 	)
 
-
 	return (
 		<div className="resolver__container">
 			<img className="resolver__header" src="./src/fdc3-intent-header.svg" />
-			<CloseIcon className="resolver__close" onClick={() =>
-				DialogManager.respondToOpener({ error: true })} />
+			<CloseIcon className="resolver__close" onClick={() => DialogManager.respondToOpener({ error: true })} />
 			<h2 className="resolver__action">
 				<span className="resolver__action-source">{source}</span>
         would like to action the intent:
@@ -194,36 +186,29 @@ export default function App() {
         , open with...
       </h2>
 			<div className="resolver__apps">
-
 				{
 					apps &&
-					apps
-						.map((app: AppMetadata) => (
-							// if there are more than one then create a stack? Or an icon showing more
+					apps.map((app: AppMetadata) => (
+						// if there are more than one then create a stack? Or an icon showing more
 
-							<div className="app" key={app.name} onClick={() => {
-								const i = intent as IntentMetadata;
-								openApps[app.name] ? setSelectedOpenApps(openApps[app.name]) :
-									openAppWithIntent("spawn", { componentType: app.name, intent: i, context })
-							}}>
-								{openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />}
-								<div className="app__header">
-									<img className="app__icon" src={`${app.icons[0] || app.icons[1] || "./src/launch.svg"}`} />
-									<h3 className="app__type">{app.name}</h3>
-
-								</div>
-
+						<div className="app" key={app.name} onClick={() => {
+							const i = intent as IntentMetadata;
+							openApps[app.name] ? setSelectedOpenApps(openApps[app.name]) :
+								openAppWithIntent("spawn", { componentType: app.name, intent: i, context })
+						}}>
+							{openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />}
+							<div className="app__header">
+								<img className="app__icon" src={`${(app && app.icons && app.icons[0]) || (app && app.icons && app.icons[1]) || "./src/launch.svg"}`} />
+								<h3 className="app__type">{app.name}</h3>
 							</div>
-						)
-						)
+						</div>
+					)
+					)
 				}
 				{
 					!!selectedOpenApps.length && <OpenAppsList />
 				}
-
 			</div>
 		</div >
 	)
 }
-
-
