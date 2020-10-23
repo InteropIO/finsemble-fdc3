@@ -1,19 +1,223 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;400&display=swap");
+/* TODO: replace this with a local version */
+
+@import "../../../assets/css/theme.css";
+
+:root {
+  --tester-primary-color: #2196f3;
+  --tester-bg-color: #171a20;
+  --tester-accent-color: rgb(0, 217, 255);
+  --tester-button-color: #36788b;
+  --tester-button-color-hover: #43a8c4;
+  --tester-font-color-primary: white;
+  --tester-font-color-secondary: black;
+}
+
 body {
-	margin: 0px;
-	background-color: #1d1d1d;
-	color: #d2d2d2;
+  margin: 0px;
+  background-color: var(--content-background-color, var(--tester-bg-color));
+  color: #d2d2d2;
+}
+header {
+  display: flex;
+  align-items: center;
+  flex-flow: column;
+}
+img {
+  height: 162px;
+  margin: 0px;
+  position: absolute;
+  top: 4px;
+  opacity: 10%;
 }
 
 #FDC3Tester-component-wrapper {
-	padding: 10px;
-	font-family: roboto;
+  padding: 10px;
+  font-family: "roboto", sans-serif;
+  padding: 25px;
+}
+h1 {
+  color: var(--accent-primary, var(--tester-accent-color));
+  text-align: center;
+  margin: 70px;
+  font-family: "Poppins";
+}
+h2 {
+  background: hsla(191, 48%, 32%, 0.19);
+  max-width: 100%;
+  margin: 0;
+  border-radius: 2px;
+  padding: 2px;
+  border-top: 1px solid hsla(191, 48%, 32%, 1);
+  text-align: center;
+  font-weight: 400;
+  letter-spacing: -1px;
+  font-size: 1.7em;
+  font-family: Poppins;
+}
+h3 {
+  font-family: Poppins;
+  font-weight: 400;
+  color: var(--accent-primary, var(--tester-accent-color));
+  margin-bottom: 0px;
+  font-size: 24px;
+}
+.api-description {
+  color: hsla(191, 48%, 32%, 0.6);
+  margin-top: 0px;
+  text-indent: 12px;
+  font-size: smaller;
+  margin-bottom: 8px;
+}
+form {
+  position: relative;
+  width: 740px;
+  height: 498px;
+  padding: 1em;
+  box-sizing: border-box;
+  display: grid;
 }
 
-form {
-	position: relative;
-	width: 740px;
-	height: 498px;
-	padding: 1em;
-	box-sizing: border-box;
-	display: grid;
+.api-demo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-gap: 15px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+
+button {
+  text-align: center !important;
+  width: fit-content;
+  -webkit-appearance: none;
+  background-color: var(--button-color-hover, var(--tester-button-color-hover));
+  color: #fff;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 0.9em;
+  border: 0px;
+  border-radius: 4px;
+  padding: 4px 7px;
+  vertical-align: middle;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--button-color, var(--tester-button-color)) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+label {
+  display: block;
+}
+
+.api-example {
+  position: relative;
+  font-size: 16px;
+  max-width: 100%;
+  margin: 0;
+  margin-bottom: 65px;
+  background: #ffffff05;
+  padding: 5px 10px;
+}
+
+input {
+  background-color: #ffffff12;
+  width: 100%;
+  height: 33px;
+  max-width: 100%;
+  padding: 3px 10px;
+  border: 0px;
+  border-bottom: 2px solid
+    var(--button-color-hover, var(--tester-button-color-hover));
+  box-sizing: border-box;
+  transition: 0.2s ease-in;
+  text-align: left;
+  color: var(--font-color, var(--tester-font-color-primary));
+}
+
+input:focus {
+  border-bottom: 2px solid var(--button-color, var(--tester-button-color));
+  outline: none;
+}
+
+span.snippet-buttons {
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: white;
+  padding: 5px;
+  border: 1px solid #ffffff21;
+}
+
+span.snippet-buttons-disabled {
+  cursor: default;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.26);
+  padding: 5px;
+  border: 1px solid #ffffff21;
+}
+
+.clipboard-message {
+  font-size: 10px;
+  color: var(--accent-positive);
+  margin-left: 5px;
+}
+
+/* === Burger Menu === */
+.burger-icon {
+  position: fixed;
+  top: 5px;
+  left: 4px;
+  cursor: pointer;
+  z-index: 90;
+  background: var(--tester-button-color);
+  border-radius: 2px;
+  height: 20px;
+  width: 21px;
+}
+.close-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 5x;
+}
+.burger-menu {
+  background-color: var(--tester-button-color-hover);
+  width: 150px;
+  position: fixed;
+  left: 0;
+  padding: 0 15px;
+  height: 100vh;
+  z-index: 200;
+  display: grid;
+  top: 0;
+}
+
+.burger-menu > h3 {
+  font-size: 16px;
+  color: black;
+  border-bottom: 1px solid black;
+}
+
+.burger-menu__visible {
+  left: 0;
+  transition: all 0.5s ease-out;
+}
+.burger-menu__hidden {
+  left: -100%;
+  transition: all 0.5s ease-in;
+}
+
+.menu-item{
+  padding: 5px;
+  text-decoration: none;
+  color: var(--appMenu-actions-menu-background-color,#223842);
+
+}
+.menu-item:hover{
+  color: var(--afont-color);
+
 }
