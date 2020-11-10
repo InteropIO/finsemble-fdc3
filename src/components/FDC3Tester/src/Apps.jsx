@@ -9,7 +9,7 @@ export default function Apps() {
       {/* Open */}
       <ApiExample
         apiName="open"
-        title="Open"
+        title="open"
         description="Open a component and send context of Google instrument."
         codeAction={componentAndContext => fdc3.open(componentAndContext,
           {
