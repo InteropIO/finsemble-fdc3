@@ -28,7 +28,7 @@ export default function ApiExample(props: ApiExamplePropTypes) {
 
       <p className="api-description">{description}</p>
 
-      <InteractiveDemo apiName={apiName} buttonAction={codeAction} setApiResult={setApiResult} setInputValuesForSnippet={setInputValuesForSnippet} inputs={inputs} />
+      <InteractiveDemo apiName={apiName} codeAction={codeAction} setApiResult={setApiResult} setInputValuesForSnippet={setInputValuesForSnippet} inputs={inputs} />
 
       <CodeSection snippet={typeof snippet === "string" ? snippet : snippet(...inputValuesForSnippet.map(({ inputValue }) => inputValue.includes("{") ? inputValue : JSON.stringify(inputValue)))} result={apiResult} />
     </div>
@@ -39,14 +39,14 @@ export default function ApiExample(props: ApiExamplePropTypes) {
 
 interface InteractiveDemoProps {
   apiName: any;
-  buttonAction: any;
+  codeAction: any;
   setApiResult: any;
   setInputValuesForSnippet: any;
   inputs: ApiExamplePropTypes["inputs"]
 }
 
 function InteractiveDemo(props: InteractiveDemoProps) {
-  const { apiName, buttonAction, setApiResult, setInputValuesForSnippet, inputs } = props
+  const { apiName, codeAction, setApiResult, setInputValuesForSnippet, inputs } = props
   const [inputValues, setInputValues] = useState<ApiExamplePropTypes["inputs"]>([])
 
 
@@ -80,12 +80,12 @@ function InteractiveDemo(props: InteractiveDemoProps) {
 
       if (apiName === "addContextListener") {
         // this value updates in an async fashion via callback
-        buttonAction(setApiResult);
+        codeAction(setApiResult);
         return
       }
       if (apiName === "addIntentListener") {
         // this value updates in an async fashion via callback
-        buttonAction(inputValues, setApiResult);
+        codeAction(inputValues, setApiResult);
         return
       }
 
@@ -95,9 +95,9 @@ function InteractiveDemo(props: InteractiveDemoProps) {
       // if there are no params needed we can just execute the api call (button action)
       let result;
       if (inputValues) {
-        result = await buttonAction(...apiParams)
+        result = await codeAction(...apiParams)
       } else {
-        result = await buttonAction()
+        result = await codeAction()
       }
       await setApiResult(result)
     } catch (error) {
