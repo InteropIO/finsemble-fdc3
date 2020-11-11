@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function BurgerMenu(props) {
+export default function BurgerMenu() {
   const [menuVisible, setMenuVisible] = useState(false)
 
   const BurgerIcon = () =>
