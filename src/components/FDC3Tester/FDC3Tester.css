@@ -80,7 +80,6 @@ form {
 
 .api-demo {
   display: grid;
-  grid-template-columns: 1fr auto;
   grid-gap: 15px;
   align-items: end;
   margin-bottom: 44px;
@@ -134,7 +133,8 @@ input {
   box-sizing: border-box;
   transition: 0.2s ease-in;
   text-align: left;
-  color: var(--font-color, var(--tester-font-color-primary));
+  /* color: var(--font-color, var(--tester-font-color-primary)); */
+  color: white;
 }
 
 input:focus {
@@ -220,4 +220,11 @@ span.snippet-buttons-disabled {
 .menu-item:hover{
   color: var(--afont-color);
 
+}
+
+.copy-code {
+  cursor: pointer;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
 }

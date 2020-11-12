@@ -11,10 +11,11 @@ export default function Context() {
         apiName="broadcast"
         title="broadcast"
         description="Broadcast Context."
-        codeAction={context => fdc3.broadcast(context)}
-        snippet={(context) => `fdc3.broadcast(${context})`}
-        inputLabel="broadcast:"
-        placeholder='{"type":"fdc3.instrument","id":{"ticker":"AAPL"}}'
+        codeAction={(...args: any) => fdc3.broadcast(...args)}
+        snippet={(...args: any) => `fdc3.broadcast(${args})`}
+        inputs={[
+          { label: "broadcast:", placeholder: '{"type":"fdc3.instrument","id":{"ticker":"AAPL"}}', inputValue: "" }
+        ]}
       />
 
       {/* addContextListener */}
@@ -22,8 +23,9 @@ export default function Context() {
         apiName="addContextListener"
         title="addContextListener"
         description="Adds a listener for incoming Context."
-        codeAction={(...args) => fdc3.addContextListener(...args)}
+        codeAction={(...args: any) => fdc3.addContextListener(...args)}
         snippet={() => `fdc3.addContextListener((context)=>{...})`}
+        inputs={[]}
       />
 
       {/* addContextListener with context type */}
@@ -31,10 +33,11 @@ export default function Context() {
         apiName="addContextListener"
         title="addContextListener"
         description="Adds a listener for incoming Context for a specified type."
-        codeAction={(...args) => fdc3.addContextListener(...args)}
-        snippet={(listener) => `fdc3.addContextListener("${listener}",(context)=>{//do something with the context})`}
-        inputLabel="addContextListener:"
-        placeholder="fdc3.instrument"
+        codeAction={(...args: any) => fdc3.addContextListener(...args)}
+        snippet={(...args: any) => `fdc3.addContextListener(${args},(context)=>{//do something with the context})`}
+        inputs={[
+          { label: "addContextListener:", placeholder: "fdc3.instrument", inputValue: "" }
+        ]}
       />
 
     </div>

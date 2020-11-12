@@ -14,10 +14,11 @@ export default function Channels() {
         apiName="getOrCreateChannel"
         title="getOrCreateChannel"
         description="Some Example needs to go here"
-        codeAction={channelId => fdc3.getOrCreateChannel(channelId)}
-        snippet={(channelId) => `fdc3.getOrCreateChannel("${channelId}")`}
-        inputLabel="getOrCreateChannel:"
-        placeholder="orange"
+        codeAction={(...args: any) => fdc3.getOrCreateChannel(...args)}
+        snippet={(...args: any) => `fdc3.getOrCreateChannel(${args})`}
+        inputs={[
+          { label: "getOrCreateChannel:", placeholder: "orange", inputValue: "" }
+        ]}
       />
 
       {/* getSystemChannels */}
@@ -27,6 +28,7 @@ export default function Channels() {
         description="List all the system channels including the 'global' channel"
         codeAction={() => fdc3.getSystemChannels()}
         snippet={() => `fdc3.getSystemChannels()`}
+        inputs={[]}
       />
 
       {/* joinChannel */}
@@ -34,10 +36,11 @@ export default function Channels() {
         apiName="joinChannel"
         title="joinChannel"
         description="Join a channel using the channelID."
-        codeAction={(channelId) => fdc3.joinChannel(channelId)}
-        snippet={(channelId) => `fdc3.joinChannel("${channelId}")`}
-        inputLabel="Channel Name:"
-        placeholder="group3"
+        codeAction={(...args: any) => fdc3.joinChannel(...args)}
+        snippet={(...args: any) => `fdc3.joinChannel(${args})`}
+        inputs={[
+          { label: "Channel Name:", placeholder: "group3", inputValue: "" }
+        ]}
 
       />{/* getCurrentChannel */}
       <ApiExample
@@ -46,6 +49,7 @@ export default function Channels() {
         description="Get the details of the current channel"
         codeAction={() => fdc3.getCurrentChannel()}
         snippet={() => `fdc3.getCurrentChannel()`}
+        inputs={[]}
 
       />{/* leaveCurrentChannel */}
       <ApiExample
@@ -54,6 +58,7 @@ export default function Channels() {
         description="Leave the current channel."
         codeAction={() => fdc3.leaveCurrentChannel()}
         snippet={() => `fdc3.leaveCurrentChannel()`}
+        inputs={[]}
       />
 
     </div>

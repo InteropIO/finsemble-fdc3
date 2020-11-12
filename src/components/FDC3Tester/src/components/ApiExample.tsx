@@ -50,9 +50,6 @@ function InteractiveDemo(props: InteractiveDemoProps) {
   const [inputValues, setInputValues] = useState<ApiExamplePropTypes["inputs"]>([])
 
 
-
-
-
   // set the values for the inputs to begin with so they are in the correct order
   useEffect(() => {
     setInputValues(inputs)
@@ -68,10 +65,7 @@ function InteractiveDemo(props: InteractiveDemoProps) {
     }
   }
 
-  const updatePatentState = async () => {
-
-
-
+  const updateParentState = async () => {
 
     try {
 
@@ -91,9 +85,8 @@ function InteractiveDemo(props: InteractiveDemoProps) {
 
 
 
-
       // if there are no params needed we can just execute the api call (button action)
-      let result;
+      let result: any;
       if (inputValues) {
         result = await codeAction(...apiParams)
       } else {
@@ -106,18 +99,13 @@ function InteractiveDemo(props: InteractiveDemoProps) {
 
   }
 
-  async function handleInput(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+  async function handleInput(inputValue: any, index: number) {
     // make a copy of the input values and update the one at the correct index
     let newInputValues = Array.from(inputValues)
-    newInputValues[index].inputValue = e.target.value
+    newInputValues[index].inputValue = inputValue
 
     setInputValues(newInputValues)
     setInputValuesForSnippet(newInputValues)
-
-    //@ts-ignore
-    if (e.code === "enter") {
-      updatePatentState()
-    }
   }
 
   return (
@@ -126,12 +114,12 @@ function InteractiveDemo(props: InteractiveDemoProps) {
       {inputValues.map(({ placeholder, label, inputValue }, index) =>
         <div>
           <label htmlFor={apiName}>
-            {label}
+            {label} <FillExampleIcon style={{ cursor: "pointer" }} onClick={() => handleInput(placeholder, index)} />
           </label>
-          <input onChange={e => handleInput(e, index)} name={apiName} value={inputValue} placeholder={placeholder && `Example:${placeholder}`}></input>
+          <input onChange={e => handleInput(e.target.value, index)} name={apiName} value={inputValue} placeholder={placeholder && `Example:${placeholder}`}></input>
         </div>
       )}
-      <button onClick={updatePatentState}>run code</button>
+      <button onClick={updateParentState}>run code</button>
     </div>
   )
 
@@ -160,7 +148,7 @@ function CodeSection(props: CodeSectionProps) {
       {showCodeSnippet &&
         <div>
 
-          <CopyToClipboard content={snippet} />
+        <CopyToClipboard content={snippet} />
           <CodeBlock>
             {
               `// live code snippet
@@ -206,8 +194,29 @@ function CopyToClipboard({ content }: { content: any }) {
 
   return (
     <>
-      <span onClick={copyToClipboard} style={{ cursor: "pointer" }}>📋</span>
-      <i className="clipboard-message">{clipboardCopyMessageVisible && "Copied to clipboard!"}</i>
+      <span onClick={copyToClipboard} className="copy-code" ><CopyIcon /></span>
+      <i className="clipboard-message">{clipboardCopyMessageVisible && "Code example copied to clipboard!"}</i>
     </>
   )
+}
+
+
+function CopyIcon(props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="#fff" width={18} height={18} {...props}>
+      <path d="M0 0h24v24H0z" fill="none" />
+      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+    </svg>
+  );
+}
+
+
+
+function FillExampleIcon(props: JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="#fff" width={18} height={18} {...props}>
+      <path d="M0 0h24v24H0z" fill="none" />
+      <path d="M21 3.01H3c-1.1 0-2 .9-2 2V9h2V4.99h18v14.03H3V15H1v4.01c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98v-14a2 2 0 00-2-2zM11 16l4-4-4-4v3H1v2h10v3z" />
+    </svg>
+  );
 }
