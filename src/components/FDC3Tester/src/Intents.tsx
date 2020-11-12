@@ -17,7 +17,8 @@ export default function Intents() {
         codeAction={(...args: any) => fdc3.findIntent(...args)}
         snippet={(...args: any) => `fdc3.findIntent(${args})`}
         inputs={[
-          { label: "Intent", placeholder: "ViewChart", inputValue: "" }
+          { label: "Intent", placeholder: "ViewChart", inputValue: "" },
+          { label: "Context:", placeholder: '{"type":"fdc3.instrument","id":{"ticker":"AAPL"}}', inputValue: "" }
         ]}
       />
 
