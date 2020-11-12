@@ -128,6 +128,8 @@ function InteractiveDemo(props: InteractiveDemoProps) {
 
 
 interface CodeSectionProps { snippet: string; result?: any }
+
+
 /**
  * Code Section
  * @param {*} props
