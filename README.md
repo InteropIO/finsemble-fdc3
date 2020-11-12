@@ -1,13 +1,10 @@
-
-
-
 # Finsemble FDC3 1.1
 
 - [Finsemble FDC3 1.1](#finsemble-fdc3-11)
 - [Intro to FDC3](#intro-to-fdc3)
 - [Getting Started](#getting-started)
   - [Installation](#installation)
-      - [Quick Install Steps](#quick-install-steps)
+    - [Quick Install Steps](#quick-install-steps)
   - [Using FDC3 in Finsemble](#using-fdc3-in-finsemble)
     - [FDC3 in Finsemble Components](#fdc3-in-finsemble-components)
     - [FDC3 in Finsemble Services](#fdc3-in-finsemble-services)
@@ -18,11 +15,12 @@
     - [Channels](#channels)
   - [Example use cases](#example-use-cases)
 
-
 # Intro to FDC3
+
 Welcome to the Finsemble FDC3 implementation. For those not familiar with FDC3 here is a summary taken from their charter:
->The mission of the Financial Desktop Connectivity and Collaboration Consortium (FDC3) is to develop specific protocols and taxonomies to advance the ability of desktop applications in financial workflows to interoperate in a plug-and-play fashion, without prior bi-lateral agreements.
-They aim to do this by
+
+> The mission of the Financial Desktop Connectivity and Collaboration Consortium (FDC3) is to develop specific protocols and taxonomies to advance the ability of desktop applications in financial workflows to interoperate in a plug-and-play fashion, without prior bi-lateral agreements.
+> They aim to do this by
 
 The FDC3 revolves around a few core concepts; Apps, Intents and Context.
 Apps - These are the applications that participate in FDC3. You can launch these applications and send data.
@@ -30,14 +28,15 @@ Intents - These are the verbs, what you would like to do e.g. _Launch a chart ap
 Context - The noun, this is the data you want to share with other applications, they will in turn use this.
 
 A good example putting all this together looks like this:
->Open (_intent_) a Chart (_app_) and send an instrument (_context_).
+
+> Open (_intent_) a Chart (_app_) and send an instrument (_context_).
 
 The Finsemble FDC3 implementation is comprised of four parts:
+
 - Component Config
 - Preload
 - Client
 - Service
-
 
 # Getting Started
 
@@ -47,42 +46,50 @@ By following the 6 steps below you will be able to start working with FDC3 insid
 
 **How it works:**
 
-The project's watch script monitors the project for any changes in the src directory or config file. When folders or files are updated, added or removed the change will automatically be reflected in the Finsemble Seed Project. Source files are from this project's _src_ directory are synced to matching locations in the Finsemble Seed project, while the content of the _finsemble.config.json_ file is added to the seed project's _configs/application/config.json_ file.
+The project's watch script monitors the project for any changes in the _src_ directory or config file. When folders or files are updated, added or removed the change will automatically be reflected in the Finsemble Seed Project. Source files are from this project's _src_ directory are synced to matching locations in the Finsemble Seed project, while the content of the _finsemble.config.json_ file is added to the seed project's _configs/application/config.json_ file.
 
 #### Quick Install Steps
-1) Clone the Finsemble [seed-project](https://github.com/ChartIQ/finsemble-seed) (if you don't already have a local version - see our [Getting Started Tutorial](https://www.chartiq.com/tutorials/?slug=finsemble))
-2) `npm install react-syntax-highlighter @types/react @types/react-syntax-highlighter` in the seed project
-3) Clone this repo
-   - **our advice:** clone this repo to the same directory as the seed-project e.g *myfolder/finsemble-seed* & *myfolder/finsemble-fdc3*
-4) If you clone in a different location, open **finsemble.config.json** and update `seedProjectDirectory` with the path to your local Finsemble Seed Project.
-5) Inside this project run `npm install` then run `npm run watch` 
-**Note:** The watch script will continue to monitor this project for file changes. If you do not need it to, it  can be stopped once all the files have been copied to the seed project (which takes approx. 30 seconds).
-6) Follow the instructions on how to add the FDC3 to your [Component](###-FDC3-in-Finsemble-Components) / [Service](###FDC3-in-Finsemble-Services):
+
+1. Clone the Finsemble [seed-project](https://github.com/ChartIQ/finsemble-seed) (if you don't already have a local version - see our [Getting Started Tutorial](https://www.chartiq.com/tutorials/?slug=finsemble))
+2. `npm install react-syntax-highlighter @types/react @types/react-syntax-highlighter` in the seed project
+3. Clone this repo
+   - **our advice:** clone this repo to the same directory as the seed-project e.g _myfolder/finsemble-seed_ & _myfolder/finsemble-fdc3_
+4. If you clone in a different location, open **finsemble.config.json** and update `seedProjectDirectory` with the path to your local Finsemble Seed Project.
+5. Inside this project run `npm install` then run `npm run watch`
+   **Note:** The watch script will continue to monitor this project for file changes. If you do not need it to, it can be stopped once all the files have been copied to the seed project (which takes approx. 30 seconds).
+6. Follow the instructions on how to add the FDC3 to your [Component](###-FDC3-in-Finsemble-Components) / [Service](###FDC3-in-Finsemble-Services):
 
 ## Using FDC3 in Finsemble
+
 The Finsemble implementation of the FDC3 DesktopAgent and Channels APIs can be used in both Finsemble Components and Services.
 
 ### FDC3 in Finsemble Components
+
 The FDC3 client is most easily made available to your components via preload, which will give your component access to it as if it were any other Finsemble client. It is anticipated that later versions of Finsemble will include the FDC3 client by default.
 
 #### Component Config
-To use the FDC3 client in your component, you will need to make 3 additions to your component's configuration: 
-- Preload the client, 
-- Ensure that you have a Toolbar Icon URL set 
+
+To use the FDC3 client in your component, you will need to make 3 additions to your component's configuration:
+
+- Preload the client,
+- Ensure that you have a Toolbar Icon URL set
 - Add FDC3 specific configuration
 
-
 ##### Preload
+
 To add the FDC3 preload to your component, set `component.preload` in its configuration to the path to the built preload script, e.g. `"$applicationRoot/preloads/FDC3Client.js"`, or if using multiple preload scripts add it to an array of their paths (see the config example below).
 
 ##### Toolbar Icon URL
+
 The icon url is used by the intent resolver to display the logo of your component. This URL can use the `$applicationRoot` variable to set a local path or can be an external URL. Supported formats: `.jpg`, `.png`, `.svg`.
 
 ##### FDC3 configuration
-An additional section in your component config, `foreign.services.fdc3`, is used to specify intents and associated context types that your
- component can accept. See the section **fdc3** in the example below.
 
-  Example:
+An additional section in your component config, `foreign.services.fdc3`, is used to specify intents and associated context types that your
+component can accept. See the section **fdc3** in the example below.
+
+Example:
+
 ```
 {
   "FDC3 Component": {
@@ -116,13 +123,14 @@ An additional section in your component config, `foreign.services.fdc3`, is used
 }
 ```
 
-
 ### FDC3 in Finsemble Services
+
 The Finsemble FDC3 client may also be used in Finsemble services, where it is imported into the service implementation. Please see our [exampleFDC3Service](./src/services/testFDC3) for an example of how to structure your service to work with FDC3.
 
-
 ## API
+
 Please note that the FINOS FDC3 website provides documentation for the [Desktop Agent](https://fdc3.finos.org/docs/1.1/api/ref/DesktopAgent) and [Channel](https://fdc3.finos.org/docs/1.1/api/ref/Channel) APIs. The main API calls are also detailed here for convenience.
+
 ### App
 
 <table>
@@ -143,6 +151,7 @@ Please note that the FINOS FDC3 website provides documentation for the [Desktop 
 <br/>
 
 ### Context
+
 <table>
 <thead>
 <tr>
@@ -182,6 +191,7 @@ Please note that the FINOS FDC3 website provides documentation for the [Desktop 
 <br/>
 
 ### Intents
+
 <table>
 <thead>
 <tr>
@@ -229,6 +239,7 @@ context => { //do something here  }
 ### Channels
 
 The DesktopAgent API will allow you to join, listen to and broadcast context to a single 'channel' via its API. However, you can also interact directly with FDC3 channels, which have the following interface:
+
 ```javascript
 interface Channel {
   // properties
@@ -238,7 +249,7 @@ interface Channel {
 
   // methods
   broadcast(context: Context): void;
-  getCurrentContext(contextType?: string): Promise<Context|null>;
+  getCurrentContext(contextType?: string): Promise<Context | null>;
   addContextListener(handler: ContextHandler): Listener;
   addContextListener(contextType: string, handler: ContextHandler): Listener;
 }
@@ -288,77 +299,81 @@ There is a simple command for this! `fdc3.open("ChartIQ")`
 
 The fdc3.open call allows you to send context with it too.
 Here is an example of opening the chart and sending the GOOGL (Google) ticker symbol to it.
+
 ```javascript
-fdc3.open("ChartIQ",{
-  "type":"fdc3.instrument",
-  "name": "Google",
-    "id": {
-            "ticker": "GOOGL"
-          }
- });
+fdc3.open("ChartIQ", {
+  type: "fdc3.instrument",
+  name: "Google",
+  id: {
+    ticker: "GOOGL",
+  },
+});
 ```
 
 > I want to send an instrument (MSFT) but I want the user to choose the application they want to display it with, how would I do that?
 
 This is where you can raise an intent. Once the intent has been raised it will show all the apps capable of dealing with your intent in the intent resolver. This works in a similar fashion to your phone when you want to share a link or open a calendar invite and it asks which application you would like to use.
 To do this you need two things
-1) A Finsemble component that has been set up to accept your intent (you can read the section on config above to do this).
-2) Your component to have a button or event to run the following code
+
+1. A Finsemble component that has been set up to accept your intent (you can read the section on config above to do this).
+2. Your component to have a button or event to run the following code
+
 ```javascript
 const instrument = {
-  type: 'fdc3.instrument',
-  name: 'Microsoft',
-  id: { ticker: 'MSFT' }
-}
-fdc3.raiseIntent('ViewInstrument', instrument)
+  type: "fdc3.instrument",
+  name: "Microsoft",
+  id: { ticker: "MSFT" },
+};
+fdc3.raiseIntent("ViewInstrument", instrument);
 ```
+
 Once executed Finsemble will display the Intent Resolver UI, a modal type component to display the apps that can accept your intent. The rest is dealt with by your end-user.
 
 > I made an application that can be opened by the Intent Resolver via raiseIntent but I don't see my data updating, how do I get the data when it's sent?
 >
-When you develop your application you will need to add one or more intent listeners for each intent that your application can be used with.
-`const listener = fdc3.addIntentListener('ViewInstrument',
-context => { // view instrument has been requested by another application });`
+> When you develop your application you will need to add one or more intent listeners for each intent that your application can be used with.
+> `const listener = fdc3.addIntentListener('ViewInstrument', context => { // view instrument has been requested by another application });`
 
 > Is there a way I can find out intents in advance so that if there are no applications that accept my intent I can do something else with a user request?
 >
-Yes. You have two options to find intents, you can
-`fdc3.findIntent("ViewChart", context); //context object is optional`
-OR
-`fdc3.findIntentsByContext(context);`
+> Yes. You have two options to find intents, you can
+> `fdc3.findIntent("ViewChart", context); //context object is optional`
+> OR
+> `fdc3.findIntentsByContext(context);`
 
 > I don't want to use the intent resolver each time I want to send context (data) between components, is there another way?
 >
-FDC3 1.1 introduces the Channels API. You can connect your components to a channel either programmatically or user-led via the Finsemble Linker.
-Channels then allow you to share context between them. A single application (component) can only join one channel at a time e.g it cannot join the purple and the yellow channel, if the user tries to do this they will be removed from the last channel joined. You can however programmatically listen to as many channels as you like from your application.
-Many applications can be joined to a single-channel e.g App A, B and C can all be joined by the purple channel.
+> FDC3 1.1 introduces the Channels API. You can connect your components to a channel either programmatically or user-led via the Finsemble Linker.
+> Channels then allow you to share context between them. A single application (component) can only join one channel at a time e.g it cannot join the purple and the yellow channel, if the user tries to do this they will be removed from the last channel joined. You can however programmatically listen to as many channels as you like from your application.
+> Many applications can be joined to a single-channel e.g App A, B and C can all be joined by the purple channel.
 
 > What do I need to do to enable the channels so that my end users can start using it?
 >
-Finsemble includes user interface for selecting built-in (or system) color channels, normally used with the Finsemble Linker API. The Finsemble FDC3 implementation, if preloaded into a component, will take over the Linker UI allowing you to use it select FDC3 system channels instead. All you need to do is add the FDC3 preload to your component then set up a [context listener](#context-listener) and Finsemble will handle the rest. Your end-users can now use the Finsemble Linker button to change the FDC3 channel they are joined to.
+> Finsemble includes user interface for selecting built-in (or system) color channels, normally used with the Finsemble Linker API. The Finsemble FDC3 implementation, if preloaded into a component, will take over the Linker UI allowing you to use it select FDC3 system channels instead. All you need to do is add the FDC3 preload to your component then set up a [context listener](#context-listener) and Finsemble will handle the rest. Your end-users can now use the Finsemble Linker button to change the FDC3 channel they are joined to.
 
 > How do I know what channels I have access to?
 >
-You can list the available System channels (including a global channel) by doing the following:
-`const systemChannels = await fdc3.getSystemChannels();
-// Array of System Channels`
+> You can list the available System channels (including a global channel) by doing the following:
+> `const systemChannels = await fdc3.getSystemChannels(); // Array of System Channels`
 
 > Am I limited to just your Finsemble Linker channels?
 >
-No. You can add as many channels as you like, try it by using `const Channel = fdc3.getOrCreateChannel("myChannel")`
+> No. You can add as many channels as you like, try it by using `const Channel = fdc3.getOrCreateChannel("myChannel")`
 
 > You mentioned programmatically sending context (data) over channels how do I do that?
 >
-If you want to send context via the channel that you are currently joined to you can do the following:
+> If you want to send context via the channel that you are currently joined to you can do the following:
+
 ```javascript
 const instrument = {
-  type: 'fdc3.instrument',
-  id: { ticker: 'MSFT' }
+  type: "fdc3.instrument",
+  id: { ticker: "MSFT" },
 };
 fdc3.broadcast(instrument);
 ```
 
 If you want to send context to a channel you are not joined to you need to get the channel first.
+
 ```javascript
 try {
   const myChannel = await fdc3.getOrCreateChannel("myChannel");
@@ -380,6 +395,7 @@ try {
 It depends on if you want to listen for context on the channel you are joined to or a different channel(s).
 
 If you are joined to a channel you can use the following:
+
 ```javascript
 // any context
 const listener = fdc3.addContextListener(context => { ... });
@@ -389,6 +405,7 @@ const contactListener = fdc3.addContextListener('fdc3.contact', contact => { ...
 ```
 
 If you want to listen to a specific channel you need to get it first like this:
+
 ```javascript
 try {
 
@@ -402,13 +419,14 @@ try {
 
 > Is there a list of default context types?
 >
-Yes, you can find a list of FDC3 context types here [https://fdc3.finos.org/docs/1.1/context/overview](). FDC3 context types start with "fdc3.".
+> Yes, you can find a list of FDC3 context types here [https://fdc3.finos.org/docs/1.1/context/overview](). FDC3 context types start with "fdc3.".
 
 > What if the default FDC3 context types don't fit with my data structure?
 >
-You will need to create a custom context type. The only value required is the type(see below).
+> You will need to create a custom context type. The only value required is the type(see below).
 
-*Note: When broadcasting a custom context type the receiving application will need to know the content and structure of the context you are sending.*
+_Note: When broadcasting a custom context type the receiving application will need to know the content and structure of the context you are sending._
+
 ```
 interface Context {
     type: string;
@@ -419,6 +437,7 @@ interface Context {
     [x: string]: any;
 }
 ```
+
 An example of a finsemble custom type may look like this:
 
 ```

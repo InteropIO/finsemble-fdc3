@@ -21,7 +21,6 @@ Finsemble.Clients.Logger.log("TestFDC3 Service starting up");
 
 // NOTE: When adding the above clients to a service, be sure to add them to the start up dependencies.
 
-
 class testFDC3Service extends Finsemble.baseService {
 	/**
 	 * Initializes a new instance of the TestFDC3Service class.

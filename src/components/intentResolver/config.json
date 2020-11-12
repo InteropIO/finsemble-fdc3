@@ -17,7 +17,8 @@
         "preload": "$applicationRoot/preloads/FDC3Client.js",
         "spawnOnStartup": true,
         "singleton": true,
-        "showDevConsoleOnVisible": false
+        "showDevConsoleOnVisible": false,
+        "category": "system"
       },
       "foreign": {
         "services": {
@@ -39,7 +40,7 @@
           },
           "Toolbar": {
             "iconClass": "intentResolverModal",
-            "iconURL": "http://localhost:3375/assets/img/Finsemble_Taskbar_Icon.png"
+            "iconURL": "$applicationRoot/components/intentResolver/fdc3-icon.png"
           }
         }
       }
