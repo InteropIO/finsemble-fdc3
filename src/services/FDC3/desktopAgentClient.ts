@@ -76,10 +76,10 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 
 		let contextListener = null;
 		if (this.#currentChannel) {
-			if (typeof contextTypeOrHandler === "string") {
+			if (typeof contextTypeOrHandler === "string") { //type of context listener is specified
 				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler);
-				if (context) handler(context);
-			} else {
+				if (context && contextTypeOrHandler === context?.type) handler(context);
+			} else { //listens to all context types
 				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler);
 				if (context) contextTypeOrHandler(context);
 			}
