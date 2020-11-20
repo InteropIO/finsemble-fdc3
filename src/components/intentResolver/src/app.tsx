@@ -130,7 +130,8 @@ export default function App() {
     const { intent, name, context, componentType } = data
 
     if (action === "spawn") {
-      LauncherClient.spawn(componentType, { data: { fdc3: { intent, context } } }, (err: any, data: any) => {
+      //note use of intentContext to differentiate from data.fdc3.context variable used when passing context on open
+      LauncherClient.spawn(componentType, { data: { fdc3: { intent, intentContext: context } } }, (err: any, data: any) => {
         const success = err ? false : true
 
         DialogManager.respondToOpener({ success, intent, context, source, target })
