@@ -6,6 +6,23 @@ import Intents from "./Intents";
 import Channels from "./Channels";
 import Context from "./Context";
 
+const launchIntent = () => {
+	const intent = "fdc3.instrument"
+	const context = { "type": "fdc3.contact", "id": { "ticker": "AAPL" } }
+	fdc3.raiseIntent(intent, context)
+}
+
+let addXTestersDynamically = async (x) => {
+	FSBL.Clients.ConfigClient.getValue({ field: 'finsemble.components.["FDC3Tester"]' }, (err, componentConfig) => {
+
+		let newComponents = new Array(5).fill(null)
+		let res = newComponents.map((comp, index) => ({ field: `finsemble.components.FDC3Tester${index}`, value: componentConfig }))
+
+		FSBL.Clients.ConfigClient.setValues(res);
+
+		console.log(res);
+	})
+}
 
 function FDC3Tester() {
 	return (
