@@ -3,6 +3,8 @@ import "../intentResolver.css";
 import CloseIcon from './CloseIcon';
 import AddBoxIcon from './AddBoxIcon';
 import BadgeIcon from './BadgeIcon';
+import OpenIcon from './OpenIcon';
+import AppCountIcon from './AppCountIcon';
 const { useState, useEffect } = React
 
 const { DialogManager, LauncherClient, Logger, RouterClient } = FSBL.Clients
@@ -167,9 +169,12 @@ export default function App() {
 
   const OpenAppsList = () => (
     <div className="app__list">
-      {/* <img className="app__icon" src={`${selectedOpenApps[0].icons[0]}`} /> */}
-      <h2>{selectedOpenApps[0].type} - Open Apps:</h2>
-      <hr></hr>
+      <CloseIcon className="app__list--close-button" onClick={() => setSelectedOpenApps([])} />
+      <h2>Open Apps</h2>
+      <h3>
+        {(selectedOpenApps[0].icons[0] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[0]} />) || (selectedOpenApps[0].icons[1] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[1]} />)}
+        {console.log(selectedOpenApps[0])}
+        {selectedOpenApps[0].type}</h3>
       <ul>
         {selectedOpenApps.map(({ name, type }) => (
           <li key={name}>
@@ -178,7 +183,8 @@ export default function App() {
               setSelectedOpenApps([]) // reset to hide the panel
             }
             }>
-              <img style={{ fill: 'white' }} src="./src/launch.svg"></img>{name}
+              <OpenIcon />
+              <span>{name}</span>
             </button>
           </li>
         ))
@@ -188,7 +194,7 @@ export default function App() {
         openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent, context })
         setSelectedOpenApps([]) // reset to hide the panel
       }
-      } ><span><AddBoxIcon /></span> <span>new</span>  </button>
+      } ><AddBoxIcon /> <span>new</span>  </button>
     </div>
   )
 
@@ -211,7 +217,8 @@ export default function App() {
                 openApps[app.name] ? setSelectedOpenApps(openApps[app.name]) :
                   openAppWithIntent("spawn", { componentType: app.name, intent, context })
               }}>
-                {openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />}
+                {/* {openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />} */}
+                {openApps && openApps[app.name] && <AppCountIcon openAppCount={openApps[app.name].length} />}
                 <div className="app__header">
                   <img className="app__icon" src={`${app.icons[0] || app.icons[1] || "./src/launch.svg"}`} />
                   <h3 className="app__type">{app.name}</h3>
@@ -223,12 +230,10 @@ export default function App() {
             )
         }
         </div>
-
-        {
-          !!selectedOpenApps.length && <OpenAppsList />
-        }
-
       </div>
+      {
+          !!selectedOpenApps.length && <OpenAppsList />
+      }
     </div >
   )
 }
