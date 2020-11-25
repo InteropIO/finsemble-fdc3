@@ -1,17 +1,22 @@
 import * as React from "react";
 
-function AddBoxIcon({ className = "", onClick = () => { } }) {
+function AddBoxIcon(props: any) {
   return (
     <svg
+
+    viewBox="0 0 24 24"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      className={className}
-      onClick={onClick}
+      {...props}
     >
-      <path fill="none" d="M0 0h24v24H0z"></path>
-      <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"></path>
+      <path
+        d="M21.484 11.125l-9.022-5a1 1 0 00-.968-.001l-8.978 4.96a1 1 0 00-.003 1.749l9.022 5.04a.995.995 0 00.973.001l8.978-5a1 1 0 00-.002-1.749zm-9.461 4.73l-6.964-3.89 6.917-3.822 6.964 3.859-6.917 3.853z"
+        fill="#fff"
+      />
+      <path
+        d="M12 22c.17 0 .337-.043.485-.126l9-5-.971-1.748L12 19.856l-8.515-4.73-.971 1.748 9 5A1 1 0 0012 22zm8-20h-2v2h-2v2h2v2h2V6h2V4h-2V2z"
+        fill="#fff"
+      />
     </svg>
   );
 }
