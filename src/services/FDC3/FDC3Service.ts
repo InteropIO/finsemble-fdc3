@@ -7,14 +7,12 @@ const Finsemble = require("@finsemble/finsemble-core");
 const BaseService = Finsemble.baseService;
 const { RouterClient, LinkerClient, DialogManager, WindowClient, LauncherClient, DistributedStoreClient, Logger } = Finsemble.Clients;
 
-LinkerClient.start(() => { });
 DialogManager.initialize();
 LauncherClient.initialize();
 Logger.start();
 WindowClient.initialize();
 DistributedStoreClient.initialize();
 DialogManager.createStore(() => { });
-
 
 import DesktopAgent from './desktopAgent'
 // const queryJSON = require('./objectQuery/queryJSON.js');
@@ -46,15 +44,19 @@ class FDC3Service extends BaseService {
 	 */
 	async initialize(cb: () => void) {
 		this.createRouterEndpoints();
-		Finsemble.Clients.Logger.log("desktopAgent Service ready");
-		this.desktopAgent = new DesktopAgent({
-			FSBL: Finsemble,
-		})
-		const channels = await this.desktopAgent.getSystemChannels();
-		for (const channel of channels) {
-			this.channels[channel.id] = channel;
-		}
-		cb();
+
+		// Wait for LinkerClient to be started before creating the DesktopAgent
+		LinkerClient.start(async () => {
+			Finsemble.Clients.Logger.log("desktopAgent Service ready");
+			this.desktopAgent = new DesktopAgent({
+				FSBL: Finsemble,
+			})
+			const channels = await this.desktopAgent.getSystemChannels();
+			for (const channel of channels) {
+				this.channels[channel.id] = channel;
+			}
+			cb();
+		});
 	}
 
 	/**

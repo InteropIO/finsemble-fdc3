@@ -23,7 +23,6 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 		this.#strict = strict;
 		this.#FDC3Client = FDC3Client;
 		this.#FSBL = Finsemble;
-
 	}
 
 	get isChannelChanging() {
@@ -138,16 +137,18 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 			handler(response.data);
 		}
 
+		const windowName = this.#FSBL.Clients.WindowClient.options.name;
+
 		// deals with data sent at open
 		const spawnData = this.#FSBL.Clients.WindowClient.getSpawnData();
 		if (intent === spawnData?.fdc3?.intent?.name) {
 			handler(spawnData?.fdc3?.context);
 		}
 
-		this.#FSBL.Clients.RouterClient.addListener(`FDC3.intent.${intent}`, routerHandler);
+		this.#FSBL.Clients.RouterClient.addListener(`FDC3.intent.${intent}.${windowName}`, routerHandler);
 		return {
 			unsubscribe: () => {
-				this.#FSBL.Clients.RouterClient.removeListener(`FDC3.intent.${intent}`, routerHandler);
+				this.#FSBL.Clients.RouterClient.removeListener(`FDC3.intent.${intent}.${windowName}`, routerHandler);
 			}
 		}
 	}

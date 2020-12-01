@@ -1,19 +1,28 @@
 {
   "name": "finsemble-fdc3",
-  "version": "4.3.0",
+  "version": "5.1.1",
   "description": "Finsemble FDC3 Desktop Agent implementation. See https://github.com/ChartIQ/finsemble-fdc3 for details",
   "main": "src/services/FDC3/FDC3Client.ts",
   "scripts": {
-    "watch": "node ./fpe-scripts/watch.js"
+    "watch": "node ./fpe-scripts/watch.js",
+    "copy": "node ./fpe-scripts/watch.js copy"
   },
-  "keywords": ["Finsemble","FDC3","interop","desktop agent"],
+  "keywords": [
+    "Finsemble",
+    "FDC3",
+    "interop",
+    "desktop agent"
+  ],
   "author": "ChartIQ <support@finsemble.com> (https://www.chartiq.com/finsemble/)",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
     "chokidar": "^3.4.0",
-    "fs-extra": "^9.0.0"
+    "fs-extra": "^9.0.0",
+    "chalk": "^4.1.0",
+    "dotenv": "^8.2.0"
   },
   "dependencies": {
+    "react-syntax-highlighter": "^13.5.1",
     "typescript": "^3.9.5"
   }
 }
