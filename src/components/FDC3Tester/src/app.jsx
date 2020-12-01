@@ -6,7 +6,6 @@ import Intents from "./Intents";
 import Channels from "./Channels";
 import Context from "./Context";
 
-
 function FDC3Tester() {
 	return (
 		<div>

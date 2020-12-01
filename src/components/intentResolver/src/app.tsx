@@ -3,6 +3,8 @@ import "../intentResolver.css";
 import CloseIcon from './CloseIcon';
 import AddBoxIcon from './AddBoxIcon';
 import BadgeIcon from './BadgeIcon';
+import OpenIcon from './OpenIcon';
+import AppCountIcon from './AppCountIcon';
 const { useState, useEffect } = React
 
 const { DialogManager, LauncherClient, Logger, RouterClient } = FSBL.Clients
@@ -73,9 +75,21 @@ export default function App() {
 
       const { appIntent, context, source, target }: { appIntent: AppIntent, context: Context, source: string, target: string } = res.data
       const { apps, intent } = appIntent
+
+
+      const removeDuplicateApps = (arr: any[]) => arr.reduce((acc: any[], current: { name: any; }) => {
+        const x = acc.find((item: { name: any; }) => item.name === current.name);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
+
+
       setIntent(intent)
       setContext(context)
-      setApps(apps)
+      setApps(removeDuplicateApps(apps))
       setSource(source)
       setTarget(target)
 
@@ -155,18 +169,22 @@ export default function App() {
 
   const OpenAppsList = () => (
     <div className="app__list">
-      {/* <img className="app__icon" src={`${selectedOpenApps[0].icons[0]}`} /> */}
-      <h2>{selectedOpenApps[0].type} - Open Apps:</h2>
-      <hr></hr>
+      <CloseIcon className="app__list--close-button" onClick={() => setSelectedOpenApps([])} />
+      <h2>Open Apps</h2>
+      <h3>
+        {(selectedOpenApps[0].icons[0] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[0]} />) || (selectedOpenApps[0].icons[1] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[1]} />)}
+        {console.log(selectedOpenApps[0])}
+        {selectedOpenApps[0].type}</h3>
       <ul>
         {selectedOpenApps.map(({ name, type }) => (
-          <li>
-            <button key={name} onClick={() => {
+          <li key={name}>
+            <button onClick={() => {
               openAppWithIntent("show", { name, componentType: type, context, intent })
               setSelectedOpenApps([]) // reset to hide the panel
             }
             }>
-              <img style={{ fill: 'white' }} src="./src/launch.svg"></img>{name}
+              <OpenIcon />
+              <span>{name}</span>
             </button>
           </li>
         ))
@@ -176,7 +194,7 @@ export default function App() {
         openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent, context })
         setSelectedOpenApps([]) // reset to hide the panel
       }
-      } ><span><AddBoxIcon /></span> <span>new</span>  </button>
+      } ><AddBoxIcon /> <span>new</span>  </button>
     </div>
   )
 
@@ -187,9 +205,9 @@ export default function App() {
       <CloseIcon className="resolver__close" onClick={() =>
         DialogManager.respondToOpener({ error: true })} />
       <h2 className="resolver__action"><span className="resolver__action-source">{source}</span> would like to action the intent: <span className="resolver__action-intent">{intent?.displayName}</span>, open with...</h2>
-      <div className="resolver__apps">
-
-        {
+      <div className="resolver__app-area">
+        <div className="resolver__apps">
+         {
           apps &&
           apps
             .map((app: AppMetadata) => (
@@ -199,7 +217,8 @@ export default function App() {
                 openApps[app.name] ? setSelectedOpenApps(openApps[app.name]) :
                   openAppWithIntent("spawn", { componentType: app.name, intent, context })
               }}>
-                {openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />}
+                {/* {openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />} */}
+                {openApps && openApps[app.name] && <AppCountIcon openAppCount={openApps[app.name].length} />}
                 <div className="app__header">
                   <img className="app__icon" src={`${app.icons[0] || app.icons[1] || "./src/launch.svg"}`} />
                   <h3 className="app__type">{app.name}</h3>
@@ -210,11 +229,11 @@ export default function App() {
             )
             )
         }
-        {
-          !!selectedOpenApps.length && <OpenAppsList />
-        }
-
+        </div>
       </div>
+      {
+          !!selectedOpenApps.length && <OpenAppsList />
+      }
     </div >
   )
 }
