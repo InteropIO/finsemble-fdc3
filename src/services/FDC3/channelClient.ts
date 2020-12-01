@@ -54,8 +54,8 @@ export default class C implements Channel {
 		}
 
 		//only send the context data on if it did not get broadcast from this window
-		const messageLoopPrevention = (_arg1: string | Error | null, { data }) =>
-			data.source !== currentWindowName && theHandler(data.context)
+		const messageLoopPrevention = (_arg1: string | Error | null, { data }: { data: any }) =>
+			data.source !== currentWindowName && (theHandler && theHandler(data.context))
 
 
 		if (this.id == "global") {
@@ -69,7 +69,6 @@ export default class C implements Channel {
 			}
 
 		} else {
-
 			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
 			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, messageLoopPrevention);
 
@@ -81,5 +80,4 @@ export default class C implements Channel {
 
 		}
 	}
-
 }

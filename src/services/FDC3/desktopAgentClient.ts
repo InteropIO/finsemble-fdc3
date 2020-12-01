@@ -137,7 +137,8 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 			handler(response.data);
 		}
 
-		const windowName = this.#FSBL.Clients.WindowClient.options.name;
+		const windowOptions: any = this.#FSBL.Clients.WindowClient.options;
+		const windowName = windowOptions.name;
 
 		// deals with data sent at open
 		const spawnData = this.#FSBL.Clients.WindowClient.getSpawnData();
