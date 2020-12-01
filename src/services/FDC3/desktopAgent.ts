@@ -99,10 +99,16 @@ export default class D implements DesktopAgent {
 									intent,
 									apps: []
 								}
+								this.appIntents[intent.name].apps.push(appMetadata);
+							} else {
+								//don't add duplicates, replace instead
+								let idx = this.appIntents[intent.name].apps.findIndex((app) => app.name == appMetadata.name);
+								if (idx == -1){
+									this.appIntents[intent.name].apps.push(appMetadata);
+								} else {
+									this.appIntents[intent.name].apps[idx] = appMetadata;
+								}
 							}
-							this.appIntents[intent.name].apps.push(appMetadata);
-
-
 
 							const contexts = intentConfig.contexts;
 							if (contexts && contexts.length) {
@@ -118,9 +124,16 @@ export default class D implements DesktopAgent {
 											intent,
 											apps: []
 										};
+										this.appIntentsContext[context][intent.name].apps.push(appMetadata);
+									} else {
+										//don't add duplicates, replace instead
+										let idx = this.appIntentsContext[context][intent.name].apps.findIndex((app) => app.name == appMetadata.name);
+										if (idx == -1) {
+											this.appIntentsContext[context][intent.name].apps.push(appMetadata);
+										} else {
+											this.appIntentsContext[context][intent.name].apps[idx] = appMetadata;
+										}
 									}
-
-									this.appIntentsContext[context][intent.name].apps.push(appMetadata);
 								}
 							}
 

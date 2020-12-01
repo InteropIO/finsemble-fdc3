@@ -75,10 +75,10 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 
 		let contextListener = null;
 		if (this.#currentChannel) {
-			if (typeof contextTypeOrHandler === "string") {
-				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler!);
-				if (context) handler!(context);
-			} else {
+			if (typeof contextTypeOrHandler === "string") { //type of context listener is specified
+				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler);
+				if (context && contextTypeOrHandler === context?.type) handler!(context);
+			} else { //listens to all context types
 				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler);
 				if (context) contextTypeOrHandler(context);
 			}
@@ -141,8 +141,8 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 
 		// deals with data sent at open
 		const spawnData = this.#FSBL.Clients.WindowClient.getSpawnData();
-		if (intent === spawnData?.fdc3?.intent?.name) {
-			handler(spawnData?.fdc3?.context);
+		if (spawnData?.fdc3?.intentContext) {
+			handler(spawnData?.fdc3?.intentContext);
 		}
 
 		this.#FSBL.Clients.RouterClient.addListener(`FDC3.intent.${intent}.${windowName}`, routerHandler);

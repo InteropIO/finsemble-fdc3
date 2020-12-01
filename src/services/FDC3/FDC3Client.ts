@@ -76,14 +76,15 @@ class FDC3Client {
 					// Don't do anything if nothing changed (sometimes this event happens twice and causes all channels to be removed)
 					if (linkerChannels.length === 1 && currentChannel && linkerChannels[0] === currentChannel.id) return;
 
-					// remove current channel
-					if (currentChannel) {
-						linkerChannels = linkerChannels.filter(channel => channel !== currentChannel.id);
-					}
-
 					// are we joining a channel or completely leaving channels?
 					if (linkerChannels.length) {
+						// remove current channel
+						if (currentChannel) {
+							linkerChannels = linkerChannels.filter(channel => channel !== currentChannel.id);
+						}
 						await win.fdc3.joinChannel(linkerChannels[0]);
+					} else {
+						await win.fdc3.leaveCurrentChannel();
 					}
 				} else {
 					const linkerChannels = Object.keys(this.#FSBL.Clients.LinkerClient.channels);
