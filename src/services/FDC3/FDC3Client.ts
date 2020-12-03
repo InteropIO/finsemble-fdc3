@@ -12,7 +12,7 @@ const win = window as Window;
 
 class FDC3Client {
 	// if strict is true -> one linker channel only and one FDC3 Desktop agent only that is available at window.fdc3
-	#strict: Boolean = true;
+	#strict = true;
 	desktopAgents: Array<DesktopAgent> = [];
 	desktopAgentsByChannel: { [key: string]: DesktopAgent } = {};
 	#wait: (time: number) => Promise<unknown> = (time: number) => {

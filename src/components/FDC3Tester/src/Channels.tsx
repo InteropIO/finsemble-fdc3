@@ -14,8 +14,8 @@ export default function Channels() {
         apiName="getOrCreateChannel"
         title="getOrCreateChannel"
         description="Some Example needs to go here"
-        codeAction={(...args: any) => fdc3.getOrCreateChannel(...args)}
-        snippet={(...args: any) => `fdc3.getOrCreateChannel(${args})`}
+        codeAction={(...args: [string]) => fdc3.getOrCreateChannel(...args)}
+        snippet={(...args: [string]) => `fdc3.getOrCreateChannel(${args})`}
         inputs={[
           { label: "getOrCreateChannel:", placeholder: "orange", inputValue: "" }
         ]}
@@ -36,8 +36,8 @@ export default function Channels() {
         apiName="joinChannel"
         title="joinChannel"
         description="Join a channel using the channelID."
-        codeAction={(...args: any) => fdc3.joinChannel(...args)}
-        snippet={(...args: any) => `fdc3.joinChannel(${args})`}
+        codeAction={(...args: [string]) => fdc3.joinChannel(...args)}
+        snippet={(...args: [string]) => `fdc3.joinChannel(${args})`}
         inputs={[
           { label: "Channel Name:", placeholder: "group3", inputValue: "" }
         ]}

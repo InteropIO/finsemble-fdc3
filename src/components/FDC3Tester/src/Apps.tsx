@@ -11,9 +11,9 @@ export default function Apps() {
         apiName="open"
         title="Open"
         description="Open a component and send context of Google instrument."
-        codeAction={(...args: any) => fdc3.open(...args
+        codeAction={(...args: ["string"]) => fdc3.open(...args
         )}
-        snippet={(...args: any) =>
+        snippet={(...args: [string]) =>
           `fdc3.open(${args})`}
         inputs={[
           { label: "Component", placeholder: "Welcome Component", inputValue: "" },

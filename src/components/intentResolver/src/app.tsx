@@ -2,13 +2,11 @@ import * as React from 'react';
 import "../intentResolver.css";
 import CloseIcon from './CloseIcon';
 import AddBoxIcon from './AddBoxIcon';
-import BadgeIcon from './BadgeIcon';
 import OpenIcon from './OpenIcon';
 import AppCountIcon from './AppCountIcon';
 const { useState, useEffect } = React
 
 const { DialogManager, LauncherClient, Logger, RouterClient } = FSBL.Clients
-
 /**
  * Steps:
  *
@@ -45,20 +43,21 @@ interface FinsembleIntentApp extends AppMetadata {
 
   Use Array.prototype.map() to map the values of an array to a function or property name. Use Array.prototype.reduce() to create an object, where the keys are produced from the mapped results.
    */
-const groupBy = (arr: any[], fn: string | number) =>
-  arr.map(typeof fn === 'function' ? fn : val => val[fn]).reduce((acc, val, i) => {
+const groupBy = (arr: any[], fn: string | number): any =>
+  arr.map(typeof fn === 'function' ? fn : val => val[fn]).reduce((acc: any, val: any, i: number): any => {
     acc[val] = (acc[val] || []).concat(arr[i]);
     return acc;
   }, {});
 
 
 export default function App() {
-  const [intent, setIntent] = useState<IntentMetadata>(null)
+  const [intent, setIntent] = useState<IntentMetadata | undefined>()
   const [apps, setApps] = useState<Array<AppMetadata>>([])
   const [context, setContext] = useState<Context>()
-  const [source, setSource] = useState<string>(null)
+  const [source, setSource] = useState<string | null>(null)
   const [target, setTarget] = useState<string>()
-  const [openApps, setOpenApps] = useState<{ [key: string]: FinsembleIntentApp[] }>()
+  //@ts-ignore
+  const [openApps, setOpenApps] = useState<{ [key: string]: FinsembleIntentApp[] }>([])
   const [selectedOpenApps, setSelectedOpenApps] = useState<Array<FinsembleIntentApp>>([])
 
   useEffect(() => {
@@ -68,6 +67,7 @@ export default function App() {
       if (err) throw Error(err)
 
       //TODO: Fix: dialog was not displaying so using show
+      //@ts-ignore
       finsembleWindow.show({})
 
       Logger.log("_____INTENT:", res)
@@ -107,8 +107,13 @@ export default function App() {
   // Grab all Finsemble's open components and match them to the list of apps.
   // The list is of intentApps are Finsemble component types.
   const getOpenApps = async (apps: Array<AppMetadata>): Promise<FinsembleIntentApp[]> => {
+    interface ActiveDescriptors {
+      [key: string]: any;
+    }
     try {
-      const { err, data }: any = await LauncherClient.getActiveDescriptors()
+      //@ts-ignore
+      const result: { err: any, data: ActiveDescriptors } = await LauncherClient.getActiveDescriptors()
+      const { err, data } = result
 
       if (err) throw Error(err)
 
@@ -141,7 +146,7 @@ export default function App() {
    * show an open app and send the context via the router
    * */
   const openAppWithIntent = (action: "show" | "spawn", data: { componentType: string; intent?: IntentMetadata; context: Context; name?: string; }) => {
-    const { intent, name, context, componentType } = data
+    const { intent = undefined, name, context, componentType } = data
 
     if (action === "spawn") {
       //note use of intentContext to differentiate from data.fdc3.context variable used when passing context on open
@@ -158,7 +163,7 @@ export default function App() {
         const success = err ? false : true
         if (!err) {
           wrap.bringToFront();
-          RouterClient.transmit(`FDC3.intent.${intent.name}.${name}`, context);
+          intent && RouterClient.transmit(`FDC3.intent.${intent.name}.${name}`, context);
 
           DialogManager.respondToOpener({ success, intent, context, source, target });
         }
@@ -167,36 +172,40 @@ export default function App() {
   }
 
 
-  const OpenAppsList = () => (
-    <div className="app__list">
-      <CloseIcon className="app__list--close-button" onClick={() => setSelectedOpenApps([])} />
-      <h2>Open Apps</h2>
-      <h3>
-        {(selectedOpenApps[0].icons[0] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[0]} />) || (selectedOpenApps[0].icons[1] && <img className="app__icon--apps-list" src={selectedOpenApps[0].icons[1]} />)}
-        {console.log(selectedOpenApps[0])}
-        {selectedOpenApps[0].type}</h3>
-      <ul>
-        {selectedOpenApps.map(({ name, type }) => (
-          <li key={name}>
-            <button onClick={() => {
-              openAppWithIntent("show", { name, componentType: type, context, intent })
-              setSelectedOpenApps([]) // reset to hide the panel
-            }
-            }>
-              <OpenIcon />
-              <span>{name}</span>
-            </button>
-          </li>
-        ))
+  const OpenAppsList = () => {
+    const appIcon = (selectedOpenApps?.[0]?.icons?.[0] || selectedOpenApps?.[0]?.icons?.[1]) || null
+
+    return (
+      <div className="app__list">
+        <CloseIcon className="app__list--close-button" onClick={() => setSelectedOpenApps([])} />
+        <h2>Open Apps</h2>
+        <h3>
+          {appIcon && <img className="app__icon--apps-list" src={appIcon} />}
+          {console.log(selectedOpenApps[0])}
+          {selectedOpenApps[0].type}</h3>
+        <ul>
+          {selectedOpenApps.map(({ name, type }) => (
+            <li key={name}>
+              <button onClick={() => {
+                openAppWithIntent("show", { name, componentType: type, context, intent })
+                setSelectedOpenApps([]) // reset to hide the panel
+              }
+              }>
+                <OpenIcon />
+                <span>{name}</span>
+              </button>
+            </li>
+          ))
+          }
+        </ul>
+        <button className="app__new" onClick={() => {
+          openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent, context })
+          setSelectedOpenApps([]) // reset to hide the panel
         }
-      </ul>
-      <button className="app__new" onClick={() => {
-        openAppWithIntent("spawn", { componentType: selectedOpenApps[0].type, intent, context })
-        setSelectedOpenApps([]) // reset to hide the panel
-      }
-      } ><AddBoxIcon /> <span>new</span>  </button>
-    </div>
-  )
+        } ><AddBoxIcon /> <span>new</span>  </button>
+      </div>
+    )
+  }
 
 
   return (
@@ -217,10 +226,9 @@ export default function App() {
                 openApps[app.name] ? setSelectedOpenApps(openApps[app.name]) :
                   openAppWithIntent("spawn", { componentType: app.name, intent, context })
               }}>
-                {/* {openApps && openApps[app.name] && <BadgeIcon openAppCount={openApps[app.name].length} />} */}
                 {openApps && openApps[app.name] && <AppCountIcon openAppCount={openApps[app.name].length} />}
                 <div className="app__header">
-                  <img className="app__icon" src={`${app.icons[0] || app.icons[1] || "./src/launch.svg"}`} />
+                  <img className="app__icon" src={`${(app.icons && (app.icons[0] || app.icons[1])) || "./src/launch.svg"}`} />
                   <h3 className="app__type">{app.name}</h3>
 
                 </div>

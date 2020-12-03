@@ -9,16 +9,16 @@ interface ContextTypeAndHandler {
 export default class DesktopAgentClient extends EventEmitter implements DesktopAgent {
 	#currentChannel: Channel | null = null;
 	#contextHandlers: { [key: string]: ContextTypeAndHandler } = {};
-	#channelChanging: Boolean = false;
+	#channelChanging = false;
 	#wait: (time: number) => Promise<void> = (time: number) => {
 		return new Promise((resolve) => setTimeout(resolve, time));
 	};
-	#strict: Boolean;
+	#strict: boolean;
 	#FDC3Client: any;
 	#FSBL: typeof FSBL;
 	#log: any = console.log; //this.#FSBL.Clients.Logger.log;
 
-	constructor(strict: Boolean, FDC3Client: any, Finsemble: typeof FSBL) {
+	constructor(strict: boolean, FDC3Client: any, Finsemble: typeof FSBL) {
 		super();
 		this.#strict = strict;
 		this.#FDC3Client = FDC3Client;
@@ -71,11 +71,12 @@ export default class DesktopAgentClient extends EventEmitter implements DesktopA
 
 		// data sent at open
 		const spawnData = this.#FSBL.Clients.WindowClient.getSpawnData();
-		let context = spawnData?.fdc3?.context;
+		const context = spawnData?.fdc3?.context;
 
 		let contextListener = null;
 		if (this.#currentChannel) {
 			if (typeof contextTypeOrHandler === "string") { //type of context listener is specified
+				// @ts-ignore
 				contextListener = this.#currentChannel.addContextListener(contextTypeOrHandler, handler);
 				if (context && contextTypeOrHandler === context?.type) handler!(context);
 			} else { //listens to all context types
