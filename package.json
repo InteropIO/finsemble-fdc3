@@ -14,7 +14,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "npm TSCheck"
+      "pre-push": "npm run TSCheck"
     }
   },
   "lint-staged": {
