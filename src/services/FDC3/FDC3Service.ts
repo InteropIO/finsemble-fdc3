@@ -1,20 +1,28 @@
 /*!
-* Copyright 2017 by ChartIQ, Inc.
-* All rights reserved.
-*/
+ * Copyright 2017 by ChartIQ, Inc.
+ * All rights reserved.
+ */
 
 const Finsemble = require("@finsemble/finsemble-core");
 const BaseService = Finsemble.baseService;
-const { RouterClient, LinkerClient, DialogManager, WindowClient, LauncherClient, DistributedStoreClient, Logger } = Finsemble.Clients;
+const {
+	RouterClient,
+	LinkerClient,
+	DialogManager,
+	WindowClient,
+	LauncherClient,
+	DistributedStoreClient,
+	Logger,
+} = Finsemble.Clients;
 
 DialogManager.initialize();
 LauncherClient.initialize();
 Logger.start();
 WindowClient.initialize();
 DistributedStoreClient.initialize();
-DialogManager.createStore(() => { });
+DialogManager.createStore(() => {});
 
-import DesktopAgent from './desktopAgent'
+import DesktopAgent from "./desktopAgent";
 // const queryJSON = require('./objectQuery/queryJSON.js');
 
 Logger.log("Desktop Agent starting up");
@@ -29,8 +37,10 @@ class FDC3Service extends BaseService {
 	channels: { [key: string]: Channel } = {};
 
 	constructor(params: {
-		name: string; startupDependencies: {
-			services: string[]; clients: string[];
+		name: string;
+		startupDependencies: {
+			services: string[];
+			clients: string[];
 		};
 	}) {
 		super(params);
@@ -50,7 +60,7 @@ class FDC3Service extends BaseService {
 			Finsemble.Clients.Logger.log("desktopAgent Service ready");
 			this.desktopAgent = new DesktopAgent({
 				FSBL: Finsemble,
-			})
+			});
 			const channels = await this.desktopAgent.getSystemChannels();
 			for (const channel of channels) {
 				this.channels[channel.id] = channel;
@@ -76,7 +86,7 @@ class FDC3Service extends BaseService {
 			"joinChannel",
 			"leaveCurrentChannel",
 			"open",
-			"raiseIntent"
+			"raiseIntent",
 		];
 
 		for (const ApiCall of DesktopAgentApiList) {
@@ -93,12 +103,12 @@ class FDC3Service extends BaseService {
 						case "addContextListener":
 							response = await this.desktopAgent!.addContextListener(queryMessage.data.contextType, () => {
 								// TODO
-							})
+							});
 							break;
 						case "addIntentListener":
 							response = await this.desktopAgent!.addIntentListener(queryMessage.data.intent, () => {
 								// TODO
-							})
+							});
 							break;
 						case "broadcast":
 							response = await this.desktopAgent!.broadcast(queryMessage.data.context);
@@ -137,26 +147,22 @@ class FDC3Service extends BaseService {
 				} catch (err) {
 					queryMessage.sendQueryResponse(err, null);
 				}
-			})
+			});
 		}
 
-		const ChannelApiList = [
-			"addContextListener",
-			"broadcast",
-			"getCurrentContext"
-		];
+		const ChannelApiList = ["addContextListener", "broadcast", "getCurrentContext"];
 
 		for (const ApiCall of ChannelApiList) {
 			RouterClient.addResponder(`FDC3.Channel.${ApiCall}`, async (err: Error, queryMessage: any) => {
 				try {
-					const channel = this.channels[queryMessage.data.channel]
-					if (!channel) throw Error('Channel not found')
+					const channel = this.channels[queryMessage.data.channel];
+					if (!channel) throw Error("Channel not found");
 					let response;
 					switch (ApiCall) {
 						case "addContextListener":
 							response = await channel.addContextListener(queryMessage.data.contextType, () => {
 								// TODO
-							})
+							});
 							break;
 						case "broadcast":
 							response = await channel.broadcast(queryMessage.data);
@@ -169,22 +175,19 @@ class FDC3Service extends BaseService {
 				} catch (err) {
 					queryMessage.sendQueryResponse(err, null);
 				}
-			})
+			});
 		}
 	}
-
 }
 
-
-const serviceInstance = new
-	FDC3Service({
-		name: "FDC3",
-		startupDependencies: {
-			// add any services or clients that should be started before your service
-			services: ["authenticationService"],
-			clients: []
-		}
-	});
+const serviceInstance = new FDC3Service({
+	name: "FDC3",
+	startupDependencies: {
+		// add any services or clients that should be started before your service
+		services: ["authenticationService"],
+		clients: [],
+	},
+});
 
 serviceInstance.start();
 export default serviceInstance;

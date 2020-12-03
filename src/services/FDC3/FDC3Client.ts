@@ -3,8 +3,8 @@ import Channel from "./channelClient";
 
 declare global {
 	interface Window {
-		fdc3: DesktopAgent,
-		FSBL: typeof FSBL
+		fdc3: DesktopAgent;
+		FSBL: typeof FSBL;
 	}
 }
 
@@ -17,12 +17,12 @@ class FDC3Client {
 	desktopAgentsByChannel: { [key: string]: DesktopAgent } = {};
 	#wait: (time: number) => Promise<unknown> = (time: number) => {
 		return new Promise((resolve) => setTimeout(resolve, time));
-	}
+	};
 	#FSBL: typeof FSBL;
 	#log: any;
 
 	constructor(Finsemble?: typeof FSBL) {
-		this.#FSBL = win.FSBL || Finsemble
+		this.#FSBL = win.FSBL || Finsemble;
 		this.#log = this.#FSBL.Clients.Logger.log;
 
 		const setupAgents = async () => {
@@ -36,14 +36,17 @@ class FDC3Client {
 
 			// in strict mode you can only join one channel
 			if (this.#strict && linkerChannels.length) {
-				linkerChannels = [linkerChannels[0]]
+				linkerChannels = [linkerChannels[0]];
 			}
 
-			const channelsToRemove = linkerChannels.filter(channel => !validLinkerChannels.includes(channel));
+			const channelsToRemove = linkerChannels.filter((channel) => !validLinkerChannels.includes(channel));
 
 			// Unlink from everything the component should not be a member of
 			for (const channel of channelsToRemove) {
-				this.#FSBL.Clients.LinkerClient.unlinkFromChannel(channel, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
+				this.#FSBL.Clients.LinkerClient.unlinkFromChannel(
+					channel,
+					this.#FSBL.Clients.WindowClient.getWindowIdentifier()
+				);
 			}
 
 			// Since the linkerClient doesn't really wait properly
@@ -57,7 +60,6 @@ class FDC3Client {
 				}
 				const fdc3Ready = new Event("fdc3Ready");
 				window.dispatchEvent(fdc3Ready);
-
 			} else {
 				win.fdc3 = await this.getOrCreateDesktopAgent("global");
 				for (const channel of linkerChannels) {
@@ -80,7 +82,7 @@ class FDC3Client {
 					if (linkerChannels.length) {
 						// remove current channel
 						if (currentChannel) {
-							linkerChannels = linkerChannels.filter(channel => channel !== currentChannel.id);
+							linkerChannels = linkerChannels.filter((channel) => channel !== currentChannel.id);
 						}
 						await win.fdc3.joinChannel(linkerChannels[0]);
 					} else {
@@ -89,7 +91,7 @@ class FDC3Client {
 				} else {
 					const linkerChannels = Object.keys(this.#FSBL.Clients.LinkerClient.channels);
 					const desktopAgentChannels = Object.keys(this.desktopAgentsByChannel);
-					const desktopAgentsToRemove = desktopAgentChannels.filter(channel => !linkerChannels.includes(channel));
+					const desktopAgentsToRemove = desktopAgentChannels.filter((channel) => !linkerChannels.includes(channel));
 
 					// remove any desktop agents that need to be removed
 					for (const channel of desktopAgentsToRemove) {
@@ -106,10 +108,11 @@ class FDC3Client {
 				}
 			};
 
-			this.#FSBL.Clients.LinkerClient.onStateChange(async (err: any, data: any) => { await updateAgents(err, data) });
-		}
+			this.#FSBL.Clients.LinkerClient.onStateChange(async (err: any, data: any) => {
+				await updateAgents(err, data);
+			});
+		};
 		setupAgents();
-
 	}
 
 	/**
@@ -143,7 +146,7 @@ class FDC3Client {
 				delete this.desktopAgentsByChannel[leftChannel];
 				this.desktopAgents = Object.values(this.desktopAgentsByChannel);
 			}
-		}
+		};
 		desktopAgent.addListener("leftChannel", leaveChannelListener);
 
 		// What if someone changes the channel by calling joinChannel
@@ -151,7 +154,7 @@ class FDC3Client {
 			delete this.desktopAgentsByChannel[oldChannel];
 			this.desktopAgentsByChannel[newChannel] = desktopAgent;
 			this.desktopAgents = Object.values(this.desktopAgentsByChannel);
-		})
+		});
 		return desktopAgent;
 	}
 
@@ -164,7 +167,7 @@ class FDC3Client {
 		for (const desktopAgent of this.desktopAgents) {
 			try {
 				desktopAgent.broadcast(context);
-			} catch { }
+			} catch {}
 		}
 	}
 
@@ -173,13 +176,17 @@ class FDC3Client {
 	 */
 	async getSystemChannels() {
 		this.#log("FDC3Client: getSystemChannels");
-		const { err, response } = await this.#FSBL.Clients.RouterClient.query("FDC3.DesktopAgent.getSystemChannels", null, () => { });
+		const { err, response } = await this.#FSBL.Clients.RouterClient.query(
+			"FDC3.DesktopAgent.getSystemChannels",
+			null,
+			() => {}
+		);
 		if (err) {
 			throw err;
 		}
 		const channels: Array<Channel> = [];
 		for (const channelObject of response.data) {
-			channelObject.FSBL = this.#FSBL
+			channelObject.FSBL = this.#FSBL;
 			const channel = new Channel(channelObject);
 			channels.push(channel);
 		}
@@ -187,12 +194,10 @@ class FDC3Client {
 	}
 }
 
-
 console.log("FDC3Client");
 const setupFDC3Client = () => {
 	console.log("FSBL Ready");
 	(FSBL as any).Clients.FDC3Client = new FDC3Client();
-
 };
 
 // Startup pattern for preload. Preloads can come in any order, so we need to wait on either the window event or the

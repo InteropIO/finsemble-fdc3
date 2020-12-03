@@ -108,11 +108,7 @@ interface DesktopAgent {
 	 * agent.raiseIntent("StartChat", newContext, intentR.source);
 	 * ```
 	 */
-	raiseIntent(
-		intent: string,
-		context: Context,
-		target?: string
-	): Promise<IntentResolution>;
+	raiseIntent(intent: string, context: Context, target?: string): Promise<IntentResolution>;
 
 	/**
 	 * Adds a listener for incoming Intents from the Agent.
