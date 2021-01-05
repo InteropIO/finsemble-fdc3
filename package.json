@@ -5,7 +5,20 @@
   "main": "src/services/FDC3/FDC3Client.ts",
   "scripts": {
     "watch": "node ./fpe-scripts/watch.js",
-    "copy": "node ./fpe-scripts/watch.js copy"
+    "copy": "node ./fpe-scripts/watch.js copy",
+    "lint": "eslint . --ext .ts,.tsx",
+    "TSCheck": "tsc --noemit",
+    "lintTS": "npm TSCheck && npm lint",
+    "prettier": "prettier --write **/*.{ts,tsx,js,jsx} && prettier --write **/*.{json,yml,css,html,md}"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run TSCheck"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": "prettier --write --ignore-unknown"
   },
   "keywords": [
     "Finsemble",
@@ -16,13 +29,30 @@
   "author": "ChartIQ <support@finsemble.com> (https://www.chartiq.com/finsemble/)",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
-    "chokidar": "^3.4.0",
-    "fs-extra": "^9.0.0",
+    "@finsemble/finsemble-core": "^5.1.3",
+    "@types/node": "^14.14.2",
+    "@types/react": "^16.14.2",
+    "@types/react-syntax-highlighter": "^13.5.0",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
     "chalk": "^4.1.0",
-    "dotenv": "^8.2.0"
+    "chokidar": "^3.4.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb-typescript": "^12.0.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "fs-extra": "^9.0.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.2",
+    "prettier": "2.2.1",
+    "typescript": "^3.9.5"
   },
   "dependencies": {
-    "react-syntax-highlighter": "^13.5.1",
-    "typescript": "^3.9.5"
+    "react": "^17.0.1",
+    "react-syntax-highlighter": "^13.5.1"
   }
 }

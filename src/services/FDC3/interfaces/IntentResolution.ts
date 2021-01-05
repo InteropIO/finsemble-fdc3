@@ -14,7 +14,7 @@
  * ```
  */
 interface IntentResolution {
-    source: string;
-    data?: object;
-    version: string;
+	source: string;
+	data?: object;
+	version: string;
 }

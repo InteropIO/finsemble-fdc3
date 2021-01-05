@@ -1,7 +1,7 @@
 const Finsemble = require("@finsemble/finsemble-core");
 
-const FDC3Client = require('../FDC3/FDC3Client').default
-const { log, error } = Finsemble.Clients.Logger
+const FDC3Client = require("../FDC3/FDC3Client").default;
+const { log, error } = Finsemble.Clients.Logger;
 Finsemble.Clients.Logger.start();
 Finsemble.Clients.Logger.log("TestFDC3 Service starting up");
 
@@ -60,14 +60,13 @@ class testFDC3Service extends Finsemble.baseService {
 					// "storageClient",
 					// "windowClient",
 					// "workspaceClient",
-				]
-			}
+				],
+			},
 		});
 
 		this.readyHandler = this.readyHandler.bind(this);
 		this.fdc3Ready = this.fdc3Ready.bind(this);
 		this.onBaseServiceReady(this.readyHandler);
-
 	}
 
 	/**
@@ -77,7 +76,7 @@ class testFDC3Service extends Finsemble.baseService {
 	readyHandler(callback) {
 		this.createRouterEndpoints();
 		Finsemble.Clients.Logger.log("TestFDC3 Service ready");
-		this.fdc3Ready(this.fdc3Example)
+		this.fdc3Ready(this.fdc3Example);
 		callback();
 	}
 
@@ -90,12 +89,12 @@ class testFDC3Service extends Finsemble.baseService {
 		window.FSBL = {};
 		FSBL.Clients = Finsemble.Clients;
 		this.FDC3Client = new FDC3Client(Finsemble);
-		window.addEventListener("fdc3Ready", () => fns.map(fn => fn()));
+		window.addEventListener("fdc3Ready", () => fns.map((fn) => fn()));
 	}
 
 	fdc3Example() {
-		const systemChannels = fdc3.getSystemChannels()
-		console.log(systemChannels)
+		const systemChannels = fdc3.getSystemChannels();
+		console.log(systemChannels);
 	}
 
 	// Implement service functionality
@@ -114,7 +113,7 @@ class testFDC3Service extends Finsemble.baseService {
 				return Finsemble.Clients.Logger.error("Failed to setup TestFDC3.myFunction responder", err);
 			}
 
-			Finsemble.Clients.Logger.log('TestFDC3 Query: ' + JSON.stringify(message));
+			Finsemble.Clients.Logger.log("TestFDC3 Query: " + JSON.stringify(message));
 
 			try {
 				// Data in query message can be passed as parameters to a method in the service.

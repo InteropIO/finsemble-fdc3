@@ -1,65 +1,63 @@
 {
-  "components": {
-    "FDC3Tester": {
-      "window": {
-        "url": "$applicationRoot/components/FDC3Tester/FDC3Tester.html",
-        "options": {
-          "resizable": true,
-          "autoShow": true,
-          "alwaysOnTop": false
-        },
-        "top": "center",
-        "left": "center",
-        "width": 800,
-        "height": 600
-      },
-      "component": {
-        "mode": "fdc3",
-        "preload": "$applicationRoot/preloads/FDC3Client.js",
-        "spawnOnStartup": false,
-        "singleton": false,
-        "category": "system",
-        "showDevConsoleOnVisible": false
-      },
-      "foreign": {
-        "services": {
-          "windowService": {
-            "manageWindowMovement": true,
-            "allowAutoArrange": true,
-            "allowSnapping": true,
-            "allowTabbing": true,
-            "allowTiling": true,
-            "allowGrouping": true,
-            "allowMinimize": true
-          },
-          "fdc3": {
-            "intents": [
-              {
-                "name": "ViewChart",
-                "displayName": "ViewChart",
-                "contexts": [
-                  "fdc3.contact"
-                ]
-              }
-            ]
-          }
-        },
-        "components": {
-          "App Launcher": {
-            "launchableByUser": true
-          },
-          "Window Manager": {
-            "alwaysOnTopIcon": false,
-            "showLinker": true,
-            "title": "FDC3Tester",
-            "persistWindowState": true
-          },
-          "Toolbar": {
-            "iconClass": "FDC3Tester",
-            "iconURL": "$applicationRoot/components/FDC3Tester/fdc3-icon.png"
-          }
-        }
-      }
-    }
-  }
+	"components": {
+		"FDC3Tester": {
+			"window": {
+				"url": "$applicationRoot/components/FDC3Tester/FDC3Tester.html",
+				"options": {
+					"resizable": true,
+					"autoShow": true,
+					"alwaysOnTop": false
+				},
+				"top": "center",
+				"left": "center",
+				"width": 800,
+				"height": 600
+			},
+			"component": {
+				"mode": "fdc3",
+				"preload": "$applicationRoot/preloads/FDC3Client.js",
+				"spawnOnStartup": false,
+				"singleton": false,
+				"category": "system",
+				"showDevConsoleOnVisible": false
+			},
+			"foreign": {
+				"services": {
+					"windowService": {
+						"manageWindowMovement": true,
+						"allowAutoArrange": true,
+						"allowSnapping": true,
+						"allowTabbing": true,
+						"allowTiling": true,
+						"allowGrouping": true,
+						"allowMinimize": true
+					},
+					"fdc3": {
+						"intents": [
+							{
+								"name": "ViewChart",
+								"displayName": "ViewChart",
+								"contexts": ["fdc3.contact"]
+							}
+						]
+					}
+				},
+				"components": {
+					"App Launcher": {
+						"launchableByUser": true
+					},
+					"Window Manager": {
+						"alwaysOnTopIcon": false,
+						"showLinker": true,
+						"title": "FDC3Tester",
+						"persistWindowState": true
+					},
+					"Toolbar": {
+						"iconClass": "FDC3Tester",
+						"iconURL": "$applicationRoot/components/FDC3Tester/fdc3-icon.png"
+					}
+				}
+			}
+		}
+	}
 }
