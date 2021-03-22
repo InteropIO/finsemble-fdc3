@@ -4,22 +4,26 @@
 - [Intro to FDC3](#intro-to-fdc3)
 - [Getting Started](#getting-started)
   - [Installation](#installation)
-    - [Quick Install Steps](#quick-install-steps)
+      - [Quick Install Steps](#quick-install-steps)
   - [Using FDC3 in Finsemble](#using-fdc3-in-finsemble)
     - [FDC3 in Finsemble Components](#fdc3-in-finsemble-components)
+      - [Component Config](#component-config)
+        - [Preload](#preload)
+        - [Toolbar Icon URL](#toolbar-icon-url)
+        - [FDC3 configuration](#fdc3-configuration)
     - [FDC3 in Finsemble Services](#fdc3-in-finsemble-services)
   - [API](#api)
     - [App](#app)
     - [Context](#context)
     - [Intents](#intents)
     - [Channels](#channels)
-  - [Example use cases](#example-use-cases)
+  - [Example use cases:](#example-use-cases)
   - [FDC3 in Finsemble Dot-Net Components](#fdc3-in-finsemble-dot-net-components)
-    - [API](#dot-net-api)
-      - [App](#dot-net-app)
-      - [Context](#ot-net-context)
-      - [Intents](#ot-net-intents)
-      - [Channels](#ot-net-channels)
+    - [Dot-Net API](#dot-net-api)
+      - [Dot-Net App](#dot-net-app)
+      - [Dot-Net Context](#dot-net-context)
+      - [Dot-Net Intents](#dot-net-intents)
+      - [Dot-Net Channels](#dot-net-channels)
 
 # Intro to FDC3
 
@@ -131,7 +135,7 @@ Example:
 
 ### FDC3 in Finsemble Services
 
-The Finsemble FDC3 client may also be used in Finsemble services, where it is imported into the service implementation. Please see our [exampleFDC3Service](./src/services/testFDC3) for an example of how to structure your service to work with FDC3.
+The Finsemble FDC3 client may also be used in Finsemble services, where it is imported into the service implementation. Please see our in depth [documentation](./src/services/README.MD) and the example [exampleFDC3Service](./src/services/exampleFDC3Service).
 
 ## API
 
@@ -520,7 +524,7 @@ To enable FDC3 in you Dot-Net components, in you dot-net component config set <c
 <tr>
   <td>
   <code>IListener addContextListener(String contextType, EventHandler< JObject > handler);
-  
+
   IListener addContextListener(EventHandler< JObject > handler);</code>
   </td>
   <td>Listen to broadcast context on the channel the app is currently join to. We default applications to join on the Global Channel.</td>
@@ -543,7 +547,7 @@ FSBL.FDC3Client.fdc3.addContextListener("fdc3.instrument", (s, context) => {});<
 <tbody>
 <tr>
   <td><code>void findIntent(String intent, JObject context, EventHandler< JObject > cb);
-  
+
   void findIntent(String intent, EventHandler< JObject > cb);</code></td>
   <td>List all the applications that can deal with a certain intent.</td>
   <td><code>FSBL.FDC3Client.fdc3.findIntent("ViewChart", (s, intent) =>{ });</code></td>

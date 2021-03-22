@@ -1,7 +1,7 @@
 {
-  "comment": "Houses config for any custom services that you'd like to import into Finsemble.",
+  "comment": "Example of how to use FDC3 in a service",
   "services": {
-    "testFDC3": {
+    "exampleFDC3": {
       "bootParams": {
         "stage": "user",
         "stopOnFailure": false,
@@ -14,10 +14,10 @@
       },
       "useWindow": true,
       "active": true,
-      "name": "testFDC3",
-      "file": "$applicationRoot/services/testFDC3/testFDC3Service.js",
+      "name": "exampleFDC3",
+      "file": "$applicationRoot/services/exampleFDC3/exampleFDC3Service.js",
       "visible": false,
-      "html": "$applicationRoot/services/testFDC3/testFDC3.html"
+      "html": "$applicationRoot/services/exampleFDC3/exampleFDC3.html"
     }
   }
 }
