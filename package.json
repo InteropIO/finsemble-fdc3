@@ -1,6 +1,6 @@
 {
   "name": "finsemble-fdc3",
-  "version": "5.1.2",
+  "version": "5.2.0",
   "description": "Finsemble FDC3 Desktop Agent implementation. See https://github.com/ChartIQ/finsemble-fdc3 for details",
   "main": "src/services/FDC3/FDC3Client.ts",
   "scripts": {
