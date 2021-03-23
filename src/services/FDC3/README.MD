@@ -179,7 +179,6 @@ To get started with the API you will need to use the Finsemble FDC3 DesktopAgent
 <br/>
 
 ### Context
-
 <table>
 <thead>
 <tr>
@@ -219,7 +218,6 @@ To get started with the API you will need to use the Finsemble FDC3 DesktopAgent
 <br/>
 
 ### Intents
-
 <table>
 <thead>
 <tr>
@@ -267,7 +265,6 @@ context => { //do something here  }
 ### Channel
 
 A channel has this interface:
-
 ```
 interface Channel {
   // properties
@@ -320,7 +317,6 @@ interface Channel {
 ## Example use cases:
 
 ### I know the app I want to open (it's a ChartIQ chart), I also need to send data to the chart, how do I do this?
-
 You can raise an intent. Once the intent has been raised it will show all the apps capable of dealing with your intent in the intent resolver. This works in a similar fashion to your phone when you want to share a link or open a calendar invite and it asks which application you would like to use.
 **Code example: **
 <code>fdc3.raiseIntent('ViewChart')</code>
@@ -362,7 +358,6 @@ interface Context {
     [x: string]: any;
 }
 ```
-
 An example of a finsemble custom type may look like this:
 
 ```

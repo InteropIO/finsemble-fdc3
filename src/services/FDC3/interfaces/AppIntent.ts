@@ -4,9 +4,9 @@
  */
 
 /**
-* An interface that relates an intent to apps
-*/
+ * An interface that relates an intent to apps
+ */
 interface AppIntent {
-    intent: IntentMetadata;
-    apps: Array<AppMetadata>;
+	intent: IntentMetadata;
+	apps: Array<AppMetadata>;
 }

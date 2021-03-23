@@ -2,16 +2,17 @@ import Channel from "./channel";
 // import * as standardIntents from './intents/standard intents.json'
 
 interface AppIntentContexts {
-	app: AppMetadata,
-	intent: IntentMetadata,
-	contexts: Array<string>
+	app: AppMetadata;
+	intent: IntentMetadata;
+	contexts: Array<string>;
 }
 
 // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 const hashFnv32a = (str: string, asString: boolean, seed?: number) => {
 	/*jshint bitwise:false */
-	var i, l,
-		hval = (seed === undefined) ? 0x811c9dc5 : seed;
+	let i,
+		l,
+		hval = seed === undefined ? 0x811c9dc5 : seed;
 
 	for (i = 0, l = str.length; i < l; i++) {
 		hval ^= str.charCodeAt(i);
@@ -19,10 +20,10 @@ const hashFnv32a = (str: string, asString: boolean, seed?: number) => {
 	}
 	if (asString) {
 		// Convert to 8 digit hex string
-		return ("0000000" + (Math.abs(hval >>> 0)).toString(16)).substr(-6);
+		return ("0000000" + Math.abs(hval >>> 0).toString(16)).substr(-6);
 	}
 	return hval >>> 0;
-}
+};
 
 export default class D implements DesktopAgent {
 	FSBL: typeof FSBL;
@@ -35,7 +36,7 @@ export default class D implements DesktopAgent {
 	appIntents: { [key: string]: AppIntent } = {};
 	appIntentsContext: { [key: string]: { [key: string]: AppIntent } } = {};
 	apps: { [key: string]: AppMetadata } = {};
-	windowName: string;
+	windowName = "";
 	globalChannel: Channel;
 
 	constructor(params: any) {
@@ -48,9 +49,9 @@ export default class D implements DesktopAgent {
 			id: "global",
 			type: "system",
 			displayMetadata: {
-				name: "global"
+				name: "global",
 			},
-			FSBL: this.FSBL
+			FSBL: this.FSBL,
 		});
 
 		// Make sure all existing Linker Channels get added to systemChannels. Any new channels created later will not.
@@ -60,50 +61,47 @@ export default class D implements DesktopAgent {
 
 	private setupApps() {
 		this.RouterClient.subscribe("Launcher.update", (err: any, response: any) => {
-			if (err) throw Error(err)
+			if (err) throw Error(err);
 
 			this.appIntents = {};
 			this.apps = {};
 
-			const components: { component: any, foreign: any }[] = Object.values(response.data.componentList);
-
+			const components: { component: any; foreign: any }[] = Object.values(response.data.componentList);
 
 			for (const componentConfig of components) {
 				// const component: any = c; // putting component:any in the loop itself results in it being unknown instead of any.
-				const { component, foreign } = componentConfig
+				const { component, foreign } = componentConfig;
 				try {
 					// component needs to have a name
-					if (!component?.type) throw Error("Component does not have a type")
-
+					if (!component?.type) throw Error("Component does not have a type");
 
 					const appMetadata: AppMetadata = {
 						name: component?.type,
 						title: component?.displayName,
 						tooltip: component?.displayName,
-						icons: [foreign?.components?.Toolbar?.iconURL]
-					}
+						icons: [foreign?.components?.Toolbar?.iconURL],
+					};
 					this.apps[appMetadata.name] = appMetadata;
-
 
 					const intents = foreign?.services?.fdc3?.intents;
 					if (intents && intents.length) {
 						for (const intentConfig of intents) {
 							const intent: IntentMetadata = {
 								name: intentConfig.name,
-								displayName: intentConfig.displayName
+								displayName: intentConfig.displayName,
 							};
 
 							// add the intent if it does not exist then push the metadata to it
 							if (!this.appIntents[intent.name]) {
 								this.appIntents[intent.name] = {
 									intent,
-									apps: []
-								}
+									apps: [],
+								};
 								this.appIntents[intent.name].apps.push(appMetadata);
 							} else {
 								//don't add duplicates, replace instead
-								let idx = this.appIntents[intent.name].apps.findIndex((app) => app.name == appMetadata.name);
-								if (idx == -1){
+								const idx = this.appIntents[intent.name].apps.findIndex((app) => app.name == appMetadata.name);
+								if (idx == -1) {
 									this.appIntents[intent.name].apps.push(appMetadata);
 								} else {
 									this.appIntents[intent.name].apps[idx] = appMetadata;
@@ -112,9 +110,7 @@ export default class D implements DesktopAgent {
 
 							const contexts = intentConfig.contexts;
 							if (contexts && contexts.length) {
-
 								for (const context of contexts) {
-
 									if (!this.appIntentsContext[context]) {
 										this.appIntentsContext[context] = {};
 									}
@@ -122,12 +118,14 @@ export default class D implements DesktopAgent {
 									if (!this.appIntentsContext[context][intent.name]) {
 										this.appIntentsContext[context][intent.name] = {
 											intent,
-											apps: []
+											apps: [],
 										};
 										this.appIntentsContext[context][intent.name].apps.push(appMetadata);
 									} else {
 										//don't add duplicates, replace instead
-										let idx = this.appIntentsContext[context][intent.name].apps.findIndex((app) => app.name == appMetadata.name);
+										const idx = this.appIntentsContext[context][intent.name].apps.findIndex(
+											(app) => app.name == appMetadata.name
+										);
 										if (idx == -1) {
 											this.appIntentsContext[context][intent.name].apps.push(appMetadata);
 										} else {
@@ -136,12 +134,10 @@ export default class D implements DesktopAgent {
 									}
 								}
 							}
-
 						}
-
 					}
 				} catch (err) {
-					this.FSBL.Clients.Logger.error("setupAppsError: " + err)
+					this.FSBL.Clients.Logger.error("setupAppsError: " + err);
 				}
 			}
 			console.log(this.apps);
@@ -167,19 +163,16 @@ export default class D implements DesktopAgent {
 
 	addContextListener(handler: ContextHandler): Listener;
 	addContextListener(contextType: string, handler: ContextHandler): Listener;
-	addContextListener(
-		contextType: string | ContextHandler,
-		handler?: ContextHandler
-	): Listener {
+	addContextListener(contextType: string | ContextHandler, handler?: ContextHandler): Listener {
 		throw new Error("Method not implemented in Service. Use Client.");
 	}
 
 	/** ___________Intents ___________ */
 
 	async findIntent(intent: string, context?: Context): Promise<AppIntent> {
-		let appIntent: AppIntent;
+		let appIntent: AppIntent | undefined = undefined;
 		if (context) {
-			const contextType = (context as any).type;
+			const contextType = context.type;
 			if (this.appIntentsContext[contextType]) {
 				appIntent = this.appIntentsContext[contextType][intent];
 			}
@@ -191,7 +184,7 @@ export default class D implements DesktopAgent {
 	}
 
 	async findIntentsByContext(context: Context): Promise<Array<AppIntent>> {
-		const intents = this.appIntentsContext[(context as any).type];
+		const intents = this.appIntentsContext[context.type];
 		if (intents) {
 			return Object.values(intents);
 		}
@@ -205,10 +198,12 @@ export default class D implements DesktopAgent {
 		}
 
 		return new Promise((resolve, reject) => {
-
 			const dialogParams = {
-				appIntent, context, target: target || null, source: this.windowName
-			}
+				appIntent,
+				context,
+				target: target || null,
+				source: this.windowName,
+			};
 			// Launch intent resolver component
 			this.DialogManager.open("intentResolverModal", dialogParams, (err: any, data: any) => {
 				if (err) {
@@ -222,14 +217,12 @@ export default class D implements DesktopAgent {
 						const intentResolution: IntentResolution = {
 							source: data.source,
 							data,
-							version: "1.1"
-						}
+							version: "1.1",
+						};
 						resolve(intentResolution);
 					}
 				}
 			});
-
-
 		});
 	}
 
@@ -271,7 +264,7 @@ export default class D implements DesktopAgent {
 		return channels;
 	}
 
-	private findChannel(channelId: string): Channel {
+	private findChannel(channelId: string): Channel | null {
 		const systemChannel = this.systemChannels.find((channel) => channel.id === channelId);
 		if (systemChannel) {
 			return systemChannel;
@@ -299,11 +292,14 @@ export default class D implements DesktopAgent {
 			throw new Error(`Channel ${channelId} already exists`);
 		}
 
-		const channelColor = '#' + hashFnv32a(channelId, true); // generate a color
-		this.LinkerClient.createChannel({
-			name: channelId,
-			color: channelColor,
-		}, () => { });
+		const channelColor = "#" + hashFnv32a(channelId, true); // generate a color
+		this.LinkerClient.createChannel(
+			{
+				name: channelId,
+				color: channelColor,
+			},
+			() => {}
+		);
 		const channel = new Channel({
 			id: channelId,
 			type: "app",

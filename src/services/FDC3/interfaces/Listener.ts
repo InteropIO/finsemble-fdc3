@@ -4,8 +4,8 @@
  */
 
 interface Listener {
-    /**
-     * Unsubscribe the listener object.
-     */
-    unsubscribe(): void;
+	/**
+	 * Unsubscribe the listener object.
+	 */
+	unsubscribe(): void;
 }
