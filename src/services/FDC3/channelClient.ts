@@ -62,26 +62,20 @@ export default class C implements Channel {
 		}
 
 		//only send the context data on if it did not get broadcast from this window
-		const messageLoopPrevention = (_arg1: string | Error | null, { data }: { data: any }) =>
-			data.source !== currentWindowName && theHandler && theHandler(data.context);
+		const messageLoopPrevention = (
+			_arg1: string | Error | null,
+			response: { data: { source: string; channel: string; context: object } }
+		) => response.data.source !== currentWindowName && channelFilter(response.data);
 
-		if (this.id == "global") {
-			this.#FSBL.Clients.RouterClient.addListener(theListenerName, messageLoopPrevention);
+		const channelFilter = (data: { source: string; channel: string; context: object }) =>
+			this.id == data.channel && theHandler && theHandler(data.context);
 
-			return {
-				unsubscribe: () => {
-					this.#FSBL.Clients.RouterClient.removeListener(theListenerName, messageLoopPrevention);
-				},
-			};
-		} else {
-			this.#FSBL.Clients.LinkerClient.linkToChannel(this.id, this.#FSBL.Clients.WindowClient.getWindowIdentifier());
-			this.#FSBL.Clients.LinkerClient.subscribe(theListenerName, messageLoopPrevention);
+		this.#FSBL.Clients.RouterClient.addListener(theListenerName, messageLoopPrevention);
 
-			return {
-				unsubscribe: () => {
-					this.#FSBL.Clients.LinkerClient.unsubscribe(theListenerName, messageLoopPrevention);
-				},
-			};
-		}
+		return {
+			unsubscribe: () => {
+				this.#FSBL.Clients.RouterClient.removeListener(theListenerName, messageLoopPrevention);
+			},
+		};
 	}
 }

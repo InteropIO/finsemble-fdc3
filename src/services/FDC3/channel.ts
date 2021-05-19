@@ -39,33 +39,11 @@ export default class C implements Channel {
 		this.currentContext = data;
 		this.contexts[context.type] = data;
 
-		if (this.id === "global") {
-			// Broadcast to listeners that are listening on specific contexts
-			this.#FSBL.Clients.RouterClient.transmit(`FDC3.broadcast.${type}`, data);
+		// Broadcast to listeners that are listening on specific contexts
+		this.#FSBL.Clients.RouterClient.transmit(`FDC3.broadcast.${type}`, data);
 
-			// Broadcast to listeners listening to everything on a channel
-			this.#FSBL.Clients.RouterClient.transmit(`FDC3.broadcast`, data);
-		} else {
-			// Broadcast to listeners that are listening on specific contexts
-			this.#FSBL.Clients.LinkerClient.publish(
-				{
-					dataType: `FDC3.broadcast.${type}`,
-					data,
-					channels: [this.id],
-				},
-				() => {}
-			);
-
-			// Broadcast to listeners listening to everything on a channel
-			this.#FSBL.Clients.LinkerClient.publish(
-				{
-					dataType: `FDC3.broadcast`,
-					data,
-					channels: [this.id],
-				},
-				() => {}
-			);
-		}
+		// Broadcast to listeners listening to everything on a channel
+		this.#FSBL.Clients.RouterClient.transmit(`FDC3.broadcast`, data);
 	}
 
 	async getCurrentContext(contextType?: string): Promise<Context | null> {
